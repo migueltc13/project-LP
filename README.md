@@ -1,5 +1,7 @@
 # Language Processing <br/> *Processamento de Linguagens*
 
+## Resources
+
 - [EWVM](https://ewvm.epl.di.uminho.pt/)
 - [FORTRAN 77 Reference Language | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
 - [FORTRAN 77 Reference Language Manual | Innsbruck](http://physik.uibk.ac.at/hephy/praktikum/fortran_manual.pdf)
