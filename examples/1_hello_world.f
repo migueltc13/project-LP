@@ -1,3 +1,3 @@
-      PROGRAM HELLO_WORLD
-      PRINT *, 'Hello, World!'
-      END
+       PROGRAM HELLO_WORLD
+       PRINT *, 'Hello, World!'
+       END
