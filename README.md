@@ -13,8 +13,8 @@
 ```mermaid
 graph LR
     %% Source Files
-    F77[example.f - Fixed-format]
-    F90[example.f90 - Free-format]
+    %% F77[example.f - Fixed-format]
+    %% F90[example.f90 - Free-format]
 
     %% Preprocessing Layer
     subgraph Preprocessor
@@ -23,7 +23,7 @@ graph LR
     end
 
     %% Unified Path
-    UNIFIED[Unified Pseudo-Fortran]
+    %% UNIFIED[Unified Pseudo-Fortran]
 
     %% Analysis
     LEX[Lexer]
@@ -33,12 +33,19 @@ graph LR
     OPT[Optimizations]
     GEN[Code Generation]
 
+    %% Connections with (source files and unified pseudo-Fortran)
+    %% F77 --> P_FIXED
+    %% F90 --> P_FREE
+    %% P_FIXED --> UNIFIED
+    %% P_FREE --> UNIFIED
+    %% UNIFIED --> LEX
+    %% LEX --> YACC
+    %% YACC --> OPT
+    %% OPT --> GEN
+
     %% Connections
-    F77 --> P_FIXED
-    F90 --> P_FREE
-    P_FIXED --> UNIFIED
-    P_FREE --> UNIFIED
-    UNIFIED --> LEX
+    P_FIXED --> LEX
+    P_FREE --> LEX
     LEX --> YACC
     YACC --> OPT
     OPT --> GEN
