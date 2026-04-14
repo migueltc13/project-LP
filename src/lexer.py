@@ -248,6 +248,8 @@ if __name__ == "__main__":
     )
     parser.add_argument("--format", choices=["fixed", "free"], default="fixed",
                         help="The source format (default: fixed)")
+    parser.add_argument("--test", action="store_true",
+                        help="Output tokens in a test-friendly format (no cols are printed)")
     args = parser.parse_args()
 
     import sys
@@ -258,5 +260,9 @@ if __name__ == "__main__":
 
     lexer.input(code)
 
-    for tok in lexer:
-        print(tok)
+    if not args.test:
+        for tok in lexer:
+            print(tok)
+    else:
+        for tok in lexer:
+            print(f"LexToken({tok.type}, {repr(tok.value)}, {tok.lineno})")
