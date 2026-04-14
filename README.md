@@ -8,6 +8,16 @@
 - [FORTRAN 77 | Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
 - [FORTRAN 77 Standard Fixed Format | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
 
+## TODO list
+
+- [ ] Make preprocessor O(N)
+- [ ] Add CONT token in preprocessor for line skip at lexer
+- [ ] Use states in lexer to catch more errors
+    (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
+- [ ] Add lexer tests
+    - [ ] strings (escaped delimiter, multiline, etc.)
+- [ ] Write equivalent .f90 (free-format) at examples/
+
 ## Compiler Pipeline
 
 ```mermaid
