@@ -243,6 +243,9 @@ lexer = lex.lex()
 
 if __name__ == "__main__":
     import argparse
+    import sys
+    from preprocessor import preprocess
+
     parser = argparse.ArgumentParser(
         description="Run lexical analysis on Fortran source code."
     )
@@ -250,15 +253,24 @@ if __name__ == "__main__":
                         help="The source format (default: fixed)")
     parser.add_argument("--test", action="store_true",
                         help="Output tokens in a test-friendly format (no cols are printed)")
+    parser.add_argument("--no-preprocess", action="store_true", default=False,
+                        help="Skip preprocessing and lex the raw input directly")
     args = parser.parse_args()
 
-    import sys
-    raw_input = sys.stdin.read()
+    stdin_input = sys.stdin.read()
 
-    from preprocessor import preprocess
-    code = preprocess(raw_input, format=args.format)
+    if not args.no_preprocess:
+        try:
+            preprocessed = preprocess(stdin_input, format=args.format)
+        except Exception as e:
+            print(f"Preprocessing error: {e}")
+            sys.exit(1)
 
-    lexer.input(code)
+    try:
+        lexer.input(stdin_input)
+    except Exception as e:
+        print(f"Lexing error: {e}")
+        sys.exit(1)
 
     if not args.test:
         for tok in lexer:
