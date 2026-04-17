@@ -52,6 +52,6 @@ class TestFortranExamples(unittest.TestCase):
                 self.assertTrue(len(tokens) > 0, f"O ficheiro {filepath} não gerou nenhum token.")
 
 
-# Run: python -m unittest tests/test_lexer.py
+# Run: python -m unittest tests/lexer.py
 if __name__ == "__main__":
     unittest.main()
