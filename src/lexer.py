@@ -258,7 +258,7 @@ if __name__ == "__main__":
 
     if not args.no_preprocess:
         try:
-            preprocessed = preprocess(stdin_input, format=args.format)
+            stdin_input = preprocess(stdin_input, format=args.format)
         except Exception as e:
             print(f"Preprocessing error: {e}")
             sys.exit(1)
