@@ -15,7 +15,6 @@
 - [ ] Add lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
-- [ ] Add CD/CI
 
 ## Compiler Pipeline
 
