@@ -10,13 +10,12 @@
 
 ## TODO list
 
-- [ ] Make preprocessor O(N)
-- [ ] Add CONT token in preprocessor for line skip at lexer
 - [ ] Use states in lexer to catch more errors
     (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
 - [ ] Add lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
+- [ ] Add CD/CI
 
 ## Compiler Pipeline
 
