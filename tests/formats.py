@@ -20,8 +20,8 @@ def pretty_diff(f90_out: str, f_out: str, indent: int = 4):
         f_out.splitlines(keepends=True),
     )
 
-    print(f"{' ' * indent}--- {C["red_bg"]}Free-format output (.f90){C['rst']}")
-    print(f"{' ' * indent}+++ {C["grn_bg"]}Fixed-format output (.f){C['rst']}")
+    print(f"{' ' * indent}--- {C['red_bg']}Free-format output (.f90){C['rst']}")
+    print(f"{' ' * indent}+++ {C['grn_bg']}Fixed-format output (.f){C['rst']}")
 
     for line in diff:
         # Separate content and newline
