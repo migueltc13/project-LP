@@ -85,10 +85,7 @@ tokens = [
 # Literals
 ###
 
-# Using literals for delimiters simplifies grammar rules.
-# These characters will be returned as tokens automatically.
-
-literals = ['(', ')', ',', ':', '=']
+literals = ['(', ')', ',', ':', '=', '&']
 
 ###
 # Mathematical operators
