@@ -1,3 +1,5 @@
+[![Run all tests](https://github.com/migueltc13/project-LP/actions/workflows/tests.yml/badge.svg)](https://github.com/migueltc13/project-LP/actions/workflows/tests.yml)
+
 # Language Processing <br/> *Processamento de Linguagens*
 
 ## Resources
