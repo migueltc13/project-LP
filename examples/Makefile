@@ -11,7 +11,7 @@ TARGETS=$(FIXED_TARGETS) $(FREE_TARGETS)
 
 BIN_DIR=bin
 
-.PHONY: all clean
+.PHONY: all install clean
 
 all: $(BIN_DIR) $(TARGETS)
 
@@ -23,6 +23,9 @@ $(BIN_DIR)/%_f: %.f
 
 $(BIN_DIR)/%_f90: %.f90
 	$(FC) -ffree-form $< -o $@
+
+install:
+	sudo apt install -y gfortran
 
 clean:
 	rm -rf $(BIN_DIR)/*  # Keeps .gitignore
