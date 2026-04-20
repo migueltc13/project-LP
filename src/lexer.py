@@ -61,9 +61,9 @@ tokens = [
     # using tokens allow simpler to attach semantic meaning or precedence later.
     'PLUS',
     'MINUS',
-    'TIMES',
     'DIVIDE',
     'POWER',
+    'ASTERISK', # Asterisk is used in various contexts
 
     # Dot relational operators
     'EQ',
@@ -93,9 +93,9 @@ literals = ['(', ')', ',', ':', '=', '&']
 
 t_PLUS   = r'\+'
 t_MINUS  = r'-'
-t_TIMES  = r'\*'
 t_DIVIDE = r'/'
 t_POWER  = r'\*\*'
+t_ASTERISK = r'\*'
 
 ###
 # Dot operators
