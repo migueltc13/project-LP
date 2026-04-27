@@ -1,2 +1,4 @@
 **/__pycache__/
 venv/
+src/parser.out
+src/parsetab.py
