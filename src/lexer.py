@@ -63,7 +63,7 @@ tokens = [
     'MINUS',
     'DIVIDE',
     'POWER',
-    'ASTERISK', # Asterisk is used in various contexts
+    'ASTERISK',  # Asterisk is used in various contexts
 
     # Dot relational operators
     'EQ',
@@ -91,10 +91,10 @@ literals = ['(', ')', ',', ':', '=', '&']
 # Mathematical operators
 ###
 
-t_PLUS   = r'\+'
-t_MINUS  = r'-'
-t_DIVIDE = r'/'
-t_POWER  = r'\*\*'
+t_PLUS     = r'\+'
+t_MINUS    = r'-'
+t_DIVIDE   = r'/'
+t_POWER    = r'\*\*'
 t_ASTERISK = r'\*'
 
 ###
