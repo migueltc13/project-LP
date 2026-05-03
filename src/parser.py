@@ -2,6 +2,7 @@
 
 import ply.yacc as yacc
 from lexer import lexer, tokens
+from parser_rules.conditionals import *
 
 # TODO Add implicit/explicit typing rules
 
@@ -81,21 +82,6 @@ def p_statement(p):
     """
 
 ###
-# Conditionals
-###
-
-def p_if_statement(p):
-    """
-    if_statement : IF expression THEN statements if_statement_rest ENDIF
-    """
-
-def p_if_statement_rest(p):
-    """
-    if_statement_rest : ELSE statements
-                      |
-    """
-
-###
 # Loops
 ###
 
@@ -107,6 +93,7 @@ def p_if_statement_rest(p):
 
 def p_error(p):
     print(f"Syntax error at '{p.value}' (line {p.lineno})")
+
 
 # TODO rename output files
 parser = yacc.yacc()
