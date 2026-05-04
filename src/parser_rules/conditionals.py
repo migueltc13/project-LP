@@ -1,6 +1,9 @@
-# Conditionals
+# Conditional grammar used by the parser.
 
-# TODO: Add ELSEIF support
+# This module handles the structured IF form supported by the lexer:
+# IF ... THEN ... [ELSE ...] ENDIF.
+
+# TODO: Add support for ELSEIF
 
 def p_if_statement(p):
     """
@@ -15,7 +18,7 @@ def p_if_statement_rest(p):
     if_statement_rest : ELSE statements
                       | empty
     """
-    # AST node: if there's an else branch, pass the statements up the tree;
+    # The ELSE branch is optional, so the empty production maps to None.
     if len(p) == 3:
         p[0] = p[2]
     else:
