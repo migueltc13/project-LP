@@ -12,107 +12,115 @@ def p_expression(p):
 
 def p_logical_or(p):
     """
-    logical_or : logical_or OR logical_and
+    logical_or : logical_or OR continuation_opt logical_and
                | logical_and
     """
     # AST node: if it's a logical OR, create a node with the operator and operands
     # Otherwise, just pass the logical AND expression up the tree
-    if len(p) == 4:
-        p[0] = ('logical', p[2], p[1], p[3])
+    if len(p) == 5:
+        p[0] = ('logical', p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
 
 def p_logical_and(p):
     """
-    logical_and : logical_and AND relational
+    logical_and : logical_and AND continuation_opt relational
                 | relational
     """
     # AST node: if it's a logical AND, create a node with the operator and operands
     # Otherwise, just pass the relational expression up the tree
-    if len(p) == 4:
-        p[0] = ('logical', p[2], p[1], p[3])
+    if len(p) == 5:
+        p[0] = ('logical', p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
 
 def p_relational(p):
     """
-    relational : additive EQ additive
-               | additive NE additive
-               | additive LT additive
-               | additive LE additive
-               | additive GT additive
-               | additive GE additive
+    relational : additive EQ continuation_opt additive
+               | additive NE continuation_opt additive
+               | additive LT continuation_opt additive
+               | additive LE continuation_opt additive
+               | additive GT continuation_opt additive
+               | additive GE continuation_opt additive
                | additive
     """
     # AST node: if it's a relational operator, create a node with the operator and operands
     # Otherwise, just pass the additive expression up the tree
-    if len(p) == 4:
-        p[0] = ('rel', p[2], p[1], p[3])
+    if len(p) == 5:
+        p[0] = ('rel', p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
 
 def p_additive(p):
     """
-    additive : additive PLUS multiplicative
-             | additive MINUS multiplicative
+    additive : additive PLUS continuation_opt multiplicative
+             | additive MINUS continuation_opt multiplicative
              | multiplicative
     """
     # AST node: if it's an additive operator, create a node with the operator and operands
     # Otherwise, just pass the multiplicative expression up the tree
-    if len(p) == 4:
-        p[0] = ('arith', p[2], p[1], p[3])
+    if len(p) == 5:
+        p[0] = ('arith', p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
 
 def p_multiplicative(p):
     """
-    multiplicative : multiplicative ASTERISK unary
-                   | multiplicative DIVIDE unary
+    multiplicative : multiplicative ASTERISK continuation_opt unary
+                   | multiplicative DIVIDE continuation_opt unary
                    | unary
     """
     # AST node: if it's a multiplicative operator, create a node with the operator and operands
     # Otherwise, just pass the unary expression up the tree
-    if len(p) == 4:
-        p[0] = ('arith', p[2], p[1], p[3])
+    if len(p) == 5:
+        p[0] = ('arith', p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
 
 def p_unary(p):
     """
-    unary : PLUS unary
-          | MINUS unary
-          | NOT unary
+    unary : PLUS continuation_opt unary
+          | MINUS continuation_opt unary
+          | NOT continuation_opt unary
           | power
     """
     # AST node: if it's a unary operator, create a node with the operator and operand
     # Otherwise, just pass the power expression up the tree
-    if len(p) == 3:
+    if len(p) == 4:
         if p[1] == '+':
-            p[0] = ('uplus', p[2])
+            p[0] = ('uplus', p[3])
         elif p[1] == '-':
-            p[0] = ('uminus', p[2])
+            p[0] = ('uminus', p[3])
         else:
-            p[0] = ('not', p[2])
+            p[0] = ('not', p[3])
     else:
         p[0] = p[1]
 
 # Power operator is right-associative, so it's handled separately
 def p_power(p):
     """
-    power : primary POWER power
+    power : primary POWER continuation_opt power
           | primary
     """
     # AST node: if it's a power operator, create a node with the operator and operands
     # Otherwise, just pass the primary expression up the tree
-    if len(p) == 4:
-        p[0] = ('arith', p[2], p[1], p[3])
+    if len(p) == 5:
+        p[0] = ('arith', p[2], p[1], p[4])
     else:
         p[0] = p[1]
+
+# Optional continuation operator for line continuations in expressions
+def p_continuation_opt(p):
+    """
+    continuation_opt : '&'
+                     | empty
+    """
+    p[0] = p[1]
 
 # Primary expressions include literals, variables, function calls, and
 # parenthesized expressions
