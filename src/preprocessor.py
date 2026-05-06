@@ -36,7 +36,7 @@ class PreprocessorLabelError(PreprocessorError):
 # Public preprocess function
 ###
 
-def preprocess(raw_input: str, format: str = "auto") -> str:
+def preprocess(raw_input: str, format: str = "fixed") -> str:
     """
     Entry point to normalize Fortran source into a canonical format for the
     lexer.
@@ -53,34 +53,20 @@ def preprocess(raw_input: str, format: str = "auto") -> str:
 
     Args:
         raw_input (str): The raw Fortran source code.
-        format (str): "fixed" for column-dependent format, "free" for F90 style,
-            or "auto" to choose based on the raw input.
+        format (str): "fixed" for column-dependent format or "free" for F90 style.
 
     Returns:
         str: Preprocessed Fortran code suitable for lexing.
 
     Raises:
-        ValueError: If a format other than "fixed", "free", or "auto" is provided.
+        ValueError: If a format other than "fixed" or "free" is provided.
     """
-    if format == "auto":
-        format = _detect_format(raw_input)
-
     if format == "fixed":
         return _preprocess_fixed_format(raw_input)
     elif format == "free":
         return _preprocess_free_format(raw_input)
     else:
         raise ValueError(f"Unknown format: {format}")
-
-
-def _detect_format(raw_input: str) -> str:
-    for line in raw_input.splitlines():
-        stripped = line.strip()
-        if not stripped or stripped.startswith("!"):
-            continue
-        if "&" in line:
-            return "free"
-    return "fixed"
 
 ###
 # Fixed-format preprocessing
