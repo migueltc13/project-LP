@@ -36,7 +36,7 @@ class PreprocessorLabelError(PreprocessorError):
 # Public preprocess function
 ###
 
-def preprocess(raw_input: str, format: str = "fixed") -> str:
+def preprocess(raw_input: str, format: str = "auto") -> str:
     """
     Entry point to normalize Fortran source into a canonical format for the
     lexer.
@@ -53,20 +53,34 @@ def preprocess(raw_input: str, format: str = "fixed") -> str:
 
     Args:
         raw_input (str): The raw Fortran source code.
-        format (str): "fixed" for column-dependent format, "free" for F90 style.
+        format (str): "fixed" for column-dependent format, "free" for F90 style,
+            or "auto" to choose based on the raw input.
 
     Returns:
         str: Preprocessed Fortran code suitable for lexing.
 
     Raises:
-        ValueError: If a format other than "fixed" or "free" is provided.
+        ValueError: If a format other than "fixed", "free", or "auto" is provided.
     """
+    if format == "auto":
+        format = _detect_format(raw_input)
+
     if format == "fixed":
         return _preprocess_fixed_format(raw_input)
     elif format == "free":
         return _preprocess_free_format(raw_input)
     else:
         raise ValueError(f"Unknown format: {format}")
+
+
+def _detect_format(raw_input: str) -> str:
+    for line in raw_input.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("!"):
+            continue
+        if "&" in line:
+            return "free"
+    return "fixed"
 
 ###
 # Fixed-format preprocessing
@@ -177,11 +191,13 @@ def _preprocess_free_format(raw_input: str) -> str:
     out = []
 
     # Regex breakdown for matching a valid free-format label:
-    # ^\s* : Matches optional leading whitespace.
-    # (\d{1,5})  : Capture group 1: Matches exactly 1 to 5 digits.
-    # (?=\s|!|$) : Positive lookahead: Ensures the digits are immediately
-    #              followed by whitespace, an inline comment (!), or the EOL.
-    label_pattern = re.compile(r"^\s*(\d{1,5})(?=\s|!|$)")
+    # ^\s*           : Start of line, followed by optional whitespace
+    # (\d{1,5})      : Capture group for 1 to 5
+    # (?=            : Lookahead to ensure the label is followed by either:
+    #   \s+[A-Za-z]  : whitespace and then a letter (start of statement)
+    #   |\s*!         : or whitespace and then a comment
+    # )              : End of lookahead
+    label_pattern = re.compile(r"^\s*(\d{1,5})(?=(?:\s+[A-Za-z])|\s*!)")
 
     for lineno, line in enumerate(lines, start=1):
         # Preserve empty lines for line-mapping

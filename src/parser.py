@@ -6,7 +6,9 @@ from preprocessor import preprocess
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
+from parser_rules.io import *
 from parser_rules.statements import *
+from type_checker import SemanticError, type_check
 
 # TODO Add implicit/explicit typing rules
 
@@ -103,10 +105,12 @@ if __name__ == '__main__':
     parser_args = argparse.ArgumentParser(
         description="Run syntax analysis on Fortran source code."
     )
-    parser_args.add_argument("--format", choices=["fixed", "free"], default="fixed",
-                             help="The source format (default: fixed)")
+    parser_args.add_argument("--format", choices=["fixed", "free", "auto"], default="auto",
+                             help="The source format (default: auto)")
     parser_args.add_argument("--no-preprocess", action="store_true", default=False,
                              help="Skip preprocessing and parse the raw input directly")
+    parser_args.add_argument("--no-type-check", action="store_true", default=False,
+                             help="Skip semantic type checking")
     args = parser_args.parse_args()
 
     data = sys.stdin.read()
@@ -119,4 +123,12 @@ if __name__ == '__main__':
             sys.exit(1)
 
     result = parser.parse(data, lexer=lexer, debug=False)
+
+    if result is not None and not args.no_type_check:
+        try:
+            type_check(result)
+        except SemanticError as exc:
+            print(f"Semantic error: {exc}")
+            sys.exit(1)
+
     print(result)
