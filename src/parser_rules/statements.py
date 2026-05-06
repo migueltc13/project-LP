@@ -97,45 +97,6 @@ def p_assignment(p):
     p[0] = ('assign', p[1], p[3])
 
 
-def p_print_stmt(p):
-    """
-    print_stmt : PRINT ASTERISK ',' expression_list
-               | PRINT expression_list
-    """
-    # AST node: if there's a format specifier, create a node with the expressions;
-    # Otherwise, create a node with the expressions and a default format
-    if len(p) == 5:
-        p[0] = ('print', p[4])
-    else:
-        p[0] = ('print', p[2])
-
-
-def p_read_stmt(p):
-    """
-    read_stmt : READ ASTERISK ',' variable_list
-              | READ variable_list
-    """
-    # AST node: if there's a format specifier, create a node with the variables;
-    # Otherwise, create a node with the variables and a default format
-    if len(p) == 5:
-        p[0] = ('read', p[4])
-    else:
-        p[0] = ('read', p[2])
-
-
-def p_write_stmt(p):
-    """
-    write_stmt : WRITE ASTERISK ',' expression_list
-               | WRITE expression_list
-    """
-    # AST node: if there's a format specifier, create a node with the expressions;
-    # Otherwise, create a node with the expressions and a default format
-    if len(p) == 5:
-        p[0] = ('write', p[4])
-    else:
-        p[0] = ('write', p[2])
-
-
 def p_goto_statement(p):
     """
     goto_statement : GOTO NUMBER
@@ -172,54 +133,6 @@ def p_call_statement(p):
         p[0] = ('call', p[2], p[4])
     else:
         p[0] = ('call', p[2], [])
-
-
-def p_variable_list(p):
-    """
-    variable_list : variable variable_list_tail
-    """
-    # AST node: build the variable list with any continuation pieces.
-    p[0] = [p[1]] + p[2]
-
-
-# The preprocessor leaves line continuations as '&', so accept them in
-# the same list structure as normal comma-separated variables.
-def p_variable_list_tail(p):
-    """
-    variable_list_tail : ',' variable variable_list_tail
-                       | '&' variable variable_list_tail
-                       | empty
-    """
-   # AST node: if there are more variables, create a list of them;
-   # Otherwise, an empty list
-    if len(p) == 4:
-        p[0] = [p[2]] + p[3]
-    else:
-        p[0] = []
-
-
-def p_expression_list(p):
-    """
-    expression_list : expression expression_list_tail
-    """
-    # AST node: build the expression list with any continuation pieces.
-    p[0] = [p[1]] + p[2]
-
-
-# The preprocessor leaves line continuations as '&', so accept them in
-# the same list structure as normal comma-separated expressions.
-def p_expression_list_tail(p):
-    """
-    expression_list_tail : ',' expression expression_list_tail
-                         | '&' expression expression_list_tail
-                         | empty
-    """
-   # AST node: if there are more expressions, create a list of them;
-    # Otherwise, an empty list
-    if len(p) == 4:
-        p[0] = [p[2]] + p[3]
-    else:
-        p[0] = []
 
 
 def p_variable(p):
