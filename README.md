@@ -19,7 +19,14 @@
     (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
 - [ ] Add lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
+- [ ] Lexer update number parsing to handle more cases (e.g. 1.0E-10, 1.0D+10, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
+- [ ] Optimizations
+    - [ ] Constant folding
+    - [ ] Expression simplification
+    - [ ] Unused variable elimination
+    - [ ] Constant `IF` elimination
+    - [ ] Loop unrolling
 
 ## Compiler Pipeline
 
