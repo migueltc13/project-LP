@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import ply.yacc as yacc
+import abstract_syntax_tree as ast
 from lexer import lexer, tokens
-from preprocessor import preprocess
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
@@ -27,15 +27,18 @@ def p_program_unit(p):
     #          -- function: create a node with the function name, return type, arguments, and body;
     #          -- statements: create a block node for preprocessed statement-only fixtures;
     #          -- empty files are handled by the statements branch
-
     if len(p) == 6:
-        p[0] = ('program', p[2], p[3])
+        p[0] = ast.Program(p[2], p[3])
+
     elif len(p) == 8:
-        p[0] = ('subroutine', p[2], p[4], p[6])
+        p[0] = ast.Subroutine(p[2], p[4], p[6])
+
     elif len(p) == 10:
-        p[0] = ('function', p[1], p[3], p[5], p[7])
+        p[0] = ast.Function(p[1], p[3], p[5], p[7])
+
     elif len(p) == 2:
-        p[0] = ('block', p[1])
+        p[0] = ast.Block(p[1])
+
     else:
         p[0] = None
 
@@ -98,10 +101,15 @@ def p_error(p):
 # TODO rename output files
 parser = yacc.yacc()
 
+# TODO
+parser.variables = {}
+parser.labels = []
+
 
 if __name__ == '__main__':
     import argparse
     import sys
+    from preprocessor import preprocess
 
     parser_args = argparse.ArgumentParser(
         description="Run syntax analysis on Fortran source code."
@@ -125,6 +133,7 @@ if __name__ == '__main__':
 
     result = parser.parse(data, lexer=lexer, debug=False)
 
+    # TODO update this
     if result is not None and not args.no_type_check:
         try:
             validate_labels(result)
