@@ -1,3 +1,5 @@
+import abstract_syntax_tree as ast
+
 # Expressions
 
 # We start with the lowest precedence level (logical OR)
@@ -18,7 +20,7 @@ def p_logical_or(p):
     # AST node: if it's a logical OR, create a node with the operator and operands
     # Otherwise, just pass the logical AND expression up the tree
     if len(p) == 5:
-        p[0] = ('logical', p[2], p[1], p[4])
+        p[0] = ast.Logical(p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
@@ -31,7 +33,7 @@ def p_logical_and(p):
     # AST node: if it's a logical AND, create a node with the operator and operands
     # Otherwise, just pass the relational expression up the tree
     if len(p) == 5:
-        p[0] = ('logical', p[2], p[1], p[4])
+        p[0] = ast.Logical(p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
@@ -49,7 +51,7 @@ def p_relational(p):
     # AST node: if it's a relational operator, create a node with the operator and operands
     # Otherwise, just pass the additive expression up the tree
     if len(p) == 5:
-        p[0] = ('rel', p[2], p[1], p[4])
+        p[0] = ast.Rel(p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
@@ -63,7 +65,7 @@ def p_additive(p):
     # AST node: if it's an additive operator, create a node with the operator and operands
     # Otherwise, just pass the multiplicative expression up the tree
     if len(p) == 5:
-        p[0] = ('arith', p[2], p[1], p[4])
+        p[0] = ast.Arith(p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
@@ -77,7 +79,7 @@ def p_multiplicative(p):
     # AST node: if it's a multiplicative operator, create a node with the operator and operands
     # Otherwise, just pass the unary expression up the tree
     if len(p) == 5:
-        p[0] = ('arith', p[2], p[1], p[4])
+        p[0] = ast.Arith(p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
@@ -93,11 +95,11 @@ def p_unary(p):
     # Otherwise, just pass the power expression up the tree
     if len(p) == 4:
         if p[1] == '+':
-            p[0] = ('uplus', p[3])
+            p[0] = ast.Unary('+', p[3])
         elif p[1] == '-':
-            p[0] = ('uminus', p[3])
+            p[0] = ast.Unary('-', p[3])
         else:
-            p[0] = ('not', p[3])
+            p[0] = ast.Unary('not', p[3])
     else:
         p[0] = p[1]
 
@@ -110,7 +112,7 @@ def p_power(p):
     # AST node: if it's a power operator, create a node with the operator and operands
     # Otherwise, just pass the primary expression up the tree
     if len(p) == 5:
-        p[0] = ('arith', p[2], p[1], p[4])
+        p[0] = ast.Arith(p[2], p[1], p[4])
     else:
         p[0] = p[1]
 
@@ -128,7 +130,7 @@ def p_primary_group(p):
     """
     primary : '(' expression ')'
     """
-    # AST node: just pass the expression up the tree, ignoring the parentheses  
+    # AST node: just pass the expression up the tree, ignoring the parentheses
     p[0] = p[2]
 
 
@@ -137,7 +139,7 @@ def p_primary_number(p):
     primary : NUMBER
     """
     # AST node: create a node for the number literal
-    p[0] = ('number', p[1])
+    p[0] = ast.Number(p[1])
 
 
 def p_primary_string(p):
@@ -145,7 +147,7 @@ def p_primary_string(p):
     primary : STRING
     """
     # AST node: create a node for the string literal
-    p[0] = ('string', p[1])
+    p[0] = ast.String(p[1])
 
 
 def p_primary_boolean(p):
@@ -154,7 +156,7 @@ def p_primary_boolean(p):
             | FALSE
     """
     # AST node: create a node for the boolean literal
-    p[0] = ('bool', p.slice[1].type == 'TRUE')
+    p[0] = ast.Bool(p.slice[1].type == "TRUE")
 
 
 # Primary identifiers can be variables or function calls
@@ -166,9 +168,9 @@ def p_primary_identifier(p):
     # AST node: if it's a function call, create a node with the function name and arguments
     # Otherwise, just create a node for the variable
     if len(p) == 2:
-        p[0] = ('var', p[1])
+        p[0] = ast.Var(p[1])
     else:
-        p[0] = ('call', p[1], p[3])
+        p[0] = ast.Call(p[1], p[3])
 
 # Optional argument list for function calls
 def p_argument_list_opt(p):
@@ -194,6 +196,7 @@ def p_argument_list(p):
         p[0] = p[1] + [p[3]]
 
 
+# TODO move this rule to parser.py
 def p_empty(p):
     """
     empty :

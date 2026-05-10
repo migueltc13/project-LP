@@ -1,3 +1,5 @@
+import abstract_syntax_tree as ast
+
 # Statements
 
 def p_statements(p):
@@ -20,7 +22,7 @@ def p_statement(p):
     # AST node: if there's a label, create a node with the label and statement;
     # Otherwise, just pass the statement up the tree
     if len(p) == 3:
-        p[0] = ('label', p[1], p[2])
+        p[0] = ast.Label(p[1], p[2])
     else:
         p[0] = p[1]
 
@@ -40,8 +42,10 @@ def p_nonlabel_statement(p):
                        | do_loop
                        | CONTINUE
     """
-    # AST node: just pass the statement up the tree
-    p[0] = p[1]
+    if p.slice[1].type == "CONTINUE":
+        p[0] = ast.Continue()
+    else:
+        p[0] = p[1]
 
 
 def p_declaration(p):
@@ -49,7 +53,7 @@ def p_declaration(p):
     declaration : type declarator_list
     """
     # AST node: create a node with the type and list of declarators
-    p[0] = ('declare', p[1], p[2])
+    p[0] = ast.Declare(p[1], p[2])
 
 
 def p_declarator_list(p):
@@ -84,9 +88,9 @@ def p_declarator(p):
     # AST node: if it's an array declaration, create a node with the name and dimensions;
     # Otherwise, just create a node for the variable declaration
     if len(p) == 2:
-        p[0] = p[1]
+        p[0] = ast.VarDeclarator(p[1])
     else:
-        p[0] = ('array', p[1], p[3])
+        p[0] = ast.ArrayDeclarator(p[1], p[3])
 
 
 def p_assignment(p):
@@ -94,7 +98,7 @@ def p_assignment(p):
     assignment : variable '=' expression
     """
     # AST node: create a node with the variable and expression
-    p[0] = ('assign', p[1], p[3])
+    p[0] = ast.Assign(p[1], p[3])
 
 
 def p_goto_statement(p):
@@ -102,7 +106,7 @@ def p_goto_statement(p):
     goto_statement : GOTO NUMBER
     """
     # AST node: create a node with the target label
-    p[0] = ('goto', p[2])
+    p[0] = ast.Goto(p[2])
 
 
 def p_stop_statement(p):
@@ -110,7 +114,7 @@ def p_stop_statement(p):
     stop_statement : STOP
     """
     # AST node: just create a node for the STOP statement
-    p[0] = ('stop',)
+    p[0] = ast.Stop()
 
 
 def p_return_statement(p):
@@ -118,7 +122,7 @@ def p_return_statement(p):
     return_statement : RETURN
     """
     # AST node: just create a node for the RETURN statement
-    p[0] = ('return',)
+    p[0] = ast.Return()
 
 
 def p_call_statement(p):
@@ -130,9 +134,9 @@ def p_call_statement(p):
     # function name and arguments;
     # Otherwise, create a node with the function name and an empty argument list
     if len(p) == 6:
-        p[0] = ('call', p[2], p[4])
+        p[0] = ast.CallStatement(p[2], p[4])
     else:
-        p[0] = ('call', p[2], [])
+        p[0] = ast.CallStatement(p[2], [])
 
 
 def p_variable(p):
@@ -143,6 +147,6 @@ def p_variable(p):
     # AST node: if it's an array reference, create a node with the name and indices;
     # Otherwise, just create a node for the variable
     if len(p) == 2:
-        p[0] = ('var', p[1])
+        p[0] = ast.Var(p[1])
     else:
-        p[0] = ('array_ref', p[1], p[3])
+        p[0] = ast.ArrayRef(p[1], p[3])

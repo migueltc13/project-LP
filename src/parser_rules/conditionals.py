@@ -1,3 +1,5 @@
+import abstract_syntax_tree as ast
+
 # Conditional grammar used by the parser.
 
 # This module handles the structured IF form supported by the lexer:
@@ -10,7 +12,7 @@ def p_if_statement(p):
     if_statement : IF expression THEN statements if_statement_rest ENDIF
     """
     # AST node: condition, then-branch, and optional else-branch.
-    p[0] = ('if', p[2], p[4], p[5])
+    p[0] = ast.If(p[2], p[4], p[5])
 
 
 def p_if_statement_rest(p):
@@ -24,7 +26,7 @@ def p_if_statement_rest(p):
     else:
         p[0] = None
 
-
+# TODO move empty rule to parser.py
 def p_empty(p):
     """
     empty :
