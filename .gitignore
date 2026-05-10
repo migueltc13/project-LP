@@ -1,4 +1,10 @@
+# Ignore Python cache files
 **/__pycache__/
+
+# Ignore Python virtual environment
 venv/
-src/parser.out
-src/parsetab.py
+
+# Ignore ply.yacc's generated parser files
+# Keep .gitkeep file to ensure the directory is tracked
+src/generated/*
+!src/generated/.gitkeep

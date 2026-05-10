@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import ply.yacc as yacc
+from pathlib import Path
+
 import abstract_syntax_tree as ast
 from lexer import lexer, tokens
 from parser_rules.expressions import *
@@ -88,7 +90,7 @@ def p_argument(p):
 
 
 ###
-# Parser
+# Error handling
 ###
 
 def p_error(p):
@@ -98,13 +100,27 @@ def p_error(p):
         print(f"Syntax error at '{p.value}' (line {p.lineno})")
 
 
-# TODO rename output files
-parser = yacc.yacc()
+###
+# Parser setup
+###
+
+_GENERATED_DIR = Path(__file__).resolve().parent / "generated"
+_GENERATED_DIR.mkdir(exist_ok=True)
+
+parser = yacc.yacc(
+    outputdir=str(_GENERATED_DIR),
+    debugfile="parser.out",
+    tabmodule="generated.parsetab",
+)
 
 # TODO
 parser.variables = {}
 parser.labels = []
+parser.has_error = False
 
+###
+# CLI
+###
 
 if __name__ == '__main__':
     import argparse
