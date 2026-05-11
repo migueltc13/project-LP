@@ -69,7 +69,7 @@ def check_labels(parser):
         )
 
         if not diagnostic["warning"]:
-            parser.has_errors = True
+            parser.has_error = True
 
 
 def _get_token_column(parser, token) -> int:

@@ -5,6 +5,8 @@ from pathlib import Path
 
 import abstract_syntax_tree as ast
 from lexer import lexer, tokens
+from error import print_error
+from semantics.labels import check_labels
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
@@ -108,10 +110,27 @@ def p_empty(p):
 ###
 
 def p_error(p):
+    parser.has_error = True
+    
     if p is None:
-        print("Syntax error at EOF")
+        print("Syntax error at end of file (EOF)")
+
     else:
-        print(f"Syntax error at '{p.value}' (line {p.lineno})")
+        try:
+            line_content = parser.source_lines[p.lineno - 1]
+        except IndexError:
+            line_content = ""
+
+        line_start = p.lexer.lexdata.rfind('\n', 0, p.lexpos) + 1
+        column = (p.lexpos - line_start) + 1
+
+        print_error(
+            error=f"Syntax error at token '{p.value}'",
+            line=line_content,
+            lineno=p.lineno,
+            col_start=column,
+            length=len(str(p.value))
+        )
 
 
 ###
@@ -250,7 +269,10 @@ if __name__ == '__main__':
 
     # Semantic checks
     check_labels(parser)
-    # TODO type checking and others
+
+    if parser.has_error:
+        print("\n[!] The compilation failed due to the errors listed above.")
+        raise Exception("Parsing failed")
 
     # Pretty print the resulting AST
     print()
