@@ -1,11 +1,16 @@
 import abstract_syntax_tree as ast
+from semantics.labels import (
+    record_label_definition,
+    record_label_reference,
+    _get_token_column
+)
 
 # Loop grammar used by the parser.
 
 # The numeric label after DO is kept in the AST, and the loop terminator is
 # matched directly as a labeled CONTINUE statement.
 
-# The loop body uses its own nonterminal so the parser can stop cleanly at the
+# The loop body uses its own non-terminal so the parser can stop cleanly at the
 # terminating label without touching the lexer or preprocessor.
 
 
@@ -13,16 +18,33 @@ def p_do_loop(p):
     """
     do_loop : DO NUMBER IDENTIFIER '=' expression ',' expression loop_statements LABEL CONTINUE
     """
-    # The numeric label after DO identifies the matching CONTINUE line.
-    # We keep the loop variable, bounds, body, and terminator label in a
-    # compact AST node.
+    # INFO The numeric label after DO identifies the matching CONTINUE line.
+    # TODO Actually check if the label matches the one on the CONTINUE statement
+
+    referenced_label = p[2]
+    defined_label = p[9]
+
+    record_label_reference(
+        p.parser,
+        referenced_label,
+        lineno=p.lineno(2),
+        col_start=_get_token_column(p.parser, p.slice[2]),
+    )
+
+    record_label_definition(
+        p.parser,
+        defined_label,
+        lineno=p.lineno(9),
+        col_start=_get_token_column(p.parser, p.slice[9]),
+    )
+
     p[0] = ast.Do(
-        end_label=p[2],
+        end_label=referenced_label,
         variable=p[3],
         start=p[5],
         end=p[7],
         body=p[8],
-        terminator_label=p[9]
+        terminator_label=defined_label,
     )
 
 
