@@ -1,27 +1,38 @@
 import abstract_syntax_tree as ast
+from semantics.labels import (
+    record_label_definition,
+    record_label_reference,
+    _get_token_column
+)
 
-# Statements
 
 def p_statements(p):
     """
     statements : statement statements
                | empty
     """
-    # AST node: if there are statements, create a list of them;
-    # Otherwise, an empty list
     if len(p) == 3:
         p[0] = [p[1]] + p[2]
     else:
         p[0] = []
+
 
 def p_statement(p):
     """
     statement : LABEL nonlabel_statement
               | nonlabel_statement
     """
-    # AST node: if there's a label, create a node with the label and statement;
-    # Otherwise, just pass the statement up the tree
     if len(p) == 3:
+        label = p[1]
+        token = p.slice[1]
+
+        record_label_definition(
+            p.parser,
+            label,
+            lineno=p.lineno(1),
+            col_start=_get_token_column(p.parser, token),
+        )
+
         p[0] = ast.Label(p[1], p[2])
     else:
         p[0] = p[1]
@@ -97,7 +108,6 @@ def p_assignment(p):
     """
     assignment : variable '=' expression
     """
-    # AST node: create a node with the variable and expression
     p[0] = ast.Assign(p[1], p[3])
 
 
@@ -105,8 +115,19 @@ def p_goto_statement(p):
     """
     goto_statement : GOTO NUMBER
     """
-    # AST node: create a node with the target label
-    p[0] = ast.Goto(p[2])
+    # INFO We use the NUMBER token here since lexer will identify
+    #      the label as NUMBER and not LABEL.
+
+    label = p[2]
+
+    record_label_reference(
+        p.parser,
+        label,
+        lineno=p.lineno(2),
+        col_start=_get_token_column(p.parser, p.slice[2]),
+    )
+
+    p[0] = ast.Goto(label)
 
 
 def p_stop_statement(p):
