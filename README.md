@@ -21,12 +21,18 @@
     - [ ] strings (escaped delimiter, multiline, etc.)
 - [ ] Lexer update number parsing to handle more cases (e.g. 1.0E-10, 1.0D+10, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
+- [ ] Clean parser rules documentation "AST node: ..."
 - [ ] Optimizations
     - [ ] Constant folding
     - [ ] Expression simplification
     - [ ] Unused variable elimination
     - [ ] Constant `IF` elimination
     - [ ] Loop unrolling
+- [ ] (parser) check if check for special statements like RETURN, CONTINUE, STOP,
+      are being only recognized in the right contexts
+      (e.g. RETURN only inside subroutines/functions, etc.)
+- [ ] test labels errors (e.g. redefinition, use of undefined labels,
+      warning for unused labels)
 
 ## Compiler Pipeline
 
