@@ -14,6 +14,7 @@
 
 - [ ] Use `print_error` function and use `parser.has_error` flag to raise
       exception once at the end of parsing
+- [ ] According to EWVM, check if numbers overflow, if so print error/warning
 - [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
 - [ ] Use states in lexer to catch more errors
