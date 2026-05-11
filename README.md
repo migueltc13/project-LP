@@ -84,7 +84,7 @@ graph LR
 
 ## Semantic Analysis
 
-## Code Translation
+## Code Generation
 
 ## Code Optimization
 
