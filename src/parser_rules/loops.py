@@ -5,6 +5,7 @@ from semantics.labels import (
     _get_token_column
 )
 
+
 # Loop grammar used by the parser.
 
 # The numeric label after DO is kept in the AST, and the loop terminator is
@@ -12,7 +13,6 @@ from semantics.labels import (
 
 # The loop body uses its own non-terminal so the parser can stop cleanly at the
 # terminating label without touching the lexer or preprocessor.
-
 
 def p_do_loop(p):
     """

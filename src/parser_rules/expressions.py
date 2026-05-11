@@ -1,6 +1,5 @@
 import abstract_syntax_tree as ast
 
-# Expressions
 
 # We start with the lowest precedence level (logical OR)
 # and work our way down to the highest (primary expressions)
@@ -103,6 +102,7 @@ def p_unary(p):
     else:
         p[0] = p[1]
 
+
 # Power operator is right-associative, so it's handled separately
 def p_power(p):
     """
@@ -116,6 +116,7 @@ def p_power(p):
     else:
         p[0] = p[1]
 
+
 # Optional continuation operator for line continuations in expressions
 def p_continuation_opt(p):
     """
@@ -123,6 +124,7 @@ def p_continuation_opt(p):
                      | empty
     """
     p[0] = p[1]
+
 
 # Primary expressions include literals, variables, function calls, and
 # parenthesized expressions
@@ -172,6 +174,7 @@ def p_primary_identifier(p):
     else:
         p[0] = ast.Call(p[1], p[3])
 
+
 # Optional argument list for function calls
 def p_argument_list_opt(p):
     """
@@ -181,6 +184,7 @@ def p_argument_list_opt(p):
     # AST node: if there's an argument list, pass it up the tree;
     # Otherwise, use an empty list
     p[0] = [] if p[1] is None else p[1]
+
 
 # Argument list is compose of one or more expressions separated by commas
 def p_argument_list(p):
