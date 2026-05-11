@@ -194,11 +194,3 @@ def p_argument_list(p):
         p[0] = [p[1]]
     else:
         p[0] = p[1] + [p[3]]
-
-
-# TODO move this rule to parser.py
-def p_empty(p):
-    """
-    empty :
-    """
-    p[0] = None

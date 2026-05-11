@@ -25,10 +25,3 @@ def p_if_statement_rest(p):
         p[0] = p[2]
     else:
         p[0] = None
-
-# TODO move empty rule to parser.py
-def p_empty(p):
-    """
-    empty :
-    """
-    p[0] = None

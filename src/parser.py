@@ -93,6 +93,17 @@ def p_argument(p):
 
 
 ###
+# Empty production (ε)
+###
+
+def p_empty(p):
+    """
+    empty :
+    """
+    p[0] = None
+
+
+###
 # Error handling
 ###
 
