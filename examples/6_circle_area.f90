@@ -6,5 +6,5 @@ PROGRAM CIRCLE
   READ *, radius
 100 AREA = PI * &
   RADIUS**2
-  PRINT *, 'Area = ', AREA
+11 PRINT *, 'Area = ', AREA
 END

@@ -6,5 +6,5 @@ C      Calculate the area of a circle
        READ *, RADIUS
   100  AREA = PI *
      & RADIUS**2
-       PRINT *, 'Area = ', AREA
+   11  PRINT *, 'Area = ', AREA
        END
