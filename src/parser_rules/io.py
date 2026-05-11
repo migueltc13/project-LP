@@ -1,10 +1,10 @@
 import abstract_syntax_tree as ast
 
+
 # Input/output grammar used by the parser.
 
 # This module owns the PRINT, READ, and WRITE productions plus the
 # comma/continuation-separated list helpers they rely on.
-
 
 def p_print_stmt(p):
     """

@@ -1,6 +1,5 @@
 import abstract_syntax_tree as ast
 
-# Conditional grammar used by the parser.
 
 # This module handles the structured IF form supported by the lexer:
 # IF ... THEN ... [ELSE ...] ENDIF.
