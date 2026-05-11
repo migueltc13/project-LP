@@ -13,8 +13,7 @@
 ## TODO list
 
 - [ ] Type checking
-- [ ] Label validation (label redefinition, and use of undefined labels)
-- [ ] Variables
+- [ ] Variables (unused warning, redefinition, etc.)
 - [ ] Use states in lexer to catch more errors
     (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
 - [ ] Add lexer tests
