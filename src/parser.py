@@ -10,12 +10,11 @@ from parser_rules.conditionals import *
 from parser_rules.loops import *
 from parser_rules.io import *
 from parser_rules.statements import *
-from semantic_checks.label_checker import validate_labels
-from semantic_checks.type_checker import SemanticError, type_check
 
 # TODO Add implicit/explicit typing rules
 
 start = 'program_unit'
+
 
 def p_program_unit(p):
     """
@@ -44,6 +43,7 @@ def p_program_unit(p):
     else:
         p[0] = None
 
+
 ###
 # Basic Fortran 77 data types
 ###
@@ -58,6 +58,7 @@ def p_type(p):
     """
     p[0] = p[1]
 
+
 ###
 # Arguments for functions and subroutines declarations
 ###
@@ -68,6 +69,7 @@ def p_arguments(p):
     """
     # AST node: build the argument list with any continuation pieces.
     p[0] = [p[1]] + p[2]
+
 
 def p_arguments_rest(p):
     """
@@ -80,6 +82,7 @@ def p_arguments_rest(p):
         p[0] = [p[2]] + p[3]
     else:
         p[0] = []
+
 
 def p_argument(p):
     """
@@ -113,10 +116,52 @@ parser = yacc.yacc(
     tabmodule="generated.parsetab",
 )
 
-# TODO
-parser.variables = {}
-parser.labels = []
+# Auxiliary parser variables
+
+# List of source lines for error reporting
+parser.source_lines = []
+
+# Source filename for error reporting
+parser.source_filename = None
+
+# Whether any parser (syntax/semantic) errors were encountered during parsing
 parser.has_error = False
+
+# Labels
+parser.defined_labels = set()
+parser.redefined_labels = set()
+parser.referenced_labels = set()
+
+parser.label_definition_locations = {}
+parser.label_reference_locations = {}
+
+# NOTE location schema:
+# {
+#     "lineno":    lineno,
+#     "col_start": col_start,
+#     "length":    length
+# }
+
+
+# Auxiliary function to clean parser state
+
+def clear_parser_state(parser):
+    """
+    Clear parser state for labels and errors before parsing a new file.
+    """
+    parser.source_lines.clear()
+
+    parser.source_filename = None
+
+    parser.has_error = False
+
+    parser.defined_labels.clear()
+    parser.redefined_labels.clear()
+    parser.referenced_labels.clear()
+
+    parser.label_definition_locations.clear()
+    parser.label_reference_locations.clear()
+
 
 ###
 # CLI
@@ -126,20 +171,51 @@ if __name__ == '__main__':
     import argparse
     import sys
     from preprocessor import preprocess
-
-    parser_args = argparse.ArgumentParser(
-        description="Run syntax analysis on Fortran source code."
+    from semantics.labels import check_labels
+    from semantics.types import SemanticError, type_check
+    from abstract_syntax_tree import (
+        pretty_print,
+        visualize,
+        open_file,
+        DEFAULT_VISUALIZE_OUTPUT_PATH
     )
-    parser_args.add_argument("--format", choices=["fixed", "free"], default="fixed",
-                             help="The source format (default: fixed)")
-    parser_args.add_argument("--no-preprocess", action="store_true", default=False,
-                             help="Skip preprocessing and parse the raw input directly")
-    parser_args.add_argument("--no-type-check", action="store_true", default=False,
-                             help="Skip semantic type checking")
+
+    # CLI argument parsing
+    parser_args = argparse.ArgumentParser(
+        description="Parse Fortran 77 source code and print the resulting AST. "
+    )
+
+    parser_args.add_argument(
+        "--format",
+        choices=["fixed", "free"],
+        default="fixed",
+        help="The source format (default: fixed)"
+    )
+
+    parser_args.add_argument(
+        "--no-preprocess",
+        action="store_true",
+        default=False,
+        help="Skip preprocessing and parse the raw input directly",
+    )
+
+    parser_args.add_argument(
+        "--visualize",
+        nargs="?",
+        const=DEFAULT_VISUALIZE_OUTPUT_PATH,
+        metavar="OUTPUT",
+        help=(
+            "Generate a Graphviz image of the AST "
+            f"(default output: {DEFAULT_VISUALIZE_OUTPUT_PATH})"
+        ),
+    )
+
     args = parser_args.parse_args()
 
+    # Read input data
     data = sys.stdin.read()
 
+    # Pre-process the input data
     if not args.no_preprocess:
         try:
             data = preprocess(data, format=args.format)
@@ -147,15 +223,24 @@ if __name__ == '__main__':
             print(f"Preprocessing error: {exc}")
             sys.exit(1)
 
+    # Set up the parser state and parse the input data
+    clear_parser_state(parser)
+
+    parser.source_lines = data.splitlines()
+
+    # TODO actually support input file with -i or similar
+    #      otherwise read from stdin
+    parser.source_filename = "<stdin>"
+
     result = parser.parse(data, lexer=lexer, debug=False)
 
-    # TODO update this
-    if result is not None and not args.no_type_check:
-        try:
-            validate_labels(result)
-            type_check(result)
-        except SemanticError as exc:
-            print(f"Semantic error: {exc}")
-            sys.exit(1)
+    if result is None:
+        sys.exit(1)
 
-    print(result)
+    # Semantic checks
+    check_labels(parser)
+    # TODO type checking and others
+
+    # Pretty print the resulting AST
+    print()
+    pretty_print(result)
