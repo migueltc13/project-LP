@@ -11,45 +11,65 @@ def check_labels(parser):
         - warnings for defined labels that were never referenced
     """
 
-    redefined = sorted(parser.redefined_labels)
-    undefined = sorted(parser.referenced_labels - parser.defined_labels)
-    unused = sorted(parser.defined_labels - parser.referenced_labels)
+    diagnostics = []
+
+    redefined = parser.redefined_labels
+    undefined = parser.referenced_labels - parser.defined_labels
+    unused = parser.defined_labels - parser.referenced_labels
 
     for label in redefined:
         locations = parser.label_definition_locations.get(label, [])
 
         # First definition is allowed. Later definitions are errors.
         for location in locations[1:]:
-            print_label_diagnostic(
-                parser,
-                message=f"label {label} redefined",
-                location=location,
-            )
-
-        parser.has_error = True
+            diagnostics.append({
+                "label": label,
+                "message": f"label {label} redefined",
+                "location": location,
+                "warning": False
+            })
 
     for label in undefined:
         locations = parser.label_reference_locations.get(label, [])
 
         for location in locations:
-            print_label_diagnostic(
-                parser,
-                message=f"label {label} referenced but not defined",
-                location=location,
-            )
-
-        parser.has_error = True
+            diagnostics.append({
+                "label": label,
+                "message": f"label {label} referenced but not defined",
+                "location": location,
+                "warning": False
+            })
 
     for label in unused:
         locations = parser.label_definition_locations.get(label, [])
 
         for location in locations:
-            print_label_diagnostic(
-                parser,
-                message=f"label {label} defined but never referenced",
-                location=location,
-                warning=True,
-            )
+            diagnostics.append({
+                "label": label,
+                "message": f"label {label} defined but never referenced",
+                "location": location,
+                "warning": True
+            })
+
+    diagnostics.sort(
+        key=lambda diagnostic: (
+            diagnostic["location"]["lineno"],
+            diagnostic["location"]["col_start"],
+            diagnostic["location"]["length"],
+            diagnostic["message"]
+        )
+    )
+
+    for diagnostic in diagnostics:
+        print_label_diagnostic(
+            parser,
+            message=diagnostic["message"],
+            location=diagnostic["location"],
+            warning=diagnostic["warning"]
+        )
+
+        if not diagnostic["warning"]:
+            parser.has_errors = True
 
 
 def _get_token_column(parser, token) -> int:
