@@ -12,7 +12,9 @@
 
 ## TODO list
 
-- [ ] Type checking
+- [ ] Use `print_error` function and use `parser.has_error` flag to raise
+      exception once at the end of parsing
+- [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
 - [ ] Use states in lexer to catch more errors
     (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
