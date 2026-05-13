@@ -74,7 +74,7 @@ def get_source_line(obj, lineno: int) -> str:
         return ""
 
 
-def get_lexer_token_column(t) -> int:
+def get_token_column(t) -> int:
     """
     Return the 1-based column where token t starts.
 
@@ -203,7 +203,7 @@ def print_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> 
         error=f"{type_name} literal {literal!r} out of range",
         line=get_source_line(t.lexer, t.lineno),
         lineno=t.lineno,
-        col_start=get_lexer_token_column(t),
+        col_start=get_token_column(t),
         length=len(literal),
         filename=getattr(t.lexer, "source_filename", None),
         hint=hint,
@@ -239,7 +239,7 @@ def print_syntax_error(parser, token) -> None:
         error=f"syntax error at token {token.value!r}",
         line=get_source_line(parser, token.lineno),
         lineno=token.lineno,
-        col_start=get_lexer_token_column(token),
+        col_start=get_token_column(token),
         length=max(1, len(str(token.value))),
         filename=parser.source_filename,
     )
