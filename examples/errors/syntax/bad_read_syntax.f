@@ -1,4 +1,4 @@
-       PROGRAM BAD_READ_SYNTAX
-       INTEGER I
-       READ * I
-       END
+      PROGRAM BAD_READ_SYNTAX
+      INTEGER I
+      READ * I
+      END

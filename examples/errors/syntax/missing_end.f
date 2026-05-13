@@ -1,3 +1,3 @@
-       PROGRAM MISSING_END
-       INTEGER I
-       I = 10
+      PROGRAM MISSING_END
+      INTEGER I
+      I = 10

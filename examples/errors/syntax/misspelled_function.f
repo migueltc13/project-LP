@@ -1,3 +1,3 @@
-       PROGRAM MISSPELLED_FUNCTION
-       PRNT *, 'Hello, World!'
-       END
+      PROGRAM MISSPELLED_FUNCTION
+      PRNT *, 'Hello, World!'
+      END
