@@ -51,7 +51,7 @@ def preprocess(raw_input: str, format: str = "fixed") -> str:
     See `_preprocess_fixed_format` for fixed-format details,
     and `_preprocess_free_format` for free-format details.
 
-    Args:
+    Arguments:
         raw_input (str): The raw Fortran source code.
         format (str): "fixed" for column-dependent format or "free" for F90 style.
 
@@ -84,7 +84,7 @@ def _preprocess_fixed_format(raw_input: str) -> str:
         output allowing the lexer to operate on a more uniform token stream,
         and preserving the original line numbers for accurate error reporting.
 
-    Args:
+    Arguments:
         raw_input (str): The raw fixed-format Fortran source code.
 
     Returns:
@@ -166,7 +166,7 @@ def _preprocess_free_format(raw_input: str) -> str:
     pseudo-tokens while preserving the original line structure for accurate
     error reporting.
 
-    Args:
+    Arguments:
         raw_input (str): The raw free-format Fortran source code.
 
     Returns:
