@@ -21,9 +21,7 @@
       parsing in the code generation phase
 - [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
-- [ ] Use states in lexer to catch more errors
-    (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
-- [ ] Add lexer tests
+- [ ] Add more lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
 - [ ] Clean parser rules documentation "AST node: ..."
