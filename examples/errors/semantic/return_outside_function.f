@@ -1,3 +1,0 @@
-       PROGRAM RETURN_OUTSIDE_FUNCTION
-       RETURN
-       END

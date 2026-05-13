@@ -1,0 +1,3 @@
+       PROGRAM RETURN_OUTSIDE
+       RETURN
+       END
