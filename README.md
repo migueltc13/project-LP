@@ -12,11 +12,13 @@
 
 ## TODO list
 
+- [ ] Rename DEFAULT_VISUALIZE_OUTPUT_PATH to DEFAULT_VIS_OUTPUT_PATH
+- [ ] Rename get_lexer_token_column to get_token_column
+- [ ] Aggregate semantic checks in `src/semantics/__init__.py`
+
 - [ ] Out of range errors are detected in the lexer, but they are not complete
       (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
       parsing, also adjust values for EWVM compatibility
-- [ ] Add AST "file" class (as tree root), and update starter rule to catch
-      functions, subroutines, and main program
 - [ ] Use `parser.has_error` fields to raise an exception once at the end of
       parsing in the code generation phase
 - [ ] Type checking with new AST object

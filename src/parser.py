@@ -5,7 +5,7 @@ from pathlib import Path
 
 import abstract_syntax_tree as ast
 from lexer import lexer, tokens, clear_lexer_state
-from error import print_syntax_error
+from error import print_syntax_error, get_lexer_token_column
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
@@ -14,35 +14,77 @@ from parser_rules.statements import *
 
 # TODO Add implicit/explicit typing rules
 
-start = 'program_unit'
+start = 'file'
+
+
+def p_file(p):
+    """
+    file : program_units
+    """
+    filename = getattr(p.parser, "source_filename", "<unknown>")
+    p[0] = ast.File(filename, p[1])
+
+
+def p_file_empty(p):
+    """
+    file : empty
+    """
+    filename = getattr(p.parser, "source_filename", "<unknown>")
+    p[0] = ast.File(filename, [])
+
+
+###
+# Program units
+###
+
+def p_program_units(p):
+    """
+    program_units : program_unit program_units
+                  | program_unit
+    """
+    if len(p) == 3:
+        p[0] = [p[1]] + p[2]
+    else:
+        p[0] = [p[1]]
 
 
 def p_program_unit(p):
     """
-    program_unit : PROGRAM IDENTIFIER statements END program_unit
-                 | SUBROUTINE IDENTIFIER '(' arguments ')' statements END program_unit
-                 | type FUNCTION IDENTIFIER '(' arguments ')' statements END program_unit
-                 | statements
+    program_unit : main_program
+                 | subroutine
+                 | function
     """
-    # AST node -- program: create a node with the program name and body;
-    #          -- subroutine: create a node with the subroutine name, arguments, and body;
-    #          -- function: create a node with the function name, return type, arguments, and body;
-    #          -- statements: create a block node for preprocessed statement-only fixtures;
-    #          -- empty files are handled by the statements branch
-    if len(p) == 6:
-        p[0] = ast.Program(p[2], p[3])
+    p[0] = p[1]
 
-    elif len(p) == 8:
-        p[0] = ast.Subroutine(p[2], p[4], p[6])
 
-    elif len(p) == 10:
-        p[0] = ast.Function(p[1], p[3], p[5], p[7])
+def p_main_program(p):
+    """
+    main_program : PROGRAM IDENTIFIER statements END
+    """
+    # Record the main program unit location for error reporting
+    # when more than one main program is defined
+    p.parser.program_locations.append({
+        "name": p[2],
+        "lineno": p.lineno(1),
+        "col_start": get_lexer_token_column(p.slice[1]),
+        "length": len(p[1]),
+    })
 
-    elif len(p) == 2:
-        p[0] = ast.Block(p[1])
+    p[0] = ast.Program(p[2], p[3])
 
-    else:
-        p[0] = None
+
+def p_subroutine(p):
+    """
+    subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' statements END
+    """
+    p[0] = ast.Subroutine(p[2], p[4], p[6])
+
+
+def p_function(p):
+    """
+    function : type FUNCTION IDENTIFIER '(' arguments ')' statements END
+    """
+    p[0] = ast.Function(p[1], p[3], p[5], p[7])
 
 
 ###
@@ -140,6 +182,9 @@ parser.source_filename = None
 # Whether any parser (syntax/semantic) errors were encountered during parsing
 parser.has_error = False
 
+# List of main program unit
+parser.program_locations = []
+
 # Labels
 parser.defined_labels = set()
 parser.redefined_labels = set()
@@ -168,6 +213,8 @@ def clear_parser_state(parser):
 
     parser.has_error = False
 
+    parser.program_locations.clear()
+
     parser.defined_labels.clear()
     parser.redefined_labels.clear()
     parser.referenced_labels.clear()
@@ -189,10 +236,10 @@ def main():
     from common import read_input, open_file
     from preprocessor import preprocess
     from semantics.labels import check_labels
+    from semantics.program import check_program
     from abstract_syntax_tree import (
         pretty_print,
         visualize,
-        open_file,
         DEFAULT_VISUALIZE_OUTPUT_PATH
     )
 
@@ -257,7 +304,7 @@ def main():
 
     source_lines = source_data.splitlines()
 
-    lexer.source_lines, parser = source_lines
+    lexer.source_lines = source_lines
     lexer.source_filename = source_filename
 
     parser.source_lines = source_lines
@@ -275,6 +322,7 @@ def main():
         sys.exit(1)
 
     # Semantic checks
+    check_program(parser)
     check_labels(parser)
 
     # Pretty print the resulting AST

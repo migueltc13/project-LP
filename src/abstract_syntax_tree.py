@@ -18,6 +18,12 @@ DEFAULT_VISUALIZE_OUTPUT_PATH = "/tmp/ast.png"
 # AST node definitions
 ###
 
+@dataclass(frozen=True)
+class File:
+    filename: str
+    program_units: list[ProgramUnit]
+
+
 ###
 # Program units
 ###
@@ -263,13 +269,17 @@ ProgramUnit = Union[
     Block,
 ]
 
-AST = ProgramUnit
+AST = File
+
 
 ###
 # AST tree helpers
 ###
 
 def _node_label(node) -> str:
+    if isinstance(node, File):
+        return f"file: {node.filename}"
+
     if isinstance(node, Program):
         return f"program: {node.name}"
 
@@ -367,6 +377,9 @@ def _node_label(node) -> str:
 
 
 def _node_children(node):
+    if isinstance(node, File):
+        return node.program_units
+
     if isinstance(node, Program):
         return node.statements
 
@@ -471,6 +484,7 @@ def _node_children(node):
 
     raise TypeError(f"Unsupported AST node: {node!r}")
 
+
 ###
 # Pretty printing
 ###
@@ -520,7 +534,8 @@ def visualize(ast: AST, output_path: str = DEFAULT_VISUALIZE_OUTPUT_PATH) -> str
 
     Arguments:
         ast(AST): The AST to visualize.
-        output_path(str): The file path to save the image. Default: /tmp/ast.png
+        output_path(str): The file path to save the image.
+                          Default: /tmp/ast.png
 
     Returns:
         str: The generated output file path.
@@ -572,25 +587,3 @@ def visualize(ast: AST, output_path: str = DEFAULT_VISUALIZE_OUTPUT_PATH) -> str
 
     # print(f"Generated AST image: {output_file}")
     return output_file
-
-
-def open_file(path: str) -> None:
-    """
-    Open a generated file using the operating system's default application.
-
-    Arguments:
-        path(str): The file path to open.
-    """
-
-    import os
-    import platform
-    import subprocess
-
-    system = platform.system()
-
-    if system == "Darwin":
-        subprocess.run(["open", path], check=False)
-    elif system == "Windows":
-        os.startfile(path)  # type: ignore[attr-defined]
-    else:
-        subprocess.run(["xdg-open", path], check=False)
