@@ -129,7 +129,6 @@ def print_error(
     print(f"{' ' * gutter_width} |", file=stream)
     print(f"{line_number_text} | {clean_line}", file=stream)
     print(f"{' ' * gutter_width} | {pointer_padding}{colored_pointer}", file=stream)
-    print(f"{' ' * gutter_width} | {pointer_padding}{colored_pointer}", file=stream)
 
     if hint is not None:
         colored_hint_label = _color("hint", _CYAN + _BOLD, enabled=use_color)
