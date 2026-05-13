@@ -51,14 +51,16 @@ reserved = {
 
 tokens = [
     # Identifiers and literals
-    'IDENTIFIER',  # variable names, procedure names, etc.
-    'NUMBER',      # integer and real constants/literals
-    'STRING',      # string literals
-    'LABEL',       # labels from preprocessor, e.g. @LABEL(123)
+    'IDENTIFIER',      # variable names, procedure names, etc.
+    'DOUBLE_NUMBER',   # double precision literals (e.g. 1.0D+10)
+    'REAL_NUMBER',     # real literals (e.g. 1.0, .5E-3)
+    'INTEGER_NUMBER',  # integer literals (e.g. 42)
+    'STRING',          # string literals
+    'LABEL',           # labels from preprocessor, e.g. @LABEL(123)
 
     # Mathematical operators
     # NOTE instead of defining mathematical operators as literals (+ - * /),
-    # using tokens allow simpler to attach semantic meaning or precedence later.
+    # using tokens allow simpler to attach semantic meaning or precedence later
     'PLUS',
     'MINUS',
     'DIVIDE',
@@ -148,12 +150,19 @@ def t_STRING(t):
 # Number
 ###
 
-def t_NUMBER(t):
-    r'\d+(\.\d+)?'
-    if '.' in t.value:
-        t.value = float(t.value)
-    else:
-        t.value = int(t.value)
+def t_DOUBLE_NUMBER(t):
+    r'(\d+(\.\d*)?|\.\d+)[dD][+-]?\d+'
+    t.value = float(t.value.replace("D", "E").replace("d", "e"))
+    return t
+
+def t_REAL_NUMBER(t):
+    r'(\d+\.\d*|\.\d+)([eE][+-]?\d+)?|\d+[eE][+-]?\d+'
+    t.value = float(t.value)
+    return t
+
+def t_INTEGER_NUMBER(t):
+    r'\d+'
+    t.value = int(t.value)
     return t
 
 ###

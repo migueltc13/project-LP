@@ -247,7 +247,7 @@ if __name__ == '__main__':
     )
 
     parser_args.add_argument(
-        "--visualize",
+        "--visualize", "--vis",
         nargs="?",
         const=DEFAULT_VISUALIZE_OUTPUT_PATH,
         metavar="OUTPUT",
@@ -297,7 +297,8 @@ if __name__ == '__main__':
     # Visualize AST
     if args.visualize:
         try:
-            visualize(result, output_path=args.visualize)
+            visualize_file = visualize(result, output_path=args.visualize)
+            print(f"\nAST visualization generated at: {visualize_file}")
             open_file(args.visualize)
         except Exception as exc:
             print(f"AST Visualization error: {exc}")

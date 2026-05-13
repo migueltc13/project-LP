@@ -136,12 +136,28 @@ def p_primary_group(p):
     p[0] = p[2]
 
 
-def p_primary_number(p):
+def p_primary_double_number(p):
     """
-    primary : NUMBER
+    primary : DOUBLE_NUMBER
     """
     # AST node: create a node for the number literal
-    p[0] = ast.Number(p[1])
+    p[0] = ast.Double(p[1])
+
+
+def p_primary_real_number(p):
+    """
+    primary : REAL_NUMBER
+    """
+    # AST node: create a node for the number literal
+    p[0] = ast.Real(p[1])
+
+
+def p_primary_integer_number(p):
+    """
+    primary : INTEGER_NUMBER
+    """
+    # AST node: create a node for the number literal
+    p[0] = ast.Integer(p[1])
 
 
 def p_primary_string(p):

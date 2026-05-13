@@ -113,10 +113,10 @@ def p_assignment(p):
 
 def p_goto_statement(p):
     """
-    goto_statement : GOTO NUMBER
+    goto_statement : GOTO INTEGER_NUMBER
     """
-    # INFO We use the NUMBER token here since lexer will identify
-    #      the label as NUMBER and not LABEL.
+    # INFO We use the INTEGER_NUMBER token here since lexer will identify
+    #      the label as INTEGER_NUMBER and not LABEL.
 
     label = p[2]
 

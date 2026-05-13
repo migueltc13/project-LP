@@ -16,7 +16,7 @@ from semantics.labels import (
 
 def p_do_loop(p):
     """
-    do_loop : DO NUMBER IDENTIFIER '=' expression ',' expression loop_statements LABEL CONTINUE
+    do_loop : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression loop_statements LABEL CONTINUE
     """
     # INFO The numeric label after DO identifies the matching CONTINUE line.
     # TODO Actually check if the label matches the one on the CONTINUE statement

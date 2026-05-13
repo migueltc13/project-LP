@@ -159,8 +159,18 @@ class ArrayRef:
 
 
 @dataclass(frozen=True)
-class Number:
-    value: int | float
+class Double:
+    value: float
+
+
+@dataclass(frozen=True)
+class Real:
+    value: float
+
+
+@dataclass(frozen=True)
+class Integer:
+    value: int
 
 
 @dataclass(frozen=True)
@@ -218,7 +228,9 @@ Variable = Union[
 
 Expression = Union[
     Variable,
-    Number,
+    Double,
+    Real,
+    Integer,
     String,
     Bool,
     Arith,
@@ -288,8 +300,14 @@ def _node_label(node) -> str:
     if isinstance(node, ArrayRef):
         return f"array-ref: {node.name}"
 
-    if isinstance(node, Number):
-        return f"number: {node.value}"
+    if isinstance(node, Double):
+        return f"double number: {node.value}"
+
+    if isinstance(node, Real):
+        return f"real number: {node.value}"
+
+    if isinstance(node, Integer):
+        return f"integer number: {node.value}"
 
     if isinstance(node, String):
         return f"string: {node.value!r}"
@@ -379,7 +397,13 @@ def _node_children(node):
     if isinstance(node, ArrayRef):
         return node.indices
 
-    if isinstance(node, Number):
+    if isinstance(node, Double):
+        return []
+
+    if isinstance(node, Real):
+        return []
+
+    if isinstance(node, Integer):
         return []
 
     if isinstance(node, String):
@@ -546,8 +570,7 @@ def visualize(ast: AST, output_path: str = DEFAULT_VISUALIZE_OUTPUT_PATH) -> str
 
     output_file = dot.render(filename, format=file_format, cleanup=True)
 
-    print(f"Generated AST image: {output_file}")
-
+    # print(f"Generated AST image: {output_file}")
     return output_file
 
 
