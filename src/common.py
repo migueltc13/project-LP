@@ -1,12 +1,52 @@
-from typing import Optional, Tuple
 import sys
+from pathlib import Path
+from typing import Optional, Tuple
+
+
+def detect_source_format(input_file: Optional[str],
+                         explicit_format: Optional[str]) -> str:
+    """
+    Determine source format from an explicit CLI value or file extension.
+
+    Priority:
+        1. Explicit --format flag value
+        2. File extension
+        3. Fixed format fallback
+
+    Note: Alternatively, we could detect format by analyzing the content of the
+          file.
+
+    Arguments:
+        input_file (Optional[str]): The path to the input file.
+        explicit_format (Optional[str]): The explicitly provided format
+                                         ("fixed" or "free").
+
+    Returns:
+        str: The detected source format ("fixed" or "free").
+    """
+
+    if explicit_format is not None:
+        return explicit_format
+
+    if input_file is None:
+        return "fixed"
+
+    suffix = Path(input_file).suffix.lower()
+
+    if suffix in {".f", ".for", ".ftn"}:
+        return "fixed"
+
+    if suffix in {".f90", ".f95", ".f03", ".f08"}:
+        return "free"
+
+    return "fixed"
 
 
 def read_input(input_file: Optional[str] = None) -> Tuple[str, str]:
     """
     Reads the input data from a file or standard input.
 
-    Args:
+    Arguments:
         input_file(Optional[str]): The path to the input file.
                                    If None, reads from standard input.
 

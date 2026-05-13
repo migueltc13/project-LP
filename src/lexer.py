@@ -409,7 +409,7 @@ def main():
 
     import argparse
     import sys
-    from common import read_input
+    from common import read_input, detect_source_format
     from preprocessor import preprocess
 
     global lexer
@@ -428,8 +428,8 @@ def main():
     parser_args.add_argument(
         "--format",
         choices=["fixed", "free"],
-        default="fixed",
-        help="The source format (default: fixed)"
+        help="The source format. If omitted, inferred from file extension; "
+             "stdin defaults to fixed."
     )
 
     parser_args.add_argument(
@@ -455,10 +455,13 @@ def main():
         print(f"Error reading input: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # Detect source format based on file extension
+    source_format = detect_source_format(args.input_file, args.format)
+
     # Pre-process the input data
     if not args.no_preprocess:
         try:
-            source_data = preprocess(source_data, format=args.format)
+            source_data = preprocess(source_data, format=source_format)
         except Exception as e:
             print(f"Preprocessing error: {e}", file=sys.stderr)
             sys.exit(1)
