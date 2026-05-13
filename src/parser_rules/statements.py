@@ -2,7 +2,8 @@ import abstract_syntax_tree as ast
 from error import get_token_column, print_parser_token_error
 from semantics.labels import (
     record_label_definition,
-    record_label_reference
+    record_label_reference,
+    PREPROCESSED_LABEL_PREFIX_LEN
 )
 
 
@@ -19,22 +20,32 @@ def p_statements(p):
 
 def p_statement(p):
     """
-    statement : LABEL nonlabel_statement
+    statement : label_statement
               | nonlabel_statement
     """
-    if len(p) == 3:
-        label = p[1]
+    p[0] = p[1]
 
-        record_label_definition(
-            p.parser,
-            label,
-            lineno=p.lineno(1),
-            col_start=get_token_column(p.slice[1]),
-        )
 
-        p[0] = ast.Label(p[1], p[2])
-    else:
-        p[0] = p[1]
+def p_label_statement(p):
+    "label_statement : LABEL nonlabel_statement"
+    label = p[1]
+
+    record_label_definition(
+        p.parser,
+        label,
+        lineno=p.lineno(1),
+        col_start=get_token_column(p.slice[1]),
+    )
+
+    if isinstance(p[2], ast.Continue):
+        p.parser.continue_locations.append({
+            "label": label,
+            "lineno": p.lineno(1),
+            "col_start": get_token_column(p.slice[1]) + PREPROCESSED_LABEL_PREFIX_LEN,
+            "length": len(str(label)),
+        })
+
+    p[0] = ast.Label(p[1], p[2])
 
 
 def p_nonlabel_statement(p):
@@ -49,24 +60,20 @@ def p_nonlabel_statement(p):
                        | return_statement
                        | call_statement
                        | if_statement
-                       | do_loop
+                       | do_statement
                        | continue_statement
     """
     p[0] = p[1]
 
 
 def p_declaration(p):
-    """
-    declaration : type declarator_list
-    """
+    "declaration : type declarator_list"
     # AST node: create a node with the type and list of declarators
     p[0] = ast.Declare(p[1], p[2])
 
 
 def p_declarator_list(p):
-    """
-    declarator_list : declarator declarator_list_tail
-    """
+    "declarator_list : declarator declarator_list_tail"
     # AST node: build the declaration list with any continuation pieces.
     p[0] = [p[1]] + p[2]
 
@@ -101,9 +108,7 @@ def p_declarator(p):
 
 
 def p_assignment(p):
-    """
-    assignment : variable '=' expression
-    """
+    "assignment : variable '=' expression"
     p[0] = ast.Assign(p[1], p[3])
 
 
@@ -121,9 +126,7 @@ def p_variable(p):
 
 
 def p_goto_statement(p):
-    """
-    goto_statement : GOTO INTEGER_NUMBER
-    """
+    "goto_statement : GOTO INTEGER_NUMBER"
     # INFO We use the INTEGER_NUMBER token here since lexer will identify
     #      the label as INTEGER_NUMBER and not LABEL.
 
@@ -140,17 +143,13 @@ def p_goto_statement(p):
 
 
 def p_stop_statement(p):
-    """
-    stop_statement : STOP
-    """
+    "stop_statement : STOP"
     # AST node: just create a node for the STOP statement
     p[0] = ast.Stop()
 
 
 def p_return_statement(p):
-    """
-    return_statement : RETURN
-    """
+    "return_statement : RETURN"
     if not any(ctx in p.parser.context_stack
                for ctx in {"function", "subroutine"}):
 
@@ -177,15 +176,32 @@ def p_call_statement(p):
         p[0] = ast.CallStatement(p[2], [])
 
 
-def p_continue_statement(p):
-    """
-    continue_statement : CONTINUE
-    """
-    if "loop" not in p.parser.context_stack:
-        print_parser_token_error(
-            p.parser,
-            p.slice[1],
-            message="CONTINUE statement outside DO loop"
-        )
+def p_do_statement(p):
+    "do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression"
+    end_label = p[2]
 
+    record_label_reference(
+        p.parser,
+        end_label,
+        lineno=p.lineno(2),
+        col_start=get_token_column(p.slice[2]),
+    )
+
+    p.parser.do_references.append({
+        "end_label": end_label,
+        "lineno": p.lineno(2),
+        "col_start": get_token_column(p.slice[2]),
+        "length": len(str(end_label)),
+    })
+
+    p[0] = ast.Do(
+        end_label=end_label,
+        variable=p[3],
+        start=p[5],
+        end=p[7],
+    )
+
+
+def p_continue_statement(p):
+    "continue_statement : CONTINUE"
     p[0] = ast.Continue()

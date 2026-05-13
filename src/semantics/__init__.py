@@ -1,5 +1,6 @@
 from .program import check_program
-from .labels import check_labels
+from .labels  import check_labels
+from .loops   import check_loops
 
 
 def semantic_checks(parser, ast) -> None:
@@ -10,10 +11,11 @@ def semantic_checks(parser, ast) -> None:
 
     1. Program unit checks
     2. Label checks
-    TODO 3. Variable checks
-    TODO 4. Type checks
-    TODO 5. Function and subroutine checks
-    TODO Maybe 6. Control flow checks
+    3. Loop checks
+    TODO 4. Variable checks
+    TODO 5. Type checks
+    TODO 6. Function and subroutine checks
+    TODO Maybe 7. Control flow checks
 
     Arguments:
         parser: The parser object containing the parsed source code and related
@@ -22,3 +24,4 @@ def semantic_checks(parser, ast) -> None:
     """
     check_program(parser)
     check_labels(parser)
+    check_loops(parser)

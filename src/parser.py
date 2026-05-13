@@ -8,7 +8,6 @@ from lexer import lexer, tokens, clear_lexer_state
 from error import print_syntax_error, get_token_column
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
-from parser_rules.loops import *
 from parser_rules.io import *
 from parser_rules.statements import *
 
@@ -160,16 +159,6 @@ def p_exit_function(p):
     p.parser.context_stack.pop()
 
 
-def p_enter_loop(p):
-    "enter_loop :"
-    p.parser.context_stack.append("loop")
-
-
-def p_exit_loop(p):
-    "exit_loop :"
-    p.parser.context_stack.pop()
-
-
 ###
 # Empty production (ε)
 ###
@@ -215,9 +204,15 @@ parser.source_filename = None
 # Whether any parser (syntax/semantic) errors were encountered during parsing
 parser.has_error = False
 
-# Context stack used for semantic checks in RETURN and CONTINUE statements
-# Tracks nested contexts - loops, functions and subroutines.
+# Context stack used for semantic checks in RETURN statements
+# Tracks nested contexts - functions and subroutines
 parser.context_stack = []
+
+# DO loop references
+parser.do_references = []
+
+# CONTINUE statement locations
+parser.continue_locations = []
 
 # List of main program unit
 parser.program_locations = []
@@ -251,6 +246,10 @@ def clear_parser_state(parser):
     parser.has_error = False
 
     parser.context_stack.clear()
+
+    parser.do_references.clear()
+
+    parser.continue_locations.clear()
 
     parser.program_locations.clear()
 

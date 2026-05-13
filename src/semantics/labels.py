@@ -1,5 +1,7 @@
 from error import print_label_diagnostic
 
+PREPROCESSED_LABEL_PREFIX_LEN = len("@LABEL(")
+
 
 def check_labels(parser):
     """
@@ -82,8 +84,6 @@ def record_label_definition(parser, label: int, lineno: int, col_start: int):
     Note: accounts for the "@LABEL(" prefix added by preprocessor when
           calculating the column start of the label itself.
     """
-
-    PREPROCESSED_LABEL_PREFIX_LEN = len("@LABEL(")
 
     if label in parser.defined_labels:
         parser.redefined_labels.add(label)
