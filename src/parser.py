@@ -186,7 +186,7 @@ def main():
     """
     import argparse
     import sys
-    from common import read_input
+    from common import read_input, open_file
     from preprocessor import preprocess
     from semantics.labels import check_labels
     from abstract_syntax_tree import (
