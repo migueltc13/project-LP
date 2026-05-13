@@ -30,6 +30,7 @@ import sys
 _RED = "\033[31m"
 _YELLOW = "\033[33m"
 _BLUE = "\033[34m"
+_CYAN = "\033[36m"
 _BOLD = "\033[1m"
 _RESET = "\033[0m"
 
@@ -61,6 +62,7 @@ def print_error(
     length: int,
     *,
     warning: bool = False,
+    hint: str | None = None,
     filename: str | None = None,
     stream=None,
     use_color: bool | None = None,
@@ -100,8 +102,8 @@ def print_error(
     # Clamp the marker position so diagnostics do not crash on bad metadata.
     if len(clean_line) == 0:
         col_start = 1
-    elif col_start > len(clean_line):
-        col_start = len(clean_line)
+    elif col_start > len(clean_line) + 1:
+        col_start = len(clean_line) + 1
 
     kind = "warning" if warning else "error"
     kind_color = _YELLOW if warning else _RED
@@ -126,6 +128,12 @@ def print_error(
     print(f"{' ' * gutter_width} |", file=stream)
     print(f"{line_number_text} | {clean_line}", file=stream)
     print(f"{' ' * gutter_width} | {pointer_padding}{colored_pointer}", file=stream)
+    print(f"{' ' * gutter_width} | {pointer_padding}{colored_pointer}", file=stream)
+
+    if hint is not None:
+        colored_hint_label = _color("hint", _CYAN + _BOLD, enabled=use_color)
+        colored_hint = _color(hint, _CYAN, enabled=use_color)
+        print(f"{' ' * gutter_width} = {colored_hint_label}: {colored_hint}", file=stream)
 
 
 def _get_source_line(parser, lineno: int) -> str:
