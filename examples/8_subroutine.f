@@ -1,0 +1,12 @@
+      PROGRAM SUBROUTINE_EXAMPLE
+      INTEGER VALUE
+      VALUE = 10
+      CALL INCREMENT(VALUE)
+      PRINT *, 'Value =', VALUE
+      END
+
+      SUBROUTINE INCREMENT(X)
+      INTEGER X
+      X = X + 1
+      RETURN
+      END
