@@ -21,6 +21,7 @@
       parsing in the code generation phase
 - [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
+- [ ] Functions check if they exist, right number of arguments, etc. (similarity function for hints)
 - [ ] Add more lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
