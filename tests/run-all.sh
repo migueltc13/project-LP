@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
 CYN='\033[0;36m'
 PRP='\033[0;35m'
 RST='\033[0m'
@@ -42,7 +45,7 @@ for arg in "$@"; do
 done
 
 # Check if needed directories exist
-dirs=("examples" "tests")
+dirs=("$ROOT_DIR/examples" "$ROOT_DIR/tests")
 for dir in "${dirs[@]}"; do
     if [ ! -d "$dir" ]; then
         echo "Error: $dir/ directory not found!"
@@ -54,7 +57,7 @@ banner "FORTRAN COMPILATION"
 
 # Compile fortran files to validate that they compile correctly
 echo "Compiling Fortran examples..."
-pushd examples/ >/dev/null || \
+pushd "$ROOT_DIR/examples" >/dev/null || \
     (echo "Error: examples/ directory not found!" && exit 1)
 make clean
 make
@@ -64,13 +67,13 @@ popd >/dev/null || \
 banner "TEST EXECUTION"
 
 # Get all executable files in the tests/ directory (excluding this script)
-TESTS=$(find tests/ -type f -executable ! -name "$(basename "$0")")
+TESTS=$(find "$ROOT_DIR/tests" -type f -executable ! -name "$(basename "$0")")
 
 # Run all tests
 exit_code=0
 for TEST in $TESTS; do
     section "$TEST"
-    if ! ./"$TEST"; then
+    if ! "$TEST"; then
         echo "Error: $TEST failed!"
         exit_code=1
     fi
