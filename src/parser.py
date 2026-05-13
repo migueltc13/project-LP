@@ -5,7 +5,7 @@ from pathlib import Path
 
 import abstract_syntax_tree as ast
 from lexer import lexer, tokens, clear_lexer_state
-from error import print_error
+from error import print_syntax_error
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
@@ -113,46 +113,7 @@ def p_error(p):
     Report syntax errors using compiler-style diagnostics.
     """
 
-    parser.has_error = True
-
-    if p is None:
-        if parser.source_lines:
-            lineno = len(parser.source_lines)
-            line_content = parser.source_lines[-1]
-            col_start = len(line_content) + 1
-        else:
-            lineno = 1
-            line_content = ""
-            col_start = 1
-
-        print_error(
-            error="unexpected end of file",
-            line=line_content,
-            lineno=lineno,
-            col_start=col_start,
-            length=1,
-            filename=parser.source_filename,
-            hint="perhaps you forgot the END statement"
-        )
-
-        return
-
-    try:
-        line_content = parser.source_lines[p.lineno - 1]
-    except IndexError:
-        line_content = ""
-
-    line_start = p.lexer.lexdata.rfind("\n", 0, p.lexpos) + 1
-    column = p.lexpos - line_start + 1
-
-    print_error(
-        error=f"syntax error at token {p.value!r}",
-        line=line_content,
-        lineno=p.lineno,
-        col_start=column,
-        length=max(1, len(str(p.value))),
-        filename=parser.source_filename
-    )
+    print_syntax_error(parser, p)
 
 
 ###
