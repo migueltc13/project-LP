@@ -5,6 +5,7 @@ from pathlib import Path
 
 import abstract_syntax_tree as ast
 from lexer import lexer, tokens
+from error import print_error
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
@@ -108,10 +109,27 @@ def p_empty(p):
 ###
 
 def p_error(p):
+    parser.has_error = True
+
     if p is None:
-        print("Syntax error at EOF")
+        print("Syntax error at end of file (EOF)")
+
     else:
-        print(f"Syntax error at '{p.value}' (line {p.lineno})")
+        try:
+            line_content = parser.source_lines[p.lineno - 1]
+        except IndexError:
+            line_content = ""
+
+        line_start = p.lexer.lexdata.rfind('\n', 0, p.lexpos) + 1
+        column = (p.lexpos - line_start) + 1
+
+        print_error(
+            error=f"Syntax error at token '{p.value}'",
+            line=line_content,
+            lineno=p.lineno,
+            col_start=column,
+            length=len(str(p.value))
+        )
 
 
 ###
@@ -183,7 +201,6 @@ if __name__ == '__main__':
     import sys
     from preprocessor import preprocess
     from semantics.labels import check_labels
-    from semantics.types import SemanticError, type_check
     from abstract_syntax_tree import (
         pretty_print,
         visualize,
@@ -193,7 +210,7 @@ if __name__ == '__main__':
 
     # CLI argument parsing
     parser_args = argparse.ArgumentParser(
-        description="Parse Fortran 77 source code and print the resulting AST. "
+        description="Parse Fortran 77 source code and print the resulting AST."
     )
 
     parser_args.add_argument(
@@ -250,8 +267,19 @@ if __name__ == '__main__':
 
     # Semantic checks
     check_labels(parser)
-    # TODO type checking and others
+
+    if parser.has_error:
+        print("\n[!] The compilation failed due to the errors listed above.")
+        raise Exception("Parsing failed")
 
     # Pretty print the resulting AST
     print()
     pretty_print(result)
+
+    # Visualize AST
+    if args.visualize:
+        try:
+            visualize(result, output_path=args.visualize)
+            open_file(args.visualize)
+        except Exception as exc:
+            print(f"AST Visualization error: {exc}")
