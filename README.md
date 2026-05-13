@@ -12,6 +12,7 @@
 
 ## TODO list
 
+- [ ] NOTE that strict version was implemented instead of implicit typing rules
 - [ ] Out of range errors are detected in the lexer, but they are not complete
       (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
       parsing, also adjust values for EWVM compatibility
