@@ -1,6 +1,6 @@
 from .program import check_program
-from .labels  import check_labels
-from .loops   import check_loops
+from .labels import check_labels
+from .loops import check_loops
 
 
 def semantic_checks(parser, ast) -> None:
