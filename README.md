@@ -38,7 +38,7 @@
 - [ ] (parser) check if check for special statements like RETURN, CONTINUE, STOP,
       are being only recognized in the right contexts
       (e.g. RETURN only inside subroutines/functions, etc.)
-- [ ] test labels errors (e.g. redefinition, use of undefined labels,
+- [x] test labels errors (e.g. redefinition, use of undefined labels,
       warning for unused labels)
 
 ## Compiler Pipeline

@@ -4,6 +4,7 @@ import glob
 import os
 import subprocess
 import difflib
+from pathlib import Path
 
 C = {
     "red":    "\033[91m",
@@ -50,7 +51,8 @@ def pretty_diff(f90_out: str, f_out: str, indent: int = 4):
 
 
 if __name__ == "__main__":
-    f90_files = glob.glob("examples/*.f90")
+    root = Path(__file__).resolve().parents[1]
+    f90_files = glob.glob(str(root / "examples" / "*.f90"))
     if not f90_files:
         print("No .f90 files found in examples/")
         exit(1)
@@ -58,18 +60,19 @@ if __name__ == "__main__":
     for f90_file in f90_files:
         # Get the corresponding .f file name
         base_name = os.path.splitext(os.path.basename(f90_file))[0]
-        f_file = f"examples/{base_name}.f"
-        if not os.path.exists(f_file):
+        f_file = root / "examples" / f"{base_name}.f"
+        if not f_file.exists():
             continue
 
         # print(f"Comparing lexer for {f90_file} and {f_file}...")
 
         # Run "python3 src/lexer.py --test --format=free < {f90_file}"
         f90_result = subprocess.run(
-            ["python3", "src/lexer.py", "--test", "--format=free"],
+            ["python3", str(root / "src" / "lexer.py"), "--test", "--format=free"],
             input=open(f90_file).read(),
             text=True,
             capture_output=True,
+            cwd=root,
         )
         if f90_result.returncode != 0:
             print(f"Error processing {f90_file}: {f90_result.stderr}")
@@ -77,10 +80,11 @@ if __name__ == "__main__":
 
         # Run "python3 src/lexer.py --test --format=fixed < {f_file}"
         f_result = subprocess.run(
-            ["python3", "src/lexer.py", "--test", "--format=fixed"],
-            input=open(f_file).read(),
+            ["python3", str(root / "src" / "lexer.py"), "--test", "--format=fixed"],
+            input=f_file.read_text(),
             text=True,
             capture_output=True,
+            cwd=root,
         )
         if f_result.returncode != 0:
             print(f"Error processing {f_file}: {f_result.stderr}")

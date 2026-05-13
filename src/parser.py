@@ -325,6 +325,9 @@ def main():
     check_program(parser)
     check_labels(parser)
 
+    if parser.has_error:
+        sys.exit(1)
+
     # Pretty print the resulting AST
     print()
     pretty_print(result)
