@@ -16,26 +16,26 @@ from semantics.labels import (
 
 def p_do_loop(p):
     """
-    do_loop : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression loop_statements LABEL CONTINUE
+    do_loop : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression enter_loop loop_statements LABEL CONTINUE exit_loop
     """
     # INFO The numeric label after DO identifies the matching CONTINUE line.
     # TODO Actually check if the label matches the one on the CONTINUE statement
 
     referenced_label = p[2]
-    defined_label = p[9]
+    defined_label = p[10]
 
     record_label_reference(
         p.parser,
         referenced_label,
         lineno=p.lineno(2),
-        col_start=get_token_column(p.slice[2]),
+        col_start=get_token_column(p.slice[2])
     )
 
     record_label_definition(
         p.parser,
         defined_label,
-        lineno=p.lineno(9),
-        col_start=get_token_column(p.slice[9]),
+        lineno=p.lineno(10),
+        col_start=get_token_column(p.slice[10])
     )
 
     p[0] = ast.Do(
@@ -43,18 +43,16 @@ def p_do_loop(p):
         variable=p[3],
         start=p[5],
         end=p[7],
-        body=p[8],
-        terminator_label=defined_label,
+        body=p[9],
+        terminator_label=defined_label
     )
 
 
 def p_loop_statements(p):
     """
     loop_statements : loop_statement loop_statements
-                    |
+                    | empty
     """
-    # AST node: if there are statements, create a list of them;
-    # Otherwise, an empty list
     if len(p) == 3:
         p[0] = [p[1]] + p[2]
     else:
@@ -65,5 +63,4 @@ def p_loop_statement(p):
     """
     loop_statement : nonlabel_statement
     """
-    # AST node: just pass the statement up the tree
     p[0] = p[1]

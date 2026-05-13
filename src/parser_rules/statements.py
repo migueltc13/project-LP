@@ -1,5 +1,5 @@
 import abstract_syntax_tree as ast
-from error import get_token_column
+from error import get_token_column, print_parser_token_error
 from semantics.labels import (
     record_label_definition,
     record_label_reference
@@ -50,12 +50,9 @@ def p_nonlabel_statement(p):
                        | call_statement
                        | if_statement
                        | do_loop
-                       | CONTINUE
+                       | continue_statement
     """
-    if p.slice[1].type == "CONTINUE":
-        p[0] = ast.Continue()
-    else:
-        p[0] = p[1]
+    p[0] = p[1]
 
 
 def p_declaration(p):
@@ -110,6 +107,19 @@ def p_assignment(p):
     p[0] = ast.Assign(p[1], p[3])
 
 
+def p_variable(p):
+    """
+    variable : IDENTIFIER
+             | IDENTIFIER '(' expression_list ')'
+    """
+    # AST node: if it's an array reference, create a node with the name and indices;
+    # Otherwise, just create a node for the variable
+    if len(p) == 2:
+        p[0] = ast.Var(p[1])
+    else:
+        p[0] = ast.ArrayRef(p[1], p[3])
+
+
 def p_goto_statement(p):
     """
     goto_statement : GOTO INTEGER_NUMBER
@@ -141,7 +151,15 @@ def p_return_statement(p):
     """
     return_statement : RETURN
     """
-    # AST node: just create a node for the RETURN statement
+    if not any(ctx in p.parser.context_stack
+               for ctx in {"function", "subroutine"}):
+
+        print_parser_token_error(
+            p.parser,
+            p.slice[1],
+            message="RETURN statement outside FUNCTION or SUBROUTINE"
+        )
+
     p[0] = ast.Return()
 
 
@@ -159,14 +177,15 @@ def p_call_statement(p):
         p[0] = ast.CallStatement(p[2], [])
 
 
-def p_variable(p):
+def p_continue_statement(p):
     """
-    variable : IDENTIFIER
-             | IDENTIFIER '(' expression_list ')'
+    continue_statement : CONTINUE
     """
-    # AST node: if it's an array reference, create a node with the name and indices;
-    # Otherwise, just create a node for the variable
-    if len(p) == 2:
-        p[0] = ast.Var(p[1])
-    else:
-        p[0] = ast.ArrayRef(p[1], p[3])
+    if "loop" not in p.parser.context_stack:
+        print_parser_token_error(
+            p.parser,
+            p.slice[1],
+            message="CONTINUE statement outside DO loop"
+        )
+
+    p[0] = ast.Continue()

@@ -75,16 +75,16 @@ def p_main_program(p):
 
 def p_subroutine(p):
     """
-    subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' statements END
+    subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END
     """
-    p[0] = ast.Subroutine(p[2], p[4], p[6])
+    p[0] = ast.Subroutine(p[2], p[4], p[7])
 
 
 def p_function(p):
     """
-    function : type FUNCTION IDENTIFIER '(' arguments ')' statements END
+    function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END
     """
-    p[0] = ast.Function(p[1], p[3], p[5], p[7])
+    p[0] = ast.Function(p[1], p[3], p[5], p[8])
 
 
 ###
@@ -136,13 +136,46 @@ def p_argument(p):
 
 
 ###
+# State tracking: Subroutine, Function, Do-Loop
+# Used to print error when RETURN or CONTINUE statements are outside of context
+###
+
+def p_enter_subroutine(p):
+    "enter_subroutine :"
+    p.parser.context_stack.append("subroutine")
+
+
+def p_exit_subroutine(p):
+    "exit_subroutine :"
+    p.parser.context_stack.pop()
+
+
+def p_enter_function(p):
+    "enter_function :"
+    p.parser.context_stack.append("function")
+
+
+def p_exit_function(p):
+    "exit_function :"
+    p.parser.context_stack.pop()
+
+
+def p_enter_loop(p):
+    "enter_loop :"
+    p.parser.context_stack.append("loop")
+
+
+def p_exit_loop(p):
+    "exit_loop :"
+    p.parser.context_stack.pop()
+
+
+###
 # Empty production (ε)
 ###
 
 def p_empty(p):
-    """
-    empty :
-    """
+    "empty :"
     p[0] = None
 
 
@@ -182,6 +215,10 @@ parser.source_filename = None
 # Whether any parser (syntax/semantic) errors were encountered during parsing
 parser.has_error = False
 
+# Context stack used for semantic checks in RETURN and CONTINUE statements
+# Tracks nested contexts - loops, functions and subroutines.
+parser.context_stack = []
+
 # List of main program unit
 parser.program_locations = []
 
@@ -212,6 +249,8 @@ def clear_parser_state(parser):
     parser.source_filename = None
 
     parser.has_error = False
+
+    parser.context_stack.clear()
 
     parser.program_locations.clear()
 
