@@ -19,7 +19,7 @@
 - [ ] Use `parser.has_error` fields to raise an exception once at the end of
       parsing in the code generation phase
 - [ ] Type checking with new AST object
-- [ ] Variables (unused warning, redefinition, etc.)
+- [x] Variables (unused warning, redefinition, etc.)
 - [ ] Functions check if they exist, right number of arguments, etc. (similarity function for hints)
 - [ ] Add more lexer tests
     - [x] strings (escaped delimiter, multiline, etc.)
