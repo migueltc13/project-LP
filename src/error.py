@@ -54,6 +54,62 @@ def _color(text: str, color_code: str, *, enabled: bool) -> str:
     return f"{color_code}{text}{_RESET}"
 
 
+def get_source_line(obj, lineno: int) -> str:
+    """
+    Return the source line for a diagnostic.
+
+    Arguments:
+        obj: An object with a `source_lines` attribute containing the source
+             code lines. Either lexer or parser objects can be used.
+        lineno: The 1-based line number to retrieve.
+
+    Returns:
+        str: The source line at the given line number, or an empty string if out
+             of range.
+    """
+
+    try:
+        return obj.source_lines[lineno - 1]
+    except (AttributeError, IndexError):
+        return ""
+
+
+def get_lexer_token_column(t) -> int:
+    """
+    Return the 1-based column where token t starts.
+
+    Arguments:
+        t: A lexer token with `t.lexer.lexdata` containing the full source text
+           and `t.lexpos` indicating the position of the token in the source
+           text.
+
+    Returns:
+        int: The 1-based column number where the token starts.
+    """
+
+    line_start = t.lexer.lexdata.rfind("\n", 0, t.lexpos) + 1
+    return t.lexpos - line_start + 1
+
+
+def get_parser_eof_location(parser) -> tuple[str, int, int]:
+    """
+    Return the source line, line number, and column for an EOF diagnostic.
+
+    The column points just after the final character of the final source line.
+    """
+
+    if parser.source_lines:
+        lineno = len(parser.source_lines)
+        line = parser.source_lines[-1]
+        col_start = len(line) + 1
+    else:
+        lineno = 1
+        line = ""
+        col_start = 1
+
+    return line, lineno, col_start
+
+
 def print_error(
     error: str,
     line: str,
@@ -136,18 +192,57 @@ def print_error(
         print(f"{' ' * gutter_width} = {colored_hint_label}: {colored_hint}", file=stream)
 
 
-def _get_source_line(parser, lineno: int) -> str:
+def print_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> None:
     """
-    Return the source line for a diagnostic.
+    Report a numeric literal out of range diagnostic.
     """
 
-    if lineno < 1:
-        return ""
+    t.lexer.has_error = True
 
-    if lineno > len(parser.source_lines):
-        return ""
+    print_error(
+        error=f"{type_name} literal {literal!r} out of range",
+        line=get_source_line(t.lexer, t.lineno),
+        lineno=t.lineno,
+        col_start=get_lexer_token_column(t),
+        length=len(literal),
+        filename=getattr(t.lexer, "source_filename", None),
+        hint=hint,
+    )
 
-    return parser.source_lines[lineno - 1]
+
+def print_syntax_error(parser, token) -> None:
+    """
+    Print a parser syntax error diagnostic.
+
+    If token is None, report unexpected EOF.
+    Otherwise, report the unexpected token location.
+    """
+
+    parser.has_error = True
+
+    if token is None:
+        line, lineno, col_start = get_parser_eof_location(parser)
+
+        print_error(
+            error="unexpected end of file",
+            line=line,
+            lineno=lineno,
+            col_start=col_start,
+            length=1,
+            filename=parser.source_filename,
+            hint="perhaps you forgot the END statement",
+        )
+
+        return
+
+    print_error(
+        error=f"syntax error at token {token.value!r}",
+        line=get_source_line(parser, token.lineno),
+        lineno=token.lineno,
+        col_start=get_lexer_token_column(token),
+        length=max(1, len(str(token.value))),
+        filename=parser.source_filename,
+    )
 
 
 def print_label_diagnostic(
@@ -167,7 +262,7 @@ def print_label_diagnostic(
 
     print_error(
         error=message,
-        line=_get_source_line(parser, lineno),
+        line=get_source_line(parser, lineno),
         lineno=lineno,
         col_start=col_start,
         length=length,

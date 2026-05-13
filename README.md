@@ -12,12 +12,14 @@
 
 ## TODO list
 
+- [ ] Consistent CLI parsing in lexer and parser (also add input file support)
+- [ ] Out of range errors are detected in the lexer, but they are not complete
+      (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
+      parsing, also adjust values for EWVM compatibility
 - [ ] Add AST "file" class (as tree root), and update starter rule to catch
       functions, subroutines, and main program
 - [ ] Use `parser.has_error` fields to raise an exception once at the end of
       parsing in the code generation phase
-- [ ] Consistent CLI parsing in lexer and parser (also add input file support)
-- [ ] According to EWVM, check if numbers overflow, if so print error/warning
 - [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
 - [ ] Use states in lexer to catch more errors
