@@ -12,8 +12,11 @@
 
 ## TODO list
 
-- [ ] Use `print_error` function and use `parser.has_error` flag to raise
-      exception once at the end of parsing
+- [ ] Add AST "file" class (as tree root), and update starter rule to catch
+      functions, subroutines, and main program
+- [ ] Use `parser.has_error` fields to raise an exception once at the end of
+      parsing in the code generation phase
+- [ ] Consistent CLI parsing in lexer and parser (also add input file support)
 - [ ] According to EWVM, check if numbers overflow, if so print error/warning
 - [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
@@ -21,7 +24,6 @@
     (rationale: maximize lexer work, e.g. PROGRAM, FUNCTION, EXPR, etc.)
 - [ ] Add lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
-- [ ] Lexer update number parsing to handle more cases (e.g. 1.0E-10, 1.0D+10, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/
 - [ ] Clean parser rules documentation "AST node: ..."
 - [ ] Optimizations
