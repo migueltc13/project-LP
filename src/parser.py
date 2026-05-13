@@ -237,8 +237,7 @@ def main():
 
     from common import read_input, detect_source_format, open_file
     from preprocessor import preprocess
-    from semantics.labels import check_labels
-    from semantics.program import check_program
+    from semantics import semantic_checks
     from abstract_syntax_tree import (
         pretty_print,
         visualize,
@@ -328,8 +327,7 @@ def main():
         sys.exit(1)
 
     # Semantic checks
-    check_program(parser)
-    check_labels(parser)
+    semantic_checks(parser, ast=result)
 
     if parser.has_error:
         sys.exit(1)
