@@ -9,6 +9,9 @@ def check_labels(parser):
         - errors for redefined labels
         - errors for referenced labels that were never defined
         - warnings for defined labels that were never referenced
+
+    Arguments:
+        parser: The parser object containing label information.
     """
 
     diagnostics = []
