@@ -363,7 +363,7 @@ def main():
         sys.exit(1)
 
     # Semantic checks
-    semantic_checks(parser, ast=result)
+    _ = semantic_checks(parser, ast=result)
 
     if parser.has_error:
         sys.exit(1)
