@@ -217,21 +217,52 @@ def _preprocess_free_format(raw_input: str) -> str:
 
     return "\n".join(out)
 
+
 ###
 # Main function for testing
 ###
 
-if __name__ == "__main__":
+def main():
+    """
+    Main function to run the preprocessor.
+    """
+
     import argparse
-    parser = argparse.ArgumentParser(
-        description="Preprocess Fortran source code."
-    )
-    parser.add_argument("--format", choices=["fixed", "free"], default="fixed",
-                        help="The source format (default: fixed)")
-    args = parser.parse_args()
-
     import sys
-    raw_input = sys.stdin.read()
 
-    preprocessed_code = preprocess(raw_input, format=args.format)
+    from common import read_input, detect_source_format
+
+    # CLI argument parsing
+    parser_args = argparse.ArgumentParser(
+        description="Pre-process Fortran source code."
+    )
+
+    parser_args.add_argument(
+        "input_file",
+        nargs="?",
+        help="Fortran source file to pre-process. If omitted, read from stdin.",
+    )
+
+    parser_args.add_argument(
+        "--format",
+        choices=["fixed", "free"],
+        default=None,
+        help="The source format. If omitted, inferred from file extension; "
+             "stdin defaults to fixed."
+    )
+
+    args = parser_args.parse_args()
+
+    # Read input data
+    try:
+        source_filename, source_data = read_input(args.input_file)
+    except Exception as e:
+        print(f"Error reading input: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Detect source format based on file extension
+    source_format = detect_source_format(args.input_file, args.format)
+
+    # Pre-process the input data
+    preprocessed_code = preprocess(source_data, format=source_format)
     print(preprocessed_code)
