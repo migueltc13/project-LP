@@ -4,7 +4,7 @@ import ply.yacc as yacc
 from pathlib import Path
 
 import abstract_syntax_tree as ast
-from lexer import lexer, tokens
+from lexer import lexer, tokens, clear_lexer_state
 from error import print_error
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
@@ -109,6 +109,10 @@ def p_empty(p):
 ###
 
 def p_error(p):
+    """
+    Report syntax errors using compiler-style diagnostics.
+    """
+
     parser.has_error = True
 
     if p is None:
@@ -147,7 +151,7 @@ def p_error(p):
         lineno=p.lineno,
         col_start=column,
         length=max(1, len(str(p.value))),
-        filename=parser.source_filename,
+        filename=parser.source_filename
     )
 
 
@@ -195,7 +199,7 @@ parser.label_reference_locations = {}
 
 def clear_parser_state(parser):
     """
-    Clear parser state for labels and errors before parsing a new file.
+    Clear parser state before parsing a new file.
     """
     parser.source_lines.clear()
 
@@ -270,16 +274,28 @@ if __name__ == '__main__':
             print(f"Preprocessing error: {exc}")
             sys.exit(1)
 
-    # Set up the parser state and parse the input data
+    # Set up lexer and parser state
+    clear_lexer_state(lexer)
     clear_parser_state(parser)
 
-    parser.source_lines = data.splitlines()
-
+    source_lines = data.splitlines()
     # TODO actually support input file with -i or similar
     #      otherwise read from stdin
-    parser.source_filename = "<stdin>"
+    source_filename = "<stdin>"
 
+    lexer.source_lines = source_lines
+    lexer.source_filename = source_filename
+
+    parser.source_lines = source_lines
+    parser.source_filename = source_filename
+
+    # Parse the input data
     result = parser.parse(data, lexer=lexer, debug=False)
+
+    # Propagate lexer errors to parser error state,
+    # since the lexer doesn't exit on error
+    if lexer.has_error:
+        parser.has_error = True
 
     if result is None:
         sys.exit(1)
@@ -299,6 +315,6 @@ if __name__ == '__main__':
         try:
             visualize_file = visualize(result, output_path=args.visualize)
             print(f"\nAST visualization generated at: {visualize_file}")
-            open_file(args.visualize)
+            open_file(visualize_file)
         except Exception as exc:
             print(f"AST Visualization error: {exc}")
