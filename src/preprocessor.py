@@ -2,6 +2,7 @@
 
 import re
 
+
 ###
 # Custom exceptions for preprocessor errors
 ###
@@ -12,11 +13,13 @@ class PreprocessorError(Exception):
     """
     pass
 
+
 class PreprocessorFormatError(PreprocessorError):
     """
     Raised when a line violates fixed-format rules.
     """
     pass
+
 
 class PreprocessorContinuationError(PreprocessorError):
     """
@@ -25,12 +28,14 @@ class PreprocessorContinuationError(PreprocessorError):
     """
     pass
 
+
 class PreprocessorLabelError(PreprocessorError):
     """
     Raised when a statement label violates numeric or
     length constraints (1-5 digits).
     """
     pass
+
 
 ###
 # Public preprocess function
@@ -51,7 +56,7 @@ def preprocess(raw_input: str, format: str = "fixed") -> str:
     See `_preprocess_fixed_format` for fixed-format details,
     and `_preprocess_free_format` for free-format details.
 
-    Args:
+    Arguments:
         raw_input (str): The raw Fortran source code.
         format (str): "fixed" for column-dependent format or "free" for F90 style.
 
@@ -67,6 +72,7 @@ def preprocess(raw_input: str, format: str = "fixed") -> str:
         return _preprocess_free_format(raw_input)
     else:
         raise ValueError(f"Unknown format: {format}")
+
 
 ###
 # Fixed-format preprocessing
@@ -84,7 +90,7 @@ def _preprocess_fixed_format(raw_input: str) -> str:
         output allowing the lexer to operate on a more uniform token stream,
         and preserving the original line numbers for accurate error reporting.
 
-    Args:
+    Arguments:
         raw_input (str): The raw fixed-format Fortran source code.
 
     Returns:
@@ -156,6 +162,7 @@ def _preprocess_fixed_format(raw_input: str) -> str:
 
     return "\n".join(out)
 
+
 ###
 # Free-format preprocessing
 ###
@@ -166,7 +173,7 @@ def _preprocess_free_format(raw_input: str) -> str:
     pseudo-tokens while preserving the original line structure for accurate
     error reporting.
 
-    Args:
+    Arguments:
         raw_input (str): The raw free-format Fortran source code.
 
     Returns:
@@ -210,21 +217,52 @@ def _preprocess_free_format(raw_input: str) -> str:
 
     return "\n".join(out)
 
+
 ###
 # Main function for testing
 ###
 
-if __name__ == "__main__":
+def main():
+    """
+    Main function to run the preprocessor.
+    """
+
     import argparse
-    parser = argparse.ArgumentParser(
-        description="Preprocess Fortran source code."
-    )
-    parser.add_argument("--format", choices=["fixed", "free"], default="fixed",
-                        help="The source format (default: fixed)")
-    args = parser.parse_args()
-
     import sys
-    raw_input = sys.stdin.read()
 
-    preprocessed_code = preprocess(raw_input, format=args.format)
+    from common import read_input, detect_source_format
+
+    # CLI argument parsing
+    parser_args = argparse.ArgumentParser(
+        description="Pre-process Fortran source code."
+    )
+
+    parser_args.add_argument(
+        "input_file",
+        nargs="?",
+        help="Fortran source file to pre-process. If omitted, read from stdin.",
+    )
+
+    parser_args.add_argument(
+        "--format",
+        choices=["fixed", "free"],
+        default=None,
+        help="The source format. If omitted, inferred from file extension; "
+             "stdin defaults to fixed."
+    )
+
+    args = parser_args.parse_args()
+
+    # Read input data
+    try:
+        source_filename, source_data = read_input(args.input_file)
+    except Exception as e:
+        print(f"Error reading input: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Detect source format based on file extension
+    source_format = detect_source_format(args.input_file, args.format)
+
+    # Pre-process the input data
+    preprocessed_code = preprocess(source_data, format=source_format)
     print(preprocessed_code)

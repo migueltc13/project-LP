@@ -12,8 +12,6 @@
 
 ## TODO list
 
-- [ ] Aggregate semantic checks in `src/semantics/__init__.py`
-
 - [ ] Out of range errors are detected in the lexer, but they are not complete
       (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
       parsing, also adjust values for EWVM compatibility
@@ -21,6 +19,7 @@
       parsing in the code generation phase
 - [ ] Type checking with new AST object
 - [ ] Variables (unused warning, redefinition, etc.)
+- [ ] Functions check if they exist, right number of arguments, etc. (similarity function for hints)
 - [ ] Add more lexer tests
     - [ ] strings (escaped delimiter, multiline, etc.)
 - [ ] Write equivalent .f90 (free-format) at examples/

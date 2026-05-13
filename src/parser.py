@@ -231,12 +231,13 @@ def main():
     """
     Main function to run the Fortran 77 parser and semantic checks.
     """
+
     import argparse
     import sys
-    from common import read_input, open_file
+
+    from common import read_input, detect_source_format, open_file
     from preprocessor import preprocess
-    from semantics.labels import check_labels
-    from semantics.program import check_program
+    from semantics import semantic_checks
     from abstract_syntax_tree import (
         pretty_print,
         visualize,
@@ -253,14 +254,15 @@ def main():
     parser_args.add_argument(
         "input_file",
         nargs="?",
-        help="Fortran source file to lex. If omitted, read from stdin.",
+        help="Fortran source file to parse. If omitted, read from stdin.",
     )
 
     parser_args.add_argument(
         "--format",
         choices=["fixed", "free"],
-        default="fixed",
-        help="The source format (default: fixed)"
+        default=None,
+        help="The source format. If omitted, inferred from file extension; "
+             "stdin defaults to fixed."
     )
 
     parser_args.add_argument(
@@ -290,10 +292,13 @@ def main():
         print(f"Error reading input: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # Detect source format based on file extension
+    source_format = detect_source_format(args.input_file, args.format)
+
     # Pre-process the input data
     if not args.no_preprocess:
         try:
-            source_data = preprocess(source_data, format=args.format)
+            source_data = preprocess(source_data, format=source_format)
         except Exception as exc:
             print(f"Preprocessing error: {exc}", file=sys.stderr)
             sys.exit(1)
@@ -322,8 +327,7 @@ def main():
         sys.exit(1)
 
     # Semantic checks
-    check_program(parser)
-    check_labels(parser)
+    semantic_checks(parser, ast=result)
 
     if parser.has_error:
         sys.exit(1)
