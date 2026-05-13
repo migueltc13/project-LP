@@ -12,9 +12,8 @@
 
 ## TODO list
 
-- [ ] Rename DEFAULT_VISUALIZE_OUTPUT_PATH to DEFAULT_VIS_OUTPUT_PATH
-- [ ] Rename get_lexer_token_column to get_token_column
 - [ ] Aggregate semantic checks in `src/semantics/__init__.py`
+- [ ] `src/parser.py examples/errors/semantic/goto_not_exist.f`
 
 - [ ] Out of range errors are detected in the lexer, but they are not complete
       (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the

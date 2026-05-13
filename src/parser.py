@@ -5,7 +5,7 @@ from pathlib import Path
 
 import abstract_syntax_tree as ast
 from lexer import lexer, tokens, clear_lexer_state
-from error import print_syntax_error, get_lexer_token_column
+from error import print_syntax_error, get_token_column
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.loops import *
@@ -66,7 +66,7 @@ def p_main_program(p):
     p.parser.program_locations.append({
         "name": p[2],
         "lineno": p.lineno(1),
-        "col_start": get_lexer_token_column(p.slice[1]),
+        "col_start": get_token_column(p.slice[1]),
         "length": len(p[1]),
     })
 
@@ -240,7 +240,7 @@ def main():
     from abstract_syntax_tree import (
         pretty_print,
         visualize,
-        DEFAULT_VISUALIZE_OUTPUT_PATH
+        DEFAULT_VIS_OUTPUT_PATH
     )
 
     global lexer, parser
@@ -273,11 +273,11 @@ def main():
     parser_args.add_argument(
         "--visualize", "--vis",
         nargs="?",
-        const=DEFAULT_VISUALIZE_OUTPUT_PATH,
+        const=DEFAULT_VIS_OUTPUT_PATH,
         metavar="OUTPUT",
         help=(
             "Generate a Graphviz image of the AST "
-            f"(default output: {DEFAULT_VISUALIZE_OUTPUT_PATH})"
+            f"(default output: {DEFAULT_VIS_OUTPUT_PATH})"
         ),
     )
 

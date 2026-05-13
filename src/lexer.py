@@ -5,7 +5,7 @@ from error import (
     print_error,
     print_numeric_range_error,
     get_source_line,
-    get_lexer_token_column
+    get_token_column
 )
 
 ###
@@ -359,7 +359,7 @@ def t_error(t):
         error=error,
         line=get_source_line(lexer, t.lineno),
         lineno=t.lineno,
-        col_start=get_lexer_token_column(t),
+        col_start=get_token_column(t),
         length=length,
         filename=getattr(lexer, "source_filename", None),
         hint=hint

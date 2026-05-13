@@ -11,7 +11,7 @@ from typing import Union
 from graphviz import Digraph
 
 
-DEFAULT_VISUALIZE_OUTPUT_PATH = "/tmp/ast.png"
+DEFAULT_VIS_OUTPUT_PATH = "/tmp/ast.png"
 
 
 ###
@@ -528,7 +528,7 @@ def pretty_print(ast: AST) -> None:
 # Graphviz visualization
 ###
 
-def visualize(ast: AST, output_path: str = DEFAULT_VISUALIZE_OUTPUT_PATH) -> str:
+def visualize(ast: AST, output_path: str = DEFAULT_VIS_OUTPUT_PATH) -> str:
     """
     Generate an AST image using Graphviz.
 
