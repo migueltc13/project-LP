@@ -1,34 +1,7 @@
-from dataclasses import dataclass, field
-
 import abstract_syntax_tree as ast
-from typing import Optional
 from error import print_node_error
 
-
-@dataclass
-class VariableInfo:
-    name:             str
-    type_name:        str              = "UNKNOWN"
-    declared:         bool             = False
-    used:             bool             = False
-    assigned:         bool             = False
-    initialized:      bool             = False
-    is_argument:      bool             = False
-    is_array:         bool             = False
-    declaration_node: Optional[object] = None
-
-
-@dataclass
-class ScopeInfo:
-    name: str
-    kind: str
-    variables: dict[str, VariableInfo] = field(default_factory=dict)
-    variable_order: list[str] = field(default_factory=list)
-
-
-@dataclass
-class SemanticInfo:
-    scopes: list[ScopeInfo] = field(default_factory=list)
+from .semantic_info import SemanticInfo, ScopeInfo, VariableInfo
 
 
 def touch_variable(scope: ScopeInfo, name: str) -> VariableInfo:

@@ -3,13 +3,13 @@
 import ply.yacc as yacc
 from pathlib import Path
 
-import abstract_syntax_tree as ast
 from lexer import lexer, tokens, clear_lexer_state
-from error import print_syntax_error, get_token_column
 from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.io import *
 from parser_rules.statements import *
+import abstract_syntax_tree as ast
+from error import print_syntax_error, get_token_column
 
 start = 'file'
 
@@ -17,17 +17,10 @@ start = 'file'
 def p_file(p):
     """
     file : program_units
+         | empty
     """
     filename = getattr(p.parser, "source_filename", "<unknown>")
-    p[0] = ast.File(filename, p[1])
-
-
-def p_file_empty(p):
-    """
-    file : empty
-    """
-    filename = getattr(p.parser, "source_filename", "<unknown>")
-    p[0] = ast.File(filename, [])
+    p[0] = ast.File(filename, [] if p[1] is None else p[1])
 
 
 ###
@@ -55,9 +48,7 @@ def p_program_unit(p):
 
 
 def p_main_program(p):
-    """
-    main_program : PROGRAM IDENTIFIER statements END
-    """
+    "main_program : PROGRAM IDENTIFIER statements END"
     # Record the main program unit location for error reporting
     # when more than one main program is defined
     p.parser.program_locations.append({
@@ -67,21 +58,18 @@ def p_main_program(p):
         "length": len(p[1]),
     })
 
-    p[0] = ast.Program(p[2], p[3])
+    p[0] = ast.Program(p[2], p[3], ast.location_from_token(p.slice[2]))
 
 
 def p_subroutine(p):
-    """
-    subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END
-    """
-    p[0] = ast.Subroutine(p[2], p[4], p[7])
+    "subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END"
+    p[0] = ast.Subroutine(p[2], p[4], p[7], ast.location_from_token(p.slice[2]))
 
 
 def p_function(p):
-    """
-    function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END
-    """
-    p[0] = ast.Function(p[1], p[3], p[5], p[8])
+    "function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END"
+    p[0] = ast.Function(p[1], p[3], p[5], p[8],
+                        ast.location_from_token(p.slice[3]))
 
 
 ###
@@ -106,14 +94,18 @@ def p_type(p):
 def p_arguments(p):
     """
     arguments : argument arguments_rest
+              | empty
     """
-    p[0] = [p[1]] + p[2]
+    if len(p) == 3:
+        p[0] = [p[1]] + p[2]
+    else:
+        p[0] = []
 
 
 def p_arguments_rest(p):
     """
     arguments_rest : ',' argument arguments_rest
-                   |
+                   | empty
     """
     if len(p) == 4:
         p[0] = [p[2]] + p[3]

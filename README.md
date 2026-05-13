@@ -12,6 +12,9 @@
 
 ## TODO list
 
+- [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
+      From the lexer to the parser and then to the code generation.
+      Also `# TODO remove intrinsics that we don't support` at the same file.
 - [ ] NOTE that strict version was implemented instead of implicit typing rules
 - [ ] Out of range errors are detected in the lexer, but they are not complete
       (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
@@ -31,7 +34,7 @@
     - [ ] Unused variable elimination
     - [ ] Constant `IF` elimination
     - [ ] Loop unrolling
-- [ ] (parser) check if check for special statements like RETURN, CONTINUE, STOP,
+- [x] (parser) check if check for special statements like RETURN, CONTINUE, STOP,
       are being only recognized in the right contexts
       (e.g. RETURN only inside subroutines/functions, etc.)
 - [x] test labels errors (e.g. redefinition, use of undefined labels,

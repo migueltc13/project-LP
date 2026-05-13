@@ -27,6 +27,7 @@ class File:
 class Program:
     name: str
     statements: list[Statement]
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -34,6 +35,7 @@ class Subroutine:
     name: str
     arguments: list[str]
     statements: list[Statement]
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,7 @@ class Function:
     name: str
     arguments: list[str]
     statements: list[Statement]
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
