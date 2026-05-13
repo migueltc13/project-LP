@@ -180,9 +180,13 @@ def clear_parser_state(parser):
 # CLI
 ###
 
-if __name__ == '__main__':
+def main():
+    """
+    Main function to run the Fortran 77 parser and semantic checks.
+    """
     import argparse
     import sys
+    from common import read_input
     from preprocessor import preprocess
     from semantics.labels import check_labels
     from abstract_syntax_tree import (
@@ -192,9 +196,17 @@ if __name__ == '__main__':
         DEFAULT_VISUALIZE_OUTPUT_PATH
     )
 
+    global lexer, parser
+
     # CLI argument parsing
     parser_args = argparse.ArgumentParser(
         description="Parse Fortran 77 source code and print the resulting AST."
+    )
+
+    parser_args.add_argument(
+        "input_file",
+        nargs="?",
+        help="Fortran source file to lex. If omitted, read from stdin.",
     )
 
     parser_args.add_argument(
@@ -225,33 +237,34 @@ if __name__ == '__main__':
     args = parser_args.parse_args()
 
     # Read input data
-    data = sys.stdin.read()
+    try:
+        source_filename, source_data = read_input(args.input_file)
+    except Exception as e:
+        print(f"Error reading input: {e}", file=sys.stderr)
+        sys.exit(1)
 
     # Pre-process the input data
     if not args.no_preprocess:
         try:
-            data = preprocess(data, format=args.format)
+            source_data = preprocess(source_data, format=args.format)
         except Exception as exc:
-            print(f"Preprocessing error: {exc}")
+            print(f"Preprocessing error: {exc}", file=sys.stderr)
             sys.exit(1)
 
     # Set up lexer and parser state
     clear_lexer_state(lexer)
     clear_parser_state(parser)
 
-    source_lines = data.splitlines()
-    # TODO actually support input file with -i or similar
-    #      otherwise read from stdin
-    source_filename = "<stdin>"
+    source_lines = source_data.splitlines()
 
-    lexer.source_lines = source_lines
+    lexer.source_lines, parser = source_lines
     lexer.source_filename = source_filename
 
     parser.source_lines = source_lines
     parser.source_filename = source_filename
 
     # Parse the input data
-    result = parser.parse(data, lexer=lexer, debug=False)
+    result = parser.parse(source_data, lexer=lexer, debug=False)
 
     # Propagate lexer errors to parser error state,
     # since the lexer doesn't exit on error
@@ -263,9 +276,6 @@ if __name__ == '__main__':
 
     # Semantic checks
     check_labels(parser)
-
-    if parser.has_error:
-        sys.exit(1)
 
     # Pretty print the resulting AST
     print()
@@ -279,3 +289,11 @@ if __name__ == '__main__':
             open_file(visualize_file)
         except Exception as exc:
             print(f"AST Visualization error: {exc}")
+
+    # Exit with non-zero status if any errors were encountered
+    if parser.has_error:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

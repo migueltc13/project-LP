@@ -402,57 +402,75 @@ def clear_lexer_state(lexer):
 # Main function for testing
 ###
 
-if __name__ == "__main__":
+def main():
+    """
+    Main function mainly for lexer testing.
+    """
+
     import argparse
     import sys
+    from common import read_input
     from preprocessor import preprocess
 
+    global lexer
+
     # CLI argument parsing
-    parser = argparse.ArgumentParser(
+    parser_args = argparse.ArgumentParser(
         description="Run lexical analysis on Fortran source code."
     )
 
-    parser.add_argument(
+    parser_args.add_argument(
+        "input_file",
+        nargs="?",
+        help="Fortran source file to lex. If omitted, read from stdin.",
+    )
+
+    parser_args.add_argument(
         "--format",
         choices=["fixed", "free"],
         default="fixed",
         help="The source format (default: fixed)"
     )
 
-    parser.add_argument(
+    parser_args.add_argument(
         "--no-preprocess",
         action="store_true",
         default=False,
         help="Skip preprocessing and lex the raw input directly"
     )
 
-    parser.add_argument(
+    parser_args.add_argument(
         "--test",
         action="store_true",
+        default=False,
         help="Output tokens in a test-friendly format (no cols are printed)"
     )
 
-    args = parser.parse_args()
+    args = parser_args.parse_args()
 
     # Read input data
-    stdin_input = sys.stdin.read()
+    try:
+        source_filename, source_data = read_input(args.input_file)
+    except Exception as e:
+        print(f"Error reading input: {e}", file=sys.stderr)
+        sys.exit(1)
 
     # Pre-process the input data
     if not args.no_preprocess:
         try:
-            stdin_input = preprocess(stdin_input, format=args.format)
+            source_data = preprocess(source_data, format=args.format)
         except Exception as e:
-            print(f"Preprocessing error: {e}")
+            print(f"Preprocessing error: {e}", file=sys.stderr)
             sys.exit(1)
 
     # Setup lexer state before lexing
     clear_lexer_state(lexer)
 
-    lexer.source_lines = stdin_input.splitlines()
-    lexer.source_filename = "<stdin>"
+    lexer.source_lines = source_data.splitlines()
+    lexer.source_filename = source_filename
 
     # Parse the input data
-    lexer.input(stdin_input)
+    lexer.input(source_data)
 
     # Print lexed tokens
     if not args.test:
@@ -461,3 +479,11 @@ if __name__ == "__main__":
     else:
         for tok in lexer:
             print(f"LexToken({tok.type}, {repr(tok.value)}, {tok.lineno})")
+
+    # Exit with non-zero status if any errors were encountered
+    if lexer.has_error:
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
