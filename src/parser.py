@@ -257,7 +257,7 @@ def main():
 
     source_lines = source_data.splitlines()
 
-    lexer.source_lines, parser = source_lines
+    lexer.source_lines = source_lines
     lexer.source_filename = source_filename
 
     parser.source_lines = source_lines
@@ -276,6 +276,9 @@ def main():
 
     # Semantic checks
     check_labels(parser)
+
+    if parser.has_error:
+        sys.exit(1)
 
     # Pretty print the resulting AST
     print()
