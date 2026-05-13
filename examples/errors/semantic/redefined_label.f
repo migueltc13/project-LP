@@ -1,5 +1,0 @@
-       PROGRAM REDEFINED_LABEL
-   10  PRINT *, 'FIRST'
-       GOTO 10
-   10  PRINT *, 'SECOND'
-       END
