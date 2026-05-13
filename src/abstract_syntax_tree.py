@@ -104,8 +104,6 @@ class Do:
     variable: str
     start: Expression
     end: Expression
-    body: list[Statement]
-    terminator_label: int
 
 
 @dataclass(frozen=True)
@@ -447,9 +445,7 @@ def _node_children(node):
         return [
             Var(node.variable),
             node.start,
-            node.end,
-            Block(node.body),
-            Label(node.terminator_label, Continue()),
+            node.end
         ]
 
     if isinstance(node, Goto):

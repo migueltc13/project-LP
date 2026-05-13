@@ -192,6 +192,32 @@ def print_error(
         print(f"{' ' * gutter_width} = {colored_hint_label}: {colored_hint}", file=stream)
 
 
+def print_parser_token_error(
+    parser,
+    token,
+    *,
+    message: str,
+    hint: str | None = None,
+    warning: bool = False,
+) -> None:
+    """
+    Print a semantic diagnostic attached to a parser token.
+    """
+
+    parser.has_error = True
+
+    print_error(
+        error=message,
+        line=get_source_line(parser, token.lineno),
+        lineno=token.lineno,
+        col_start=get_token_column(token),
+        length=max(1, len(str(token.value))),
+        warning=warning,
+        filename=parser.source_filename,
+        hint=hint,
+    )
+
+
 def print_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> None:
     """
     Report a numeric literal out of range diagnostic.
