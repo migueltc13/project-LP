@@ -1,3 +1,0 @@
-       PROGRAM CONTINUE_OUTSIDE_LOOP
-       CONTINUE
-       END

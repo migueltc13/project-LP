@@ -1,3 +1,0 @@
-       PROGRAM STOP_OUTSIDE_LOOP
-       STOP
-       END
