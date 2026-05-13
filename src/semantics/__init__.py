@@ -13,9 +13,9 @@ def semantic_checks(parser, ast) -> SemanticInfo:
     1. Program unit checks
     2. Label checks
     3. Loop checks
-    TODO 4. Variable checks
-    TODO 5. Type checks
-    TODO 6. Function and subroutine checks
+    4. Variable checks
+    TODO 5. Function and subroutine checks
+    TODO 6. Type checks
     TODO Maybe 7. Control flow checks
 
     Arguments:
