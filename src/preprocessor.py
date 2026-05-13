@@ -266,3 +266,7 @@ def main():
     # Pre-process the input data
     preprocessed_code = preprocess(source_data, format=source_format)
     print(preprocessed_code)
+
+
+if __name__ == "__main__":
+    main()
