@@ -1,4 +1,4 @@
-      PROGRAM INVALID_CHAR_SEQUENCE
-      INTEGER X
-      X = 10 #$
-      END
+       PROGRAM INVALID_CHAR_SEQUENCE
+       INTEGER X
+       X = 10 #$
+       END
