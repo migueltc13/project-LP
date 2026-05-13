@@ -68,13 +68,11 @@ def p_nonlabel_statement(p):
 
 def p_declaration(p):
     "declaration : type declarator_list"
-    # AST node: create a node with the type and list of declarators
     p[0] = ast.Declare(p[1], p[2])
 
 
 def p_declarator_list(p):
     "declarator_list : declarator declarator_list_tail"
-    # AST node: build the declaration list with any continuation pieces.
     p[0] = [p[1]] + p[2]
 
 
@@ -86,8 +84,6 @@ def p_declarator_list_tail(p):
                          | '&' declarator declarator_list_tail
                          | empty
     """
-    # AST node: if there are more declarators, create a list of them;
-    # Otherwise, an empty list
     if len(p) == 4:
         p[0] = [p[2]] + p[3]
     else:
@@ -144,7 +140,6 @@ def p_goto_statement(p):
 
 def p_stop_statement(p):
     "stop_statement : STOP"
-    # AST node: just create a node for the STOP statement
     p[0] = ast.Stop()
 
 

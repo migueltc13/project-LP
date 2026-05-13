@@ -107,7 +107,6 @@ def p_arguments(p):
     """
     arguments : argument arguments_rest
     """
-    # AST node: build the argument list with any continuation pieces.
     p[0] = [p[1]] + p[2]
 
 
@@ -116,8 +115,6 @@ def p_arguments_rest(p):
     arguments_rest : ',' argument arguments_rest
                    |
     """
-    # AST node: if there are more arguments, create a list of them;
-    # Otherwise, an empty list
     if len(p) == 4:
         p[0] = [p[2]] + p[3]
     else:
@@ -128,7 +125,6 @@ def p_argument(p):
     """
     argument : IDENTIFIER
     """
-    # AST node: just pass the argument name up the tree
     p[0] = p[1]
 
 
