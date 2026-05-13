@@ -37,8 +37,7 @@ INTRINSIC_FUNCTIONS = {
     "WRITE"
 }
 
-# For now, Fortran 77 standard intrinsics are mostly functions.
-# Keep subroutine builtins empty unless we intentionally want to support some.
+
 INTRINSIC_SUBROUTINES = set()
 
 
@@ -187,8 +186,6 @@ class ProcedureChecker:
             self.parser.has_error = True
             return
 
-        # User definitions override intrinsic names only if we want that.
-        # Warning/erroring for now to avoid ambiguity.
         if existing is not None and existing.kind.startswith("intrinsic"):
             print_node_error(
                 self.parser,
@@ -371,8 +368,6 @@ class ProcedureChecker:
             self.parser.has_error = True
             return
 
-        # Many intrinsics have variable argument rules.
-        # Keep them unchecked for now unless we implement intrinsic signatures.
         if procedure.kind == "intrinsic_function":
             return
 
