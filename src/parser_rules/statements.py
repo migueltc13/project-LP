@@ -78,12 +78,9 @@ def p_declarator_list(p):
     p[0] = [p[1]] + p[2]
 
 
-# The preprocessor leaves line continuations as '&', so accept them in
-# the same list structure as normal comma-separated declarators.
 def p_declarator_list_tail(p):
     """
     declarator_list_tail : ',' declarator declarator_list_tail
-                         | '&' declarator declarator_list_tail
                          | empty
     """
     # AST node: if there are more declarators, create a list of them;

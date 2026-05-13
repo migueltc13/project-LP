@@ -50,12 +50,9 @@ def p_variable_list(p):
     p[0] = [p[1]] + p[2]
 
 
-# The preprocessor leaves line continuations as '&', so accept them in
-# the same list structure as normal comma-separated variables.
 def p_variable_list_tail(p):
     """
     variable_list_tail : ',' variable variable_list_tail
-                       | '&' variable variable_list_tail
                        | empty
     """
     # AST node: if there are more variables, create a list of them;
@@ -74,12 +71,9 @@ def p_expression_list(p):
     p[0] = [p[1]] + p[2]
 
 
-# The preprocessor leaves line continuations as '&', so accept them in
-# the same list structure as normal comma-separated expressions.
 def p_expression_list_tail(p):
     """
     expression_list_tail : ',' expression expression_list_tail
-                         | '&' expression expression_list_tail
                          | empty
     """
     # AST node: if there are more expressions, create a list of them;

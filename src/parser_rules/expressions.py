@@ -12,7 +12,7 @@ def p_expression(p):
 
 def p_logical_or(p):
     """
-    logical_or : logical_or OR continuation_opt logical_and
+    logical_or : logical_or OR logical_and
                | logical_and
     """
     if len(p) == 5:
@@ -23,7 +23,7 @@ def p_logical_or(p):
 
 def p_logical_and(p):
     """
-    logical_and : logical_and AND continuation_opt relational
+    logical_and : logical_and AND relational
                 | relational
     """
     if len(p) == 5:
@@ -34,12 +34,12 @@ def p_logical_and(p):
 
 def p_relational(p):
     """
-    relational : additive EQ continuation_opt additive
-               | additive NE continuation_opt additive
-               | additive LT continuation_opt additive
-               | additive LE continuation_opt additive
-               | additive GT continuation_opt additive
-               | additive GE continuation_opt additive
+    relational : additive EQ additive
+               | additive NE additive
+               | additive LT additive
+               | additive LE additive
+               | additive GT additive
+               | additive GE additive
                | additive
     """
     if len(p) == 5:
@@ -50,8 +50,8 @@ def p_relational(p):
 
 def p_additive(p):
     """
-    additive : additive PLUS continuation_opt multiplicative
-             | additive MINUS continuation_opt multiplicative
+    additive : additive PLUS multiplicative
+             | additive MINUS multiplicative
              | multiplicative
     """
     if len(p) == 5:
@@ -62,8 +62,8 @@ def p_additive(p):
 
 def p_multiplicative(p):
     """
-    multiplicative : multiplicative ASTERISK continuation_opt unary
-                   | multiplicative DIVIDE continuation_opt unary
+    multiplicative : multiplicative ASTERISK unary
+                   | multiplicative DIVIDE unary
                    | unary
     """
     if len(p) == 5:
@@ -74,9 +74,9 @@ def p_multiplicative(p):
 
 def p_unary(p):
     """
-    unary : PLUS continuation_opt unary
-          | MINUS continuation_opt unary
-          | NOT continuation_opt unary
+    unary : PLUS unary
+          | MINUS unary
+          | NOT unary
           | power
     """
     if len(p) == 4:
@@ -93,22 +93,13 @@ def p_unary(p):
 # Power operator is right-associative, so it's handled separately
 def p_power(p):
     """
-    power : primary POWER continuation_opt power
+    power : primary POWER power
           | primary
     """
     if len(p) == 5:
         p[0] = ast.Arith(p[2], p[1], p[4])
     else:
         p[0] = p[1]
-
-
-# Optional continuation operator for line continuations in expressions
-def p_continuation_opt(p):
-    """
-    continuation_opt : '&'
-                     | empty
-    """
-    p[0] = p[1]
 
 
 # Primary expressions include literals, variables, function calls, and

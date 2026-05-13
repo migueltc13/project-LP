@@ -93,7 +93,7 @@ tokens = [
 # Literals
 ###
 
-literals = ['(', ')', ',', ':', '=', '&']
+literals = ['(', ')', ',', ':', '=']
 
 ###
 # Mathematical operators
@@ -278,7 +278,7 @@ def t_LABEL(t):
 # Ignore spaces
 ###
 
-t_ignore = ' \t'
+t_ignore = ' \t&'
 
 
 ###
