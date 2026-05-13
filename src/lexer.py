@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 
 import ply.lex as lex
+from error import (
+    print_error,
+    print_numeric_range_error,
+    get_source_line,
+    get_lexer_token_column
+)
 
 ###
 # Reserved words
@@ -152,26 +158,93 @@ def t_STRING(t):
 # Number
 ###
 
+# Numeric literal limits
+# TODO import this values from semantics/number_ranges.py
+
+INTEGER_MIN = -2_147_483_648
+INTEGER_MAX = 2_147_483_647
+INTEGER_MAX_CHECK = 2_147_483_648
+
+# These assume common IEEE-like sizes:
+# REAL    -> 32-bit single precision
+# DOUBLE  -> 64-bit double precision
+# TODO adjust for EWVM
+
+REAL_MAX = 3.4028235e38
+DOUBLE_MAX = 1.7976931348623157e308
+
+
 def t_DOUBLE_NUMBER(t):
     r'(\d+(\.\d*)?|\.\d+)[dD][+-]?\d+'
-    t.value = float(t.value.replace("D", "E").replace("d", "e"))
-    # TODO check overflow
+
+    literal = t.value
+
+    try:
+        value = float(literal.replace("D", "E").replace("d", "e"))
+    except OverflowError:
+        value = float("inf")
+
+    # Check for out of range value (semantic error)
+    if value == float("inf") or abs(value) > DOUBLE_MAX:
+        print_numeric_range_error(
+            t,
+            literal=literal,
+            type_name="double precision",
+            hint=(
+                "double precision literals must be representable in the "
+                "target DOUBLE PRECISION range"
+            ),
+        )
+
+    t.value = value
     return t
 
 
 def t_REAL_NUMBER(t):
     r'(\d+\.\d*|\.\d+)([eE][+-]?\d+)?|\d+[eE][+-]?\d+'
-    t.value = float(t.value)
-    # TODO check overflow
+
+    literal = t.value
+
+    try:
+        value = float(literal)
+    except OverflowError:
+        value = float("inf")
+
+    # Check for out of range value (semantic error)
+    if value == float("inf") or abs(value) > REAL_MAX:
+        print_numeric_range_error(
+            t,
+            literal=literal,
+            type_name="real",
+            hint=(
+                "real literals must be representable in the "
+                "target REAL range"
+            ),
+        )
+
+    t.value = value
     return t
 
 
 def t_INTEGER_NUMBER(t):
     r'\d+'
-    t.value = int(t.value)
-    # TODO check overflow
-    # if t.value > 2147483647 or t.value < -2147483648:
-    #     pass
+
+    literal = t.value
+    value = int(literal)
+
+    # Check for out of range value (semantic error)
+    if value > INTEGER_MAX_CHECK:  # NOTE the upper limit assumes a MINUS before
+        print_numeric_range_error(
+            t,
+            literal=literal,
+            type_name="integer",
+            hint=(
+                f"integer literals must be between "
+                f"{INTEGER_MIN} and {INTEGER_MAX}"
+            ),
+        )
+
+    t.value = value
     return t
 
 
@@ -256,7 +329,6 @@ def t_error(t):
     """
 
     import re
-    from error import print_error
 
     lexer = t.lexer
 
@@ -266,20 +338,9 @@ def t_error(t):
     #      but it's introduced by preprocessor for labels.
     match = re.match(r"[^A-Za-z0-9\s+\-*/=(),.:_'\"&<>@]+", t.value)
 
-    if match is None:
-        bad = t.value[0]
-    else:
-        bad = match.group(0)
+    bad = t.value[0] if match is None else match.group(0)
 
     length = len(bad)
-
-    try:
-        line_content = lexer.source_lines[t.lineno - 1]
-    except (AttributeError, IndexError):
-        line_content = ""
-
-    line_start = lexer.lexdata.rfind("\n", 0, t.lexpos) + 1
-    column = t.lexpos - line_start + 1
 
     if length == 1:
         error = f"illegal character {bad!r}"
@@ -296,12 +357,12 @@ def t_error(t):
 
     print_error(
         error=error,
-        line=line_content,
+        line=get_source_line(lexer, t.lineno),
         lineno=t.lineno,
-        col_start=column,
+        col_start=get_lexer_token_column(t),
         length=length,
         filename=getattr(lexer, "source_filename", None),
-        hint=hint,
+        hint=hint
     )
 
     lexer.skip(length)
