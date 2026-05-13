@@ -254,7 +254,21 @@ class TypeChecker:
             node_type = node[0]
 
             if node_type == "number":
-                return "REAL" if isinstance(node[1], float) else "INTEGER"
+                value = node[1]
+                
+                # Verify Overflow (EWVM 32bits)
+                if isinstance(value, int):
+                    if value > 2147483647 or value < -2147483648:
+                        print(f"Warning: Integer overflow detected for value '{value}'")
+                        # raise SemanticError(f"Integer overflow: {value}")
+                
+                elif isinstance(value, float):
+                    import math
+                    if math.isinf(value) or abs(value) > 3.4028235e38:
+                        print(f"Warning: Real overflow detected for value '{value}'")
+                        # raise SemanticError(f"Real overflow: {value}")
+
+                return "REAL" if isinstance(value, float) else "INTEGER"
 
             if node_type == "string":
                 return "CHARACTER"
