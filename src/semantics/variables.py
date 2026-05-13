@@ -62,6 +62,14 @@ class VariableChecker:
         info = touch_variable(self.scope, name)
 
         if info.declared:
+            # Function/subroutine arguments are introduced by the argument list
+            # with UNKNOWN type. A later declaration gives them their real type.
+            if info.is_argument and info.type_name == "UNKNOWN":
+                info.type_name = type_name
+                info.is_array = is_array
+                info.declaration_node = node
+                return
+
             print_node_error(
                 self.parser,
                 node,
@@ -72,7 +80,6 @@ class VariableChecker:
 
         info.type_name = type_name
         info.declared = True
-        info.initialized = False
         info.is_array = is_array
         info.declaration_node = node
 
