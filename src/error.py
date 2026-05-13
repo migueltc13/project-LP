@@ -77,6 +77,7 @@ def print_error(
         col_start: The 1-based column where the problem starts.
         length: The number of characters to underline.
         warning: If True, print as a warning instead of an error.
+        hint: Optional help text printed below the caret marker.
         filename: Optional source filename.
         stream: Optional output stream. Defaults to stderr.
         use_color: Force color on/off. Defaults to terminal detection.
