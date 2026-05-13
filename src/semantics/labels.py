@@ -75,26 +75,15 @@ def check_labels(parser):
             parser.has_errors = True
 
 
-def _get_token_column(parser, token) -> int:
-    """
-    Return the 1-based column number of a token.
-    """
-
-    if token is None:
-        return 1
-
-    lexpos = token.lexpos
-    lexer_data = token.lexer.lexdata
-
-    line_start = lexer_data.rfind("\n", 0, lexpos) + 1
-
-    return lexpos - line_start + 1
-
-
 def record_label_definition(parser, label: int, lineno: int, col_start: int):
     """
     Record a statement label definition.
+
+    Note: accounts for the "@LABEL(" prefix added by preprocessor when
+          calculating the column start of the label itself.
     """
+
+    PREPROCESSED_LABEL_PREFIX_LEN = len("@LABEL(")
 
     if label in parser.defined_labels:
         parser.redefined_labels.add(label)
@@ -103,7 +92,7 @@ def record_label_definition(parser, label: int, lineno: int, col_start: int):
 
     location = {
         "lineno": lineno,
-        "col_start": col_start + len("@LABEL("),  # account for prefix
+        "col_start": col_start + PREPROCESSED_LABEL_PREFIX_LEN,
         "length": len(str(label)),
     }
 
@@ -119,7 +108,7 @@ def record_label_reference(parser, label: int, lineno: int, col_start: int):
 
     location = {
         "lineno": lineno,
-        "col_start": col_start + len("@LABEL("),  # account for prefix
+        "col_start": col_start,
         "length": len(str(label)),
     }
 

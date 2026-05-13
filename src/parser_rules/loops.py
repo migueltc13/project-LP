@@ -1,8 +1,8 @@
 import abstract_syntax_tree as ast
+from error import get_token_column
 from semantics.labels import (
     record_label_definition,
-    record_label_reference,
-    _get_token_column
+    record_label_reference
 )
 
 
@@ -28,14 +28,14 @@ def p_do_loop(p):
         p.parser,
         referenced_label,
         lineno=p.lineno(2),
-        col_start=_get_token_column(p.parser, p.slice[2]),
+        col_start=get_token_column(p.slice[2]),
     )
 
     record_label_definition(
         p.parser,
         defined_label,
         lineno=p.lineno(9),
-        col_start=_get_token_column(p.parser, p.slice[9]),
+        col_start=get_token_column(p.slice[9]),
     )
 
     p[0] = ast.Do(

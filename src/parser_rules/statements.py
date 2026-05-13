@@ -1,8 +1,8 @@
 import abstract_syntax_tree as ast
+from error import get_token_column
 from semantics.labels import (
     record_label_definition,
-    record_label_reference,
-    _get_token_column
+    record_label_reference
 )
 
 
@@ -24,13 +24,12 @@ def p_statement(p):
     """
     if len(p) == 3:
         label = p[1]
-        token = p.slice[1]
 
         record_label_definition(
             p.parser,
             label,
             lineno=p.lineno(1),
-            col_start=_get_token_column(p.parser, token),
+            col_start=get_token_column(p.slice[1]),
         )
 
         p[0] = ast.Label(p[1], p[2])
@@ -124,7 +123,7 @@ def p_goto_statement(p):
         p.parser,
         label,
         lineno=p.lineno(2),
-        col_start=_get_token_column(p.parser, p.slice[2]),
+        col_start=get_token_column(p.slice[2])
     )
 
     p[0] = ast.Goto(label)
