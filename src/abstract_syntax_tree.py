@@ -1,12 +1,7 @@
 from __future__ import annotations
 
-import sys
-
-if __name__ == "__main__":
-    sys.modules["abstract_syntax_tree"] = sys.modules["__main__"]
-
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, Optional
 
 from graphviz import Digraph
 
@@ -95,7 +90,7 @@ class Label:
 class If:
     condition: Expression
     then_branch: list[Statement]
-    else_branch: list[Statement] | None
+    else_branch: Optional[list[Statement]]
 
 
 @dataclass(frozen=True)
@@ -130,6 +125,18 @@ class Continue:
 class CallStatement:
     name: str
     arguments: list[Expression]
+    location: Optional[SourceLocation] = None
+
+
+###
+# Source location for variables
+###
+
+@dataclass(frozen=True)
+class SourceLocation:
+    lineno: int
+    col_start: int
+    length: int
 
 
 ###
@@ -139,12 +146,14 @@ class CallStatement:
 @dataclass(frozen=True)
 class VarDeclarator:
     name: str
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class ArrayDeclarator:
     name: str
     dimensions: list[Expression]
+    location: Optional[SourceLocation] = None
 
 
 ###
@@ -154,12 +163,14 @@ class ArrayDeclarator:
 @dataclass(frozen=True)
 class Var:
     name: str
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class ArrayRef:
     name: str
     indices: list[Expression]
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -218,6 +229,7 @@ class Unary:
 class Call:
     name: str
     arguments: list[Expression]
+    location: Optional[SourceLocation] = None
 
 
 Declarator = Union[
@@ -479,6 +491,20 @@ def _node_children(node):
         return [node.value]
 
     raise TypeError(f"Unsupported AST node: {node!r}")
+
+
+###
+# Source Location extraction from tokens helper
+###
+
+def location_from_token(token) -> SourceLocation:
+    from error import get_token_column
+
+    return SourceLocation(
+        lineno=token.lineno,
+        col_start=get_token_column(token),
+        length=len(str(token.value)),
+    )
 
 
 ###

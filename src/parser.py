@@ -11,8 +11,6 @@ from parser_rules.conditionals import *
 from parser_rules.io import *
 from parser_rules.statements import *
 
-# TODO Add implicit/explicit typing rules
-
 start = 'file'
 
 

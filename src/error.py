@@ -218,6 +218,45 @@ def print_parser_token_error(
     )
 
 
+def print_node_error(
+    parser,
+    node,
+    *,
+    message: str,
+    hint: str | None = None,
+    warning: bool = False,
+) -> None:
+    """
+    Print a diagnostic attached to an AST node with a SourceLocation.
+    """
+
+    location = getattr(node, "location", None)
+
+    if location is None:
+        print_error(
+            error=message,
+            line="",
+            lineno=1,
+            col_start=1,
+            length=1,
+            warning=warning,
+            filename=parser.source_filename,
+            hint=hint,
+        )
+        return
+
+    print_error(
+        error=message,
+        line=get_source_line(parser, location.lineno),
+        lineno=location.lineno,
+        col_start=location.col_start,
+        length=location.length,
+        warning=warning,
+        filename=parser.source_filename,
+        hint=hint,
+    )
+
+
 def print_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> None:
     """
     Report a numeric literal out of range diagnostic.

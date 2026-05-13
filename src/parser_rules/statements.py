@@ -99,12 +99,12 @@ def p_declarator(p):
     declarator : IDENTIFIER
                | IDENTIFIER '(' expression_list ')'
     """
-    # AST node: if it's an array declaration, create a node with the name and dimensions;
-    # Otherwise, just create a node for the variable declaration
+    location = ast.location_from_token(p.slice[1])
+
     if len(p) == 2:
-        p[0] = ast.VarDeclarator(p[1])
+        p[0] = ast.VarDeclarator(p[1], location)
     else:
-        p[0] = ast.ArrayDeclarator(p[1], p[3])
+        p[0] = ast.ArrayDeclarator(p[1], p[3], location)
 
 
 def p_assignment(p):
@@ -117,12 +117,12 @@ def p_variable(p):
     variable : IDENTIFIER
              | IDENTIFIER '(' expression_list ')'
     """
-    # AST node: if it's an array reference, create a node with the name and indices;
-    # Otherwise, just create a node for the variable
+    location = ast.location_from_token(p.slice[1])
+
     if len(p) == 2:
-        p[0] = ast.Var(p[1])
+        p[0] = ast.Var(p[1], location)
     else:
-        p[0] = ast.ArrayRef(p[1], p[3])
+        p[0] = ast.ArrayRef(p[1], p[3], location)
 
 
 def p_goto_statement(p):
@@ -167,13 +167,12 @@ def p_call_statement(p):
     call_statement : CALL IDENTIFIER '(' expression_list ')'
                    | CALL IDENTIFIER
     """
-    # AST node: if it's a function call with arguments, create a node with the
-    # function name and arguments;
-    # Otherwise, create a node with the function name and an empty argument list
+    location = ast.location_from_token(p.slice[2])
+
     if len(p) == 6:
-        p[0] = ast.CallStatement(p[2], p[4])
+        p[0] = ast.CallStatement(p[2], p[4], location)
     else:
-        p[0] = ast.CallStatement(p[2], [])
+        p[0] = ast.CallStatement(p[2], [], location)
 
 
 def p_do_statement(p):
