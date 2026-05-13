@@ -409,6 +409,7 @@ def main():
 
     import argparse
     import sys
+
     from common import read_input, detect_source_format
     from preprocessor import preprocess
 

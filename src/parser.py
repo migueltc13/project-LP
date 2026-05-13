@@ -231,8 +231,10 @@ def main():
     """
     Main function to run the Fortran 77 parser and semantic checks.
     """
+
     import argparse
     import sys
+
     from common import read_input, detect_source_format, open_file
     from preprocessor import preprocess
     from semantics.labels import check_labels

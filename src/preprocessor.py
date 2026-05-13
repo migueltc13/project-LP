@@ -2,6 +2,7 @@
 
 import re
 
+
 ###
 # Custom exceptions for preprocessor errors
 ###
@@ -12,11 +13,13 @@ class PreprocessorError(Exception):
     """
     pass
 
+
 class PreprocessorFormatError(PreprocessorError):
     """
     Raised when a line violates fixed-format rules.
     """
     pass
+
 
 class PreprocessorContinuationError(PreprocessorError):
     """
@@ -25,12 +28,14 @@ class PreprocessorContinuationError(PreprocessorError):
     """
     pass
 
+
 class PreprocessorLabelError(PreprocessorError):
     """
     Raised when a statement label violates numeric or
     length constraints (1-5 digits).
     """
     pass
+
 
 ###
 # Public preprocess function
@@ -67,6 +72,7 @@ def preprocess(raw_input: str, format: str = "fixed") -> str:
         return _preprocess_free_format(raw_input)
     else:
         raise ValueError(f"Unknown format: {format}")
+
 
 ###
 # Fixed-format preprocessing
@@ -155,6 +161,7 @@ def _preprocess_fixed_format(raw_input: str) -> str:
         last_stmt_idx = len(out) - 1  # Update last statement index
 
     return "\n".join(out)
+
 
 ###
 # Free-format preprocessing
