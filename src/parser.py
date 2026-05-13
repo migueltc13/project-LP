@@ -255,7 +255,7 @@ def main():
     parser_args.add_argument(
         "input_file",
         nargs="?",
-        help="Fortran source file to lex. If omitted, read from stdin.",
+        help="Fortran source file to parse. If omitted, read from stdin.",
     )
 
     parser_args.add_argument(
