@@ -1,0 +1,3 @@
+      PROGRAM UNDEFINED_LABEL
+      GOTO 300
+      END
