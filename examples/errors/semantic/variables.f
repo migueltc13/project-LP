@@ -1,5 +1,7 @@
        PROGRAM VARIABLES
-       INTEGER UNUSED_VAR
-       UNUSED_VAR = 5
-       PRINT *, 'The value is:', UNDEFINED_VAR
+       INTEGER X, Z, Z
+       PRINT *, X
+       PRINT *, Y
+       Z = 5
+       A = 2
        END

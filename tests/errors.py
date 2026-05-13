@@ -10,6 +10,7 @@ C = {
     "grn": "\033[92m",
     "prp": "\033[95m",
     "yel": "\033[93m",
+    "cyn": "\033[96m",
     "rst": "\033[0m",
 }
 
@@ -29,33 +30,88 @@ def run_parser(filepath: Path) -> subprocess.CompletedProcess:
     )
 
 
+def section(title: str):
+    print(
+        f"\n{C['cyn']}══════════════════════════════════════════════════{C['rst']}",
+        file=sys.stderr,
+    )
+    print(
+        f"{C['cyn']} {title}{C['rst']}",
+        file=sys.stderr,
+    )
+    print(
+        f"{C['cyn']}══════════════════════════════════════════════════{C['rst']}",
+        file=sys.stderr,
+    )
+
+
 if __name__ == "__main__":
-    error_files = sorted(ERROR_ROOT.rglob("*.f")) + sorted(ERROR_ROOT.rglob("*.f90"))
 
-    if not error_files:
-        print("No error files found in examples/errors/")
-        raise SystemExit(1)
+    sections = [
+        ("LEXICAL ERRORS", ERROR_ROOT / "lexical"),
+        ("SEMANTIC ERRORS", ERROR_ROOT / "semantic"),
+        ("SYNTAX ERRORS", ERROR_ROOT / "syntax"),
+    ]
 
-    matched_errors = 0
-    ignored_successes = 0
+    total_matched = 0
+    total_ignored = 0
 
-    for filepath in error_files:
-        relative_path = filepath.relative_to(ROOT)
+    for section_name, section_path in sections:
 
-        print(f"\n{C['prp']}== {relative_path} =={C['rst']}", file=sys.stderr, flush=True)
+        section(section_name)
 
-        result = run_parser(filepath)
+        error_files = (
+            sorted(section_path.glob("*.f"))
+            + sorted(section_path.glob("*.f90"))
+        )
 
-        if result.returncode == 0:
-            ignored_successes += 1
-            print(f"  {C['yel']}ignored{C['rst']}: parser succeeded for this fixture", file=sys.stderr, flush=True)
-        else:
-            matched_errors += 1
+        if not error_files:
+            print(
+                f"{C['yel']}No files found.{C['rst']}",
+                file=sys.stderr,
+                flush=True,
+            )
+            continue
+
+        matched_errors = 0
+        ignored_successes = 0
+
+        for filepath in error_files:
+            relative_path = filepath.relative_to(ROOT)
+
+            print(
+                f"\n{C['prp']}== {relative_path} =={C['rst']}",
+                file=sys.stderr,
+                flush=True,
+            )
+
+            result = run_parser(filepath)
+
+            if result.returncode == 0:
+                ignored_successes += 1
+
+                print(
+                    f"  {C['yel']}ignored{C['rst']}: parser succeeded for this fixture",
+                    file=sys.stderr,
+                    flush=True,
+                )
+            else:
+                matched_errors += 1
+
+        total_matched += matched_errors
+        total_ignored += ignored_successes
+
+        print(
+            f"\n{C['grn']}Matched parser errors for {matched_errors} files{C['rst']}"
+            f"; {ignored_successes} fixture(s) were ignored.",
+            file=sys.stderr,
+            flush=True,
+        )
 
     print(
-        f"\n{C['grn']}Matched parser errors for {matched_errors} files{C['rst']}"
-        f"; {ignored_successes} fixture(s) were ignored."
-        ,
+        f"\n{C['grn']}TOTAL:{C['rst']} "
+        f"{total_matched} matched error file(s), "
+        f"{total_ignored} ignored fixture(s).",
         file=sys.stderr,
         flush=True,
     )
