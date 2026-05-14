@@ -1,5 +1,0 @@
-      PROGRAM WRONG_TYPE
-      INTEGER NAME
-      NAME = 'JOHN DOE'
-      PRINT *, NAME
-      END
