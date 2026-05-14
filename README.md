@@ -12,15 +12,17 @@
 
 ## TODO list
 
+- [ ] Rename CD/CI GitHub action
 - [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
       From the lexer to the parser and then to the code generation.
       Also see `# TODO remove intrinsics that we don't support` at the same file.
-- [ ] Detect division by zero and other similar errors
 - [ ] Optional step counter (example: `2`) in do_statement (example: `DO 100 I = 1, 10, 2`)
 - [ ] NOTE that strict version was implemented instead of implicit typing rules
-- [ ] Out of range errors are detected in the lexer, but they are not complete
-      (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
-      parsing, also adjust values for EWVM compatibility
+- [ ] `semantics/numbers.py`
+    - [ ] Detect division by zero and other similar errors
+    - [ ] Out of range errors are detected in the lexer, but they are not complete
+          (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
+          parsing, also adjust values for EWVM compatibility
 - [ ] Use `parser.has_error` fields to raise an exception once at the end of
       parsing in the code generation phase
 - [ ] Type checking with new AST object
