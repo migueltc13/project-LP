@@ -556,12 +556,12 @@ def main():
 
     # Verbose output of semantic information and initial AST
     if args.verbose:
+        print("\nInitial AST:\n============\n")
+        pretty_print(result)
+
         print()
         print_semantic_info(semantic_info,
                             show_intrinsics=args.show_intrinsics)
-
-        print()
-        pretty_print(result)
 
     # Visualize initial AST
     if args.visualize:
@@ -587,7 +587,7 @@ def main():
 
         # Verbose output of optimized AST
         if args.verbose:
-            print("\nOptimized AST:")
+            print("\nOptimized AST:\n==============\n")
             pretty_print(result)
 
         # Visualize optimized AST
