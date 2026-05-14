@@ -30,7 +30,7 @@
 - [ ] Functions check if they exist, right number of arguments, etc. (similarity function for hints)
 - [ ] Add more lexer tests
     - [x] strings (escaped delimiter, multiline, etc.)
-- [ ] Write equivalent .f90 (free-format) at examples/
+- [x] Write equivalent .f90 (free-format) at examples/
 - [x] Clean parser rules documentation "AST node: ..."
 - [ ] Optimizations
     - [ ] Constant folding

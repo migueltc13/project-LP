@@ -1,5 +1,5 @@
       PROGRAM BASE_CONVERTER
-      INTEGER NUM, BASE, RESULT
+      INTEGER NUM, BASE, RESULT, CONVRT
 
       PRINT *, 'Insert an integer:'
       READ *, NUM
