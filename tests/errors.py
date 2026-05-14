@@ -38,7 +38,8 @@ DESCRIPTIONS = {
         "Tests invalid label formats.",
 
     "line_too_long.f":
-        "Tests lines that exceed the maximum length for fixed-format source files.",
+        "Tests lines that exceed the maximum length for\n"
+        "fixed-format source files.",
 
     "orphaned_continuation.f":
         "Tests orphaned continuation lines.",
@@ -47,14 +48,16 @@ DESCRIPTIONS = {
         "Tests string literals that are not properly terminated.",
 
     "duplicate_procedures.f":
-        "Tests multiple subroutines with the same name in the same file.",
+        "Tests multiple subroutines with the same name in\n"
+        "the same file.",
 
     "function_used_as_subroutine.f":
-        "Tests a function being called without using its return value, like a "
-        "subroutine call.",
+        "Tests a function being called without using its\n"
+        "return value, like a subroutine call.",
 
     "subroutine_used_as_function.f":
-        "Tests a subroutine being called in an expression, like a function call.",
+        "Tests a subroutine being called in an expression,\n"
+        "like a function call.",
 
     "unknown_function.f":
         "Tests a call to an undefined function.",
@@ -63,32 +66,45 @@ DESCRIPTIONS = {
         "Tests a call to an undefined subroutine.",
 
     "wrong_nr_function_args.f":
-        "Tests a function call with the wrong number of arguments.",
+        "Tests a function call with the wrong number of\n"
+        "arguments.",
 
     "wrong_nr_subroutine_args.f":
-        "Tests a subroutine call with the wrong number of arguments.",
+        "Tests a subroutine call with the wrong number of\n"
+        "arguments.",
 
     "labels.f":
-        "Tests undefined, redefined, referenced but not defined, defined but "
-        "never referenced, and DO loop labels that do not match the corresponding"
-        " CONTINUE statement.",
+        "Tests various label-related errors, like:\n"
+        "   - Undefined labels;\n"
+        "   - Redefined labels;\n"
+        "   - Labels referenced but not defined;\n"
+        "   - Labels defined but never referenced;\n"
+        "   - DO loop labels that do not match the corresponding\n"
+        "     CONTINUE statement.",
 
     "multiple_program.f":
-        "Tests multiple main program units defined in the same source file.",
+        "Tests multiple main program units defined in the same\n"
+        "source file.",
 
     "return_outside.f":
-        "Tests a RETURN statement outside of any function or subroutine context.",
+        "Tests a RETURN statement outside of any function or \n"
+        "subroutine context.",
 
     "variables.f":
-        "Tests the use of: already declared variables, variables used before "
-        "initialization, use of undeclared variables, assignment to undeclared "
-        "variables, and variables declared but never used.",
+        "Tests many variable-related errors, like:\n"
+        "   - Use of undeclared variables;\n"
+        "   - Variables already declared;\n"
+        "   - Variables used before initialization;\n"
+        "   - Assignment to undeclared variables;\n"
+        "   - Variables declared but never used.",
 
     "bad_if_syntax.f":
-        "Tests invalid syntax in IF statements, like missing THEN or END IF.",
+        "Tests invalid syntax in IF statements, like missing THEN\n"
+        "or END IF.",
 
     "bad_read_syntax.f":
-        "Tests invalid syntax in READ statements, like missing a comma.",
+        "Tests invalid syntax in READ statements, like missing a\n"
+        "comma.",
 
     "missing_do_lbl.f":
         "Tests a DO statement without a missing numeric label.",
@@ -100,20 +116,23 @@ DESCRIPTIONS = {
         "Tests a misspelled function name in a function call.",
 
     "arith_with_string.f":
-        "Tests an arithmetic operation involving a string literal.",
+        "Tests an arithmetic operation involving a string\n"
+        "literal.",
 
     "if_cond_non_logical.f":
         "Tests an IF statement with a non-logical condition.",
 
     "invalid_narrowing.f":
-        "Tests an assignment of a REAL literal to an INTEGER variable.",
+        "Tests an assignment of a REAL literal to an INTEGER\n"
+        "variable.",
 
     "logical_expr_mismatch.f":
-        "Tests a logical expression with incompatible operand types.",
+        "Tests a logical expression with incompatible operand\n"
+        "types.",
 
     "wrong_assignment_type.f":
-        "Tests an assignment with incompatible types (assign a CHARACTER to an "
-        "INTEGER)."
+        "Tests an assignment with incompatible types (assign\n"
+        "a CHARACTER to an INTEGER)."
 }
 
 
