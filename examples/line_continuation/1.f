@@ -1,4 +1,4 @@
       PROGRAM TEST
-      PRINT *, 'HELLO'
-     1     ' WORLD'
+      PRINT *, 'Ola',
+     1 'Hello'
       END

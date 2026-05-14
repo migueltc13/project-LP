@@ -1,4 +1,6 @@
-123 PRINT *, 'A' &
+program test
+123 print *, 'A'
 ! Comment line
 ! Another comment line
-    'B'
+1 print *, 'B'
+end
