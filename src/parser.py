@@ -301,10 +301,8 @@ def main():
         nargs="?",
         const=DEFAULT_VIS_OUTPUT_PATH,
         metavar="OUTPUT",
-        help=(
-            "Generate a Graphviz image of the AST "
-            f"(default output: {DEFAULT_VIS_OUTPUT_PATH})"
-        ),
+        help="Generate a Graphviz image of the AST "
+             f"(default output: {DEFAULT_VIS_OUTPUT_PATH})"
     )
 
     args = parser_args.parse_args()
@@ -323,8 +321,8 @@ def main():
     if not args.no_preprocess:
         try:
             source_data = preprocess(source_data, format=source_format)
-        except Exception as exc:
-            print(f"Preprocessing error: {exc}", file=sys.stderr)
+        except Exception as e:
+            print(f"Preprocessing error: {e}", file=sys.stderr)
             sys.exit(1)
 
     # Set up lexer and parser state
@@ -353,6 +351,7 @@ def main():
     # Semantic checks
     _ = semantic_checks(parser, ast=result)
 
+    # Exit with non-zero status if any errors were encountered
     if parser.has_error:
         sys.exit(1)
 
@@ -366,12 +365,8 @@ def main():
             visualize_file = visualize(result, output_path=args.visualize)
             print(f"\nAST visualization generated at: {visualize_file}")
             open_file(visualize_file)
-        except Exception as exc:
-            print(f"AST Visualization error: {exc}")
-
-    # Exit with non-zero status if any errors were encountered
-    if parser.has_error:
-        sys.exit(1)
+        except Exception as e:
+            print(f"AST Visualization error: {e}", file=sys.stderr)
 
 
 if __name__ == "__main__":
