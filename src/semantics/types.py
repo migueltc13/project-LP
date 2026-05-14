@@ -395,6 +395,11 @@ class TypeChecker:
         if isinstance(node, ast.Logical):
             return self.infer_logical(node)
 
+        if isinstance(node, ast.IndexedOrCall):
+            raise RuntimeError(
+                f"unresolved IndexedOrCall reached type checker: {node!r}"
+            )
+
         raise RuntimeError(f"unsupported expression in type checker: {node!r}")
 
     def infer_call_expression(self, node: ast.Call) -> str:

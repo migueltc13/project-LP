@@ -158,7 +158,7 @@ def p_primary_identifier(p):
     if len(p) == 2:
         p[0] = ast.Var(p[1], location)
     else:
-        p[0] = ast.Call(p[1], p[3], location)
+        p[0] = ast.IndexedOrCall(p[1], p[3], location)
 
 
 # Optional argument list for function calls

@@ -235,6 +235,13 @@ class Call:
     location: Optional[SourceLocation] = None
 
 
+@dataclass(frozen=True)
+class IndexedOrCall:
+    name: str
+    arguments: list[Expression]
+    location: Optional[SourceLocation] = None
+
+
 Declarator = Union[
     VarDeclarator,
     ArrayDeclarator,
@@ -257,6 +264,7 @@ Expression = Union[
     Logical,
     Unary,
     Call,
+    IndexedOrCall,
 ]
 
 Statement = Union[
@@ -374,6 +382,9 @@ def _node_label(node) -> str:
     if isinstance(node, Call):
         return f"call: {node.name}"
 
+    if isinstance(node, IndexedOrCall):
+        return f"indexed-or-call: {node.name}"
+
     if isinstance(node, Arith):
         return f"arith: {node.op}"
 
@@ -479,6 +490,9 @@ def _node_children(node):
         return node.arguments
 
     if isinstance(node, Call):
+        return node.arguments
+
+    if isinstance(node, IndexedOrCall):
         return node.arguments
 
     if isinstance(node, Arith):

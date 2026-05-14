@@ -320,6 +320,11 @@ class ProcedureChecker:
         )):
             return
 
+        if isinstance(node, ast.IndexedOrCall):
+            raise RuntimeError(
+                f"unresolved IndexedOrCall reached procedure checker: {node!r}"
+            )
+
         raise RuntimeError(f"unsupported AST node in procedure checker: {node!r}")
 
     def check_subroutine_call(self, node: ast.CallStatement):

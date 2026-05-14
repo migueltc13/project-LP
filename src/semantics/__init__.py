@@ -1,14 +1,18 @@
+from typing import Tuple
+
 from .program import check_program
 from .labels import check_labels
 from .loops import check_loops
-from .procedures import check_procedures
 from .variables import check_variables
+from .references import resolve_references
+from .procedures import check_procedures
 from .types import check_types
 
 from .semantic_info import SemanticInfo
+from abstract_syntax_tree import AST
 
 
-def semantic_checks(parser, ast) -> SemanticInfo:
+def semantic_checks(parser, ast) -> Tuple[AST, SemanticInfo]:
     """
     Run all semantic checks on the parsed Fortran 77 source code.
 
@@ -17,10 +21,11 @@ def semantic_checks(parser, ast) -> SemanticInfo:
     1. Program unit checks
     2. Label checks
     3. Loop checks
-    4. Procedures checks
-    5. Variable checks
-    6. Type checks
-    TODO Maybe 7. Control flow checks
+    4. Variable checks
+    5. Reference resolution
+    6. Procedures checks
+    7. Type checks
+    TODO Maybe 8. Control flow checks
 
     Arguments:
         parser: The parser object containing the parsed source code and related
@@ -35,11 +40,14 @@ def semantic_checks(parser, ast) -> SemanticInfo:
     check_labels(parser)
     check_loops(parser)
 
-    procedures = check_procedures(parser, ast)
     semantic_info = check_variables(parser, ast)
+
+    resolved_ast = resolve_references(ast, semantic_info)
+
+    procedures = check_procedures(parser, resolved_ast)
     semantic_info.procedures = procedures
 
-    expression_types = check_types(parser, ast, semantic_info)
-    semantic_info.expression_types = expression_types
+    type_result = check_types(parser, resolved_ast, semantic_info)
+    semantic_info.expression_types = type_result.expression_types
 
-    return semantic_info
+    return resolved_ast, semantic_info

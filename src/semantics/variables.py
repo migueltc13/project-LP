@@ -265,6 +265,17 @@ class VariableChecker:
             self.visit_expression(node.value)
             return
 
+        if isinstance(node, ast.IndexedOrCall):
+            info = self.scope.variables.get(node.name) if self.scope else None
+
+            if info is not None and info.is_array:
+                self.mark_used(node, node.name)
+
+            for argument in node.arguments:
+                self.visit_expression(argument)
+
+            return
+
         if isinstance(node, ast.Call):
             for arg in node.arguments:
                 self.visit_expression(arg)
