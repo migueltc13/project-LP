@@ -11,12 +11,101 @@ C = {
     "prp": "\033[95m",
     "yel": "\033[93m",
     "cyn": "\033[96m",
+    "blu": "\033[94m",
+    "gry": "\033[90m",
     "rst": "\033[0m",
 }
 
 ROOT = Path(__file__).resolve().parents[1]
 ERROR_ROOT = ROOT / "examples" / "errors"
 
+
+# ============================================================
+# Test descriptions
+# ============================================================
+
+DESCRIPTIONS = {
+    "invalid_character.f":
+        "Tests the presence of an invalid character.",
+
+    "invalid_character_sequence.f":
+        "Tests invalid character sequences.",
+
+    "invalid_label.f":
+        "Tests invalid label formats.",
+
+    "line_too_long.f":
+        "Tests lines that exceed the maximum length for fixed-format source files.",
+
+    "orphaned_continuation.f":
+        "Tests orphaned continuation lines.",
+
+    "unterminated_string.f":
+        "Tests string literals that are not properly terminated.",
+
+    "duplicate_procedures.f":
+        "Tests multiple subroutines with the same name in the same file.",
+
+    "function_used_as_subroutine.f":
+        "Tests a function being called without using its return value, like a "
+        "subroutine call.",
+
+    "subroutine_used_as_function.f":
+        "Tests a subroutine being called in an expression, like a function call.",
+
+    "unknown_function.f":
+        "Tests a call to an undefined function.",
+
+    "unknown_subroutine.f":
+        "Tests a call to an undefined subroutine.",
+
+    "wrong_nr_function_args.f":
+        "Tests a function call with the wrong number of arguments.",
+
+    "wrong_nr_subroutine_args.f":
+        "Tests a subroutine call with the wrong number of arguments.",
+
+    "labels.f":
+        "Tests undefined, redefined, referenced but not defined, defined but "
+        "never referenced, and DO loop labels that do not match the corresponding"
+        " CONTINUE statement.",
+
+    "multiple_program.f":
+        "Tests multiple main program units defined in the same source file.",
+
+    "return_outside.f":
+        "Tests a RETURN statement outside of any function or subroutine context.",
+
+    "variables.f":
+        "Tests the use of: already declared variables, variables used before "
+        "initialization, use of undeclared variables, assignment to undeclared "
+        "variables, and variables declared but never used.",
+
+    "wrong_type.f":
+        "Tests type errors, like assigning a CHARACTER value to an INTEGER "
+        "variable.",
+
+    "bad_if_syntax.f":
+        "Tests invalid syntax in IF statements, like missing THEN or END IF.",
+
+    "bad_read_syntax.f":
+        "Tests invalid syntax in READ statements, like missing a comma.",
+
+    "missing_do_lbl.f":
+        "Tests a DO statement without a missing numeric label.",
+
+    "missing_end.f":
+        "Tests a program with a missing END statement.",
+
+    "misspelled_function.f":
+        "Tests a misspelled function name in a function call.",
+
+}
+
+
+# ============================================================
+# Helpers
+# ============================================================
 
 def run_parser(filepath: Path) -> subprocess.CompletedProcess:
     fmt = "free" if filepath.suffix == ".f90" else "fixed"
@@ -25,36 +114,61 @@ def run_parser(filepath: Path) -> subprocess.CompletedProcess:
         [sys.executable, "src/parser.py", "--format", fmt],
         input=filepath.read_text(),
         text=True,
-        stdout=subprocess.PIPE,
+        capture_output=True,
         cwd=ROOT,
     )
 
 
 def section(title: str):
     print(
-        f"\n{C['cyn']}══════════════════════════════════════════════════{C['rst']}",
-        file=sys.stderr,
+        f"\n{C['cyn']}════════════════════════════════════════════════════════════{C['rst']}"
     )
+    print(f"{C['cyn']} {title}{C['rst']}")
     print(
-        f"{C['cyn']} {title}{C['rst']}",
-        file=sys.stderr,
-    )
-    print(
-        f"{C['cyn']}══════════════════════════════════════════════════{C['rst']}",
-        file=sys.stderr,
+        f"{C['cyn']}════════════════════════════════════════════════════════════{C['rst']}"
     )
 
+
+def print_program(filepath: Path):
+    print(f"\n{C['blu']}Program:{C['rst']}")
+
+    lines = filepath.read_text().splitlines()
+
+    for i, line in enumerate(lines, start=1):
+        print(f"{C['gry']}{i:>3} |{C['rst']} {line}")
+
+
+def print_output(result: subprocess.CompletedProcess):
+    print(f"\n{C['blu']}Parser output:{C['rst']}")
+
+    output = result.stdout.strip()
+    errors = result.stderr.strip()
+
+    if output:
+        print(output)
+
+    if errors:
+        print(errors)
+
+    if not output and not errors:
+        print(f"{C['gry']}<no output>{C['rst']}")
+
+
+# ============================================================
+# Main
+# ============================================================
 
 if __name__ == "__main__":
 
     sections = [
         ("LEXICAL ERRORS", ERROR_ROOT / "lexical"),
-        ("SEMANTIC ERRORS", ERROR_ROOT / "semantic"),
         ("SYNTAX ERRORS", ERROR_ROOT / "syntax"),
+        ("SEMANTIC ERRORS", ERROR_ROOT / "semantic"),
+        ("FUNCTION SEMANTIC ERRORS", ERROR_ROOT / "semantic" / "functions"),
     ]
 
-    total_matched = 0
-    total_ignored = 0
+    total_passed = 0
+    total_failed = 0
 
     for section_name, section_path in sections:
 
@@ -66,54 +180,85 @@ if __name__ == "__main__":
         )
 
         if not error_files:
-            print(
-                f"{C['yel']}No files found.{C['rst']}",
-                file=sys.stderr,
-                flush=True,
-            )
+            print(f"{C['yel']}No files found.{C['rst']}")
             continue
 
-        matched_errors = 0
-        ignored_successes = 0
-
         for filepath in error_files:
+
             relative_path = filepath.relative_to(ROOT)
 
             print(
-                f"\n{C['prp']}== {relative_path} =={C['rst']}",
-                file=sys.stderr,
-                flush=True,
+                f"\n{C['prp']}▶ {relative_path}{C['rst']}"
             )
+
+            # ------------------------------------------------
+            # Description
+            # ------------------------------------------------
+
+            desc = DESCRIPTIONS.get(
+                filepath.name,
+                "No description available."
+            )
+
+            print(f"\n{C['yel']}Test Description:{C['rst']}")
+            print(f"  {desc}")
+
+            # ------------------------------------------------
+            # Program source
+            # ------------------------------------------------
+
+            print_program(filepath)
+
+            # ------------------------------------------------
+            # Run parser
+            # ------------------------------------------------
 
             result = run_parser(filepath)
 
-            if result.returncode == 0:
-                ignored_successes += 1
+            # ------------------------------------------------
+            # Output
+            # ------------------------------------------------
+
+            print_output(result)
+
+            # ------------------------------------------------
+            # Result
+            # ------------------------------------------------
+
+            if result.returncode != 0:
+                total_passed += 1
 
                 print(
-                    f"  {C['yel']}ignored{C['rst']}: parser succeeded for this fixture",
-                    file=sys.stderr,
-                    flush=True,
+                    f"\n{C['grn']}✓ PASS{C['rst']} "
+                    f"(error correctly detected)"
                 )
+
             else:
-                matched_errors += 1
+                total_failed += 1
 
-        total_matched += matched_errors
-        total_ignored += ignored_successes
+                print(
+                    f"\n{C['red']}✗ FAIL{C['rst']} "
+                    f"(parser accepted invalid program)"
+                )
 
-        print(
-            f"\n{C['grn']}Matched parser errors for {matched_errors} files{C['rst']}"
-            f"; {ignored_successes} fixture(s) were ignored.",
-            file=sys.stderr,
-            flush=True,
-        )
+    # ========================================================
+    # Summary
+    # ========================================================
 
     print(
-        f"\n{C['grn']}TOTAL:{C['rst']} "
-        f"{total_matched} matched error file(s), "
-        f"{total_ignored} ignored fixture(s).",
-        file=sys.stderr,
-        flush=True,
+        f"\n{C['cyn']}════════════════════════════════════════════════════════════{C['rst']}"
     )
 
-    raise SystemExit(0)
+    print(
+        f"{C['grn']}Passed:{C['rst']} {total_passed}"
+    )
+
+    print(
+        f"{C['red']}Failed:{C['rst']} {total_failed}"
+    )
+
+    print(
+        f"{C['cyn']}════════════════════════════════════════════════════════════{C['rst']}"
+    )
+
+    raise SystemExit(0 if total_failed == 0 else 1)
