@@ -55,6 +55,8 @@ class MemoryLayout:
 # TODO(codegen): Support DO step expressions and negative-step loops.
 # TODO(codegen): Define CHARACTER storage model.
 # TODO(codegen): Add local frame layout for procedures.
+# TODO(codegen): Insert ITOF when INTEGER expressions feed REAL/DOUBLE contexts.
+# TODO(codegen): Decide whether DOUBLE is represented as EWVM float.
 
 class EWVMGenerator:
     def __init__(self, semantic_info, *, debug: bool = False):
@@ -205,14 +207,7 @@ class EWVMGenerator:
                                   f"{node!r}")
 
     def expression_is_floatish(self, node) -> bool:
-        if isinstance(node, (ast.Real, ast.Double)):
-            return True
-
-        if isinstance(node, ast.Arith):
-            return self.expression_is_floatish(node.left) or \
-                self.expression_is_floatish(node.right)
-
-        return False
+        return self.expression_type(node) in {"REAL", "DOUBLE"}
 
     def visit_arith(self, node):
         self.visit_expression(node.left)
@@ -298,23 +293,11 @@ class EWVMGenerator:
 
         return info.type_name
 
-    def expression_type_hint(self, node) -> str:
-        if isinstance(node, ast.Integer):
-            return "INTEGER"
-        if isinstance(node, (ast.Real, ast.Double)):
-            return "REAL"
-        if isinstance(node, ast.String):
-            return "CHARACTER"
-        if isinstance(node, ast.Bool):
-            return "LOGICAL"
-        if isinstance(node, ast.Var):
-            return self.variable_type(node.name)
-        if isinstance(node, ast.Arith):
-            if self.expression_is_floatish(node):
-                return "REAL"
-            return "INTEGER"
+    def expression_type(self, node) -> str:
+        return self.semantic_info.expression_types.get(id(node), "UNKNOWN")
 
-        return "UNKNOWN"
+    def expression_type_hint(self, node) -> str:
+        return self.expression_type(node)
 
     def visit_print(self, node):
         for item in node.items:

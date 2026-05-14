@@ -17,25 +17,26 @@ class VariableInfo:
 
 @dataclass
 class ScopeInfo:
-    name: str
-    kind: str
-    variables: dict[str, VariableInfo] = field(default_factory=dict)
-    variable_order: list[str] = field(default_factory=list)
+    name:           str
+    kind:           str
+    variables:      dict[str, VariableInfo] = field(default_factory=dict)
+    variable_order: list[str]               = field(default_factory=list)
 
 
 @dataclass
 class ProcedureInfo:
-    name: str
-    kind: str
-    arguments: list[str]
-    node: object | None = None
-    return_type: str | None = None
+    name:        str
+    kind:        str
+    arguments:   list[str]
+    node:        Optional[object] = None
+    return_type: Optional[str]    = None
 
 
 @dataclass
 class SemanticInfo:
-    scopes: list[ScopeInfo] = field(default_factory=list)
-    procedures: dict[str, ProcedureInfo] = field(default_factory=dict)
+    scopes:           list[ScopeInfo]          = field(default_factory=list)
+    procedures:       dict[str, ProcedureInfo] = field(default_factory=dict)
+    expression_types: dict[int, str]           = field(default_factory=dict)
 
 
 def print_semantic_info(

@@ -3,6 +3,7 @@ from .labels import check_labels
 from .loops import check_loops
 from .procedures import check_procedures
 from .variables import check_variables
+from .types import check_types
 
 from .semantic_info import SemanticInfo
 
@@ -18,7 +19,7 @@ def semantic_checks(parser, ast) -> SemanticInfo:
     3. Loop checks
     4. Procedures checks
     5. Variable checks
-    TODO 6. Type checks
+    6. Type checks
     TODO Maybe 7. Control flow checks
 
     Arguments:
@@ -33,8 +34,12 @@ def semantic_checks(parser, ast) -> SemanticInfo:
     check_program(parser)
     check_labels(parser)
     check_loops(parser)
+
     procedures = check_procedures(parser, ast)
     semantic_info = check_variables(parser, ast)
     semantic_info.procedures = procedures
+
+    expression_types = check_types(parser, ast, semantic_info)
+    semantic_info.expression_types = expression_types
 
     return semantic_info
