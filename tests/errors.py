@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
+import shutil
 import subprocess
 import sys
+import re
 
 
 C = {
     "red": "\033[91m",
     "grn": "\033[92m",
+    "bld": "\033[1m",
     "prp": "\033[95m",
     "yel": "\033[93m",
     "cyn": "\033[96m",
@@ -95,19 +98,19 @@ DESCRIPTIONS = {
 
     "misspelled_function.f":
         "Tests a misspelled function name in a function call.",
-    
+
     "arith_with_string.f":
         "Tests an arithmetic operation involving a string literal.",
-    
+
     "if_cond_non_logical.f":
         "Tests an IF statement with a non-logical condition.",
-    
+
     "invalid_narrowing.f":
         "Tests an assignment of a REAL literal to an INTEGER variable.",
-    
+
     "logical_expr_mismatch.f":
         "Tests a logical expression with incompatible operand types.",
-    
+
     "wrong_assignment_type.f":
         "Tests an assignment with incompatible types (assign a CHARACTER to an "
         "INTEGER)."
@@ -130,6 +133,80 @@ def run_parser(filepath: Path) -> subprocess.CompletedProcess:
     )
 
 
+def colorize_diagnostics(text: str) -> str:
+    lines = []
+    severity = None
+
+    for line in text.splitlines():
+        if line.startswith("error:"):
+            message = line[len("error:"):].lstrip()
+            severity = "error"
+            lines.append(
+                f"{C['red']}{C['bld']}error{C['rst']}: "
+                f"{C['bld']}{message}{C['rst']}"
+            )
+        elif line.startswith("warning:"):
+            message = line[len("warning:"):].lstrip()
+            severity = "warning"
+            lines.append(
+                f"{C['yel']}{C['bld']}warning{C['rst']}: "
+                f"{C['bld']}{message}{C['rst']}"
+            )
+        elif line.lstrip().startswith("-->"):
+            match = re.match(r"^(\s*)(-->)(.*)$", line)
+
+            if match is not None:
+                lines.append(
+                    f"{match.group(1)}{C['blu']}{match.group(2)}{C['rst']}"
+                    f"{match.group(3)}"
+                )
+            else:
+                lines.append(line)
+        elif line.lstrip().startswith("= hint:"):
+            match = re.match(r"^(\s*)(= hint:)(.*)$", line)
+
+            if match is not None:
+                lines.append(
+                    f"{match.group(1)}{C['cyn']}{C['bld']}{match.group(2)}"
+                    f"{C['rst']}{C['cyn']}{match.group(3)}{C['rst']}"
+                )
+            else:
+                lines.append(line)
+        elif severity in {"error", "warning"}:
+            match = re.match(r"^(\s*\|\s*)(\^+)(\s*)$", line)
+
+            if match is not None:
+                color = C['red'] if severity == "error" else C['yel']
+                lines.append(
+                    f"{match.group(1)}{color}{C['bld']}{match.group(2)}"
+                    f"{C['rst']}{match.group(3)}"
+                )
+            else:
+                lines.append(line)
+        else:
+            lines.append(line)
+
+        if line.strip() == "":
+            severity = None
+
+    return "\n".join(lines)
+
+
+def program_preview_command(filepath: Path) -> list[str]:
+    bat = shutil.which("bat") or shutil.which("batcat")
+
+    if bat is not None:
+        return [
+            bat,
+            "--style=numbers",
+            "--color=always",
+            "--paging=never",
+            str(filepath),
+        ]
+
+    return ["cat", str(filepath)]
+
+
 def section(title: str):
     print(
         f"\n{C['cyn']}════════════════════════════════════════════════════════════{C['rst']}"
@@ -143,10 +220,14 @@ def section(title: str):
 def print_program(filepath: Path):
     print(f"\n{C['blu']}Program:{C['rst']}")
 
-    lines = filepath.read_text().splitlines()
+    preview = subprocess.run(
+        program_preview_command(filepath),
+        text=True,
+        capture_output=True,
+        cwd=ROOT,
+    )
 
-    for i, line in enumerate(lines, start=1):
-        print(f"{C['gry']}{i:>3} |{C['rst']} {line}")
+    print(preview.stdout.rstrip())
 
 
 def print_output(result: subprocess.CompletedProcess):
@@ -159,7 +240,7 @@ def print_output(result: subprocess.CompletedProcess):
         print(output)
 
     if errors:
-        print(errors)
+        print(colorize_diagnostics(errors))
 
     if not output and not errors:
         print(f"{C['gry']}<no output>{C['rst']}")
