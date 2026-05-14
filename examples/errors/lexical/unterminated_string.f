@@ -1,3 +1,3 @@
-      PROGRAM BAD_STRING
-      PRINT *, "hello
+      PROGRAM TEST
+      PRINT *, 'HELLO
       END

@@ -1,3 +1,3 @@
       PROGRAM TEST
-      CALL PRNT()
+      CALL PRNT
       END
