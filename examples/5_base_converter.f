@@ -1,5 +1,5 @@
       PROGRAM BASE_CONVERTER
-      INTEGER NUM, BASE, RESULT, CONVRT
+      INTEGER NUM, BASE, RESULT
 
       PRINT *, 'Insert an integer:'
       READ *, NUM
@@ -12,17 +12,20 @@
       END
 
       INTEGER FUNCTION CONVRT(N, B)
-      INTEGER N, B, QUOT, REM, POT, VAL
+      INTEGER N, B, QUOT, POT, VAL
       VAL = 0
       POT = 1
       QUOT = N
-   20 IF (QUOT .GT. 0) THEN
-        REM = MOD(QUOT, B)
-        VAL = VAL + (REM * POT)
-        QUOT = QUOT / B
-        POT = POT * 10
-        GOTO 20
-      ENDIF
+      VAL = VAL + (MOD(QUOT, B) * POT)
+      QUOT = QUOT / B
+      POT = POT * 10
+      VAL = VAL + (MOD(QUOT, B) * POT)
+      QUOT = QUOT / B
+      POT = POT * 10
+      VAL = VAL + (MOD(QUOT, B) * POT)
+      QUOT = QUOT / B
+      POT = POT * 10
+      VAL = VAL + (MOD(QUOT, B) * POT)
       CONVRT = VAL
       RETURN
       END
