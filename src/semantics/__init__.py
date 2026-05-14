@@ -27,6 +27,11 @@ def semantic_checks(parser, ast) -> Tuple[AST, SemanticInfo]:
     7. Type checks
     TODO Maybe 8. Control flow checks
 
+    Note:
+        The reference resolution step is necessary after variable checks
+        because it relies on variable metadata, and before procedure and type
+        checks because these should only see resolved Call nodes.
+
     Arguments:
         parser: The parser object containing the parsed source code and related
                 information.
