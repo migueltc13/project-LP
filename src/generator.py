@@ -31,6 +31,7 @@ class EWVMEmitter:
 class MemoryLayout:
     def __init__(self):
         self.global_slots: dict[str, int] = {}
+        self.arrays: set[str] = set()
 
     def allocate_global(self, name: str) -> int:
         if name not in self.global_slots:
@@ -41,22 +42,24 @@ class MemoryLayout:
         try:
             return self.global_slots[name]
         except KeyError:
-            raise CodeGenerationError(f"internal error: variable {name!r} has "
-                                      "no slot")
+            raise CodeGenerationError(
+                f"internal error: variable {name!r} has no slot")
 
-# TODO(codegen): Add type-directed expression generation using semantic/type info.
-# TODO(codegen): Insert numeric conversions such as ITOF/FTOI.
-# TODO(codegen): Support arrays with ALLOC/LOAD/STORE.
-# TODO(codegen): Support IF/ELSE via JZ/JUMP labels.
-# TODO(codegen): Support WRITE statement.
-# TODO(codegen): Support function/subroutine generation and CALL convention.
-# TODO(codegen): Support intrinsic functions.
-# TODO(codegen): Support power operator (**).
-# TODO(codegen): Support DO step expressions and negative-step loops.
-# TODO(codegen): Define CHARACTER storage model.
-# TODO(codegen): Add local frame layout for procedures.
-# TODO(codegen): Insert ITOF when INTEGER expressions feed REAL/DOUBLE contexts.
-# TODO(codegen): Decide whether DOUBLE is represented as EWVM float.
+    def mark_array(self, name: str) -> None:
+        self.arrays.add(name)
+
+    def is_array(self, name: str) -> bool:
+        return name in self.arrays
+
+
+# TODO(codegen): Verify EWVM LOADN/STOREN stack operand order with runtime tests.
+# TODO(codegen): Support multidimensional arrays.
+# TODO(codegen): Support CHARACTER arrays/fixed-length strings.
+# TODO(codegen): Support DO step expression and negative step.
+# TODO(codegen): Support function/subroutine CALL and RETURN conventions.
+# TODO(codegen): Support intrinsic function calls.
+# TODO(codegen): Support power operator.
+# TODO(codegen): Add bounds checks for array indices using CHECK.
 
 class EWVMGenerator:
     def __init__(self, semantic_info, *, debug: bool = False):
@@ -66,6 +69,7 @@ class EWVMGenerator:
         self.current_scope = None
         self.loop_counter = 0
         self.pending_do_by_label = {}
+        self.label_counter = 0
 
     def generate(self, tree) -> str:
         self.visit_file(tree)
@@ -75,12 +79,106 @@ class EWVMGenerator:
         for name in scope.variable_order:
             self.layout.allocate_global(name)
 
+            info = scope.variables[name]
+            if info.is_array:
+                self.layout.mark_array(name)
+
+    def initialize_arrays(self):
+        if self.current_scope is None:
+            return
+
+        for name in self.current_scope.variable_order:
+            info = self.current_scope.variables[name]
+
+            if not info.is_array:
+                continue
+
+            declaration_node = info.declaration_node
+
+            if not isinstance(declaration_node, ast.ArrayDeclarator):
+                raise CodeGenerationError(
+                    f"internal error: array {name!r} has no array declarator"
+                )
+
+            if len(declaration_node.dimensions) != 1:
+                raise CodeGenerationError(
+                    "only one-dimensional arrays are supported yet"
+                )
+
+            dimension = declaration_node.dimensions[0]
+
+            if isinstance(dimension, ast.Integer):
+                self.emitter.emit(f"ALLOC {dimension.value}")
+            else:
+                self.visit_expression(dimension)
+                self.emitter.emit("ALLOCN")
+
+            slot = self.layout.global_slot(name)
+            self.emitter.emit(f"STOREG {slot}")
+
+    def new_label(self, prefix: str) -> str:
+        label = f"L_{prefix}_{self.label_counter}"
+        self.label_counter += 1
+        return label
+
     def find_scope(self, name: str, kind: str):
         for scope in self.semantic_info.scopes:
             if scope.name == name and scope.kind == kind:
                 return scope
-        raise CodeGenerationError("internal error: missing semantic scope "
-                                  f"{kind} {name}")
+        raise CodeGenerationError(
+            f"internal error: missing semantic scope {kind} {name}"
+        )
+
+    def variable_type(self, name: str) -> str:
+        if self.current_scope is None:
+            return "UNKNOWN"
+
+        info = self.current_scope.variables.get(name)
+        if info is None:
+            return "UNKNOWN"
+
+        return info.type_name
+
+    def expression_type(self, node) -> str:
+        return self.semantic_info.expression_types.get(id(node), "UNKNOWN")
+
+    def expression_type_hint(self, node) -> str:
+        return self.expression_type(node)
+
+    def expression_is_floatish(self, node) -> bool:
+        return self.expression_type(node) in {"REAL", "DOUBLE"}
+
+    def emit_conversion(self, from_type: str, to_type: str) -> None:
+        if from_type == to_type:
+            return
+
+        if from_type == "INTEGER" and to_type in {"REAL", "DOUBLE"}:
+            self.emitter.emit("ITOF")
+            return
+
+        if from_type == "REAL" and to_type == "DOUBLE":
+            # EWVM only haves one float representation.
+            return
+
+        if from_type == "DOUBLE" and to_type == "REAL":
+            # EWVM only haves one float representation.
+            return
+
+        # NOTE Type checker should reject invalid conversions before codegen.
+
+    def emit_read_value_for_type(self, type_name: str):
+        self.emitter.emit("READ")
+
+        if type_name == "INTEGER":
+            self.emitter.emit("ATOI")
+        elif type_name in {"REAL", "DOUBLE"}:
+            self.emitter.emit("ATOF")
+        elif type_name == "CHARACTER":
+            pass
+        else:
+            raise CodeGenerationError(
+                f"READ has unsupported target type {type_name!r}"
+            )
 
     def visit_file(self, node):
         if not isinstance(node, ast.File):
@@ -90,7 +188,9 @@ class EWVMGenerator:
                     if isinstance(unit, ast.Program)]
 
         if not programs:
-            raise CodeGenerationError("code generation requires a PROGRAM unit")
+            raise CodeGenerationError(
+                "code generation requires a PROGRAM unit"
+            )
 
         program = programs[0]
         self.visit_program(program)
@@ -105,6 +205,8 @@ class EWVMGenerator:
         if self.layout.global_slots:
             self.emitter.comment("global variable storage")
             self.emitter.emit(f"PUSHN {len(self.layout.global_slots)}")
+
+        self.initialize_arrays()
 
         for statement in node.statements:
             self.visit_statement(statement)
@@ -123,8 +225,16 @@ class EWVMGenerator:
             self.visit_print(node)
             return
 
+        if isinstance(node, ast.Write):
+            self.visit_write(node)
+            return
+
         if isinstance(node, ast.Read):
             self.visit_read(node)
+            return
+
+        if isinstance(node, ast.If):
+            self.visit_if(node)
             return
 
         if isinstance(node, ast.Label):
@@ -147,18 +257,31 @@ class EWVMGenerator:
             self.visit_do(node)
             return
 
-        raise CodeGenerationError("unsupported statement for EWVM generation: "
-                                  f"{node!r}")
+        raise CodeGenerationError(
+            f"unsupported statement for EWVM generation: {node!r}"
+        )
 
     def visit_assign(self, node):
-        if not isinstance(node.target, ast.Var):
-            raise CodeGenerationError("array assignment is not supported yet")
+        if isinstance(node.target, ast.Var):
+            self.visit_expression(node.value)
 
-        self.visit_expression(node.value)
+            value_type = self.expression_type(node.value)
+            target_type = self.variable_type(node.target.name)
 
-        slot = self.layout.global_slot(node.target.name)
-        self.emitter.comment(f"{node.target.name} = ...")
-        self.emitter.emit(f"STOREG {slot}")
+            self.emit_conversion(value_type, target_type)
+
+            slot = self.layout.global_slot(node.target.name)
+            self.emitter.comment(f"{node.target.name} = ...")
+            self.emitter.emit(f"STOREG {slot}")
+            return
+
+        if isinstance(node.target, ast.ArrayRef):
+            self.visit_array_store(node.target, node.value)
+            return
+
+        raise CodeGenerationError(
+            f"unsupported assignment target: {node.target!r}"
+        )
 
     def visit_expression(self, node):
         if isinstance(node, ast.Integer):
@@ -187,6 +310,10 @@ class EWVMGenerator:
             self.emitter.emit(f"PUSHG {slot}")
             return
 
+        if isinstance(node, ast.ArrayRef):
+            self.visit_array_load(node)
+            return
+
         if isinstance(node, ast.Arith):
             self.visit_arith(node)
             return
@@ -203,11 +330,52 @@ class EWVMGenerator:
             self.visit_unary(node)
             return
 
-        raise CodeGenerationError("unsupported expression for EWVM generation: "
-                                  f"{node!r}")
+        if isinstance(node, ast.IndexedOrCall):
+            raise CodeGenerationError(
+                "internal error: unresolved IndexedOrCall reached code "
+                f"generation: {node!r}"
+            )
 
-    def expression_is_floatish(self, node) -> bool:
-        return self.expression_type(node) in {"REAL", "DOUBLE"}
+        raise CodeGenerationError(
+            f"unsupported expression for EWVM generation: {node!r}"
+        )
+
+    def visit_array_index_zero_based(self, index_expr):
+        self.visit_expression(index_expr)
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit("SUB")
+
+    def visit_array_load(self, node):
+        if len(node.indices) != 1:
+            raise CodeGenerationError(
+                "only one-dimensional array references are supported yet"
+            )
+
+        slot = self.layout.global_slot(node.name)
+
+        self.emitter.emit(f"PUSHG {slot}")
+        self.visit_array_index_zero_based(node.indices[0])
+        self.emitter.emit("LOADN")
+
+    def visit_array_store(self, target, value):
+        if len(target.indices) != 1:
+            raise CodeGenerationError(
+                "only one-dimensional array assignments are supported yet"
+            )
+
+        self.visit_expression(value)
+
+        value_type = self.expression_type(value)
+        target_type = self.variable_type(target.name)
+
+        self.emit_conversion(value_type, target_type)
+
+        self.visit_array_index_zero_based(target.indices[0])
+
+        slot = self.layout.global_slot(target.name)
+        self.emitter.emit(f"PUSHG {slot}")
+
+        self.emitter.emit("STOREN")
 
     def visit_arith(self, node):
         self.visit_expression(node.left)
@@ -226,8 +394,9 @@ class EWVMGenerator:
         elif node.op == "**":
             raise CodeGenerationError("power operator is not supported yet")
         else:
-            raise CodeGenerationError("unsupported arithmetic operator "
-                                      f"{node.op!r}")
+            raise CodeGenerationError(
+                f"unsupported arithmetic operator {node.op!r}"
+            )
 
     def visit_rel(self, node):
         self.visit_expression(node.left)
@@ -250,8 +419,9 @@ class EWVMGenerator:
         elif node.op in {".GE.", ">="}:
             self.emitter.emit("FSUPEQ" if is_float else "SUPEQ")
         else:
-            raise CodeGenerationError("unsupported relational operator "
-                                      f"{node.op!r}")
+            raise CodeGenerationError(
+                f"unsupported relational operator {node.op!r}"
+            )
 
     def visit_logical(self, node):
         self.visit_expression(node.left)
@@ -262,8 +432,9 @@ class EWVMGenerator:
         elif node.op == ".OR.":
             self.emitter.emit("OR")
         else:
-            raise CodeGenerationError("unsupported logical operator "
-                                      f"{node.op!r}")
+            raise CodeGenerationError(
+                f"unsupported logical operator {node.op!r}"
+            )
 
     def visit_unary(self, node):
         if node.op == "+":
@@ -271,9 +442,17 @@ class EWVMGenerator:
             return
 
         if node.op == "-":
-            self.emitter.emit("PUSHI 0")
-            self.visit_expression(node.value)
-            self.emitter.emit("SUB")
+            value_type = self.expression_type(node.value)
+
+            if value_type in {"REAL", "DOUBLE"}:
+                self.emitter.emit("PUSHF 0.0")
+                self.visit_expression(node.value)
+                self.emitter.emit("FSUB")
+            else:
+                self.emitter.emit("PUSHI 0")
+                self.visit_expression(node.value)
+                self.emitter.emit("SUB")
+
             return
 
         if node.op == ".NOT.":
@@ -283,24 +462,8 @@ class EWVMGenerator:
 
         raise CodeGenerationError(f"unsupported unary operator {node.op!r}")
 
-    def variable_type(self, name: str) -> str:
-        if self.current_scope is None:
-            return "UNKNOWN"
-
-        info = self.current_scope.variables.get(name)
-        if info is None:
-            return "UNKNOWN"
-
-        return info.type_name
-
-    def expression_type(self, node) -> str:
-        return self.semantic_info.expression_types.get(id(node), "UNKNOWN")
-
-    def expression_type_hint(self, node) -> str:
-        return self.expression_type(node)
-
-    def visit_print(self, node):
-        for item in node.items:
+    def write_items(self, items):
+        for item in items:
             self.visit_expression(item)
 
             type_name = self.expression_type_hint(item)
@@ -314,29 +477,81 @@ class EWVMGenerator:
 
         self.emitter.emit("WRITELN")
 
+    def visit_print(self, node):
+        self.write_items(node.items)
+
+    def visit_write(self, node):
+        self.write_items(node.items)
+
     def visit_read(self, node):
         for variable in node.variables:
-            if not isinstance(variable, ast.Var):
-                raise CodeGenerationError("array READ is not supported yet")
+            if isinstance(variable, ast.Var):
+                self.visit_read_var(variable)
+                continue
 
-            type_name = self.variable_type(variable.name)
+            if isinstance(variable, ast.ArrayRef):
+                self.visit_read_array_ref(variable)
+                continue
 
-            self.emitter.emit("READ")
+            raise CodeGenerationError(f"unsupported READ target: {variable!r}")
 
-            if type_name == "INTEGER":
-                self.emitter.emit("ATOI")
-            elif type_name in {"REAL", "DOUBLE"}:
-                self.emitter.emit("ATOF")
-            elif type_name == "CHARACTER":
-                pass
-            else:
-                raise CodeGenerationError(
-                    f"READ for variable {variable.name!r} "
-                    f"has unsupported type {type_name!r}"
-                )
+    def visit_read_var(self, variable):
+        type_name = self.variable_type(variable.name)
 
-            slot = self.layout.global_slot(variable.name)
-            self.emitter.emit(f"STOREG {slot}")
+        self.emit_read_value_for_type(type_name)
+
+        slot = self.layout.global_slot(variable.name)
+        self.emitter.emit(f"STOREG {slot}")
+
+    def visit_read_array_ref(self, variable):
+        if len(variable.indices) != 1:
+            raise CodeGenerationError(
+                "only one-dimensional array READ is supported yet"
+            )
+
+        type_name = self.variable_type(variable.name)
+
+        self.emit_read_value_for_type(type_name)
+
+        self.visit_array_index_zero_based(variable.indices[0])
+
+        slot = self.layout.global_slot(variable.name)
+        self.emitter.emit(f"PUSHG {slot}")
+
+        self.emitter.emit("STOREN")
+
+    def visit_if(self, node):
+        else_label = self.new_label("IF_ELSE")
+        end_label = self.new_label("IF_END")
+
+        self.emitter.comment("if condition")
+        self.visit_expression(node.condition)
+
+        if node.else_branch is None:
+            self.emitter.emit(f"JZ {end_label}")
+
+            self.emitter.comment("then branch")
+            for statement in node.then_branch:
+                self.visit_statement(statement)
+
+            self.emitter.label(end_label)
+            return
+
+        self.emitter.emit(f"JZ {else_label}")
+
+        self.emitter.comment("then branch")
+        for statement in node.then_branch:
+            self.visit_statement(statement)
+
+        self.emitter.emit(f"JUMP {end_label}")
+
+        self.emitter.label(else_label)
+
+        self.emitter.comment("else branch")
+        for statement in node.else_branch:
+            self.visit_statement(statement)
+
+        self.emitter.label(end_label)
 
     def visit_label(self, node):
         loop_info = self.pending_do_by_label.get(node.number)
@@ -403,7 +618,12 @@ def main():
     import sys
     from pathlib import Path
 
-    from common import read_input, detect_source_format, open_file, write_output
+    from common import (
+        read_input,
+        detect_source_format,
+        open_file,
+        write_output
+    )
     from preprocessor import preprocess
     from lexer import lexer, clear_lexer_state
     from parser import parser, clear_parser_state
@@ -531,7 +751,7 @@ def main():
         sys.exit(1)
 
     # Semantic checks
-    semantic_info = semantic_checks(parser, ast=result)
+    result, semantic_info = semantic_checks(parser, ast=result)
 
     # Check for semantic errors before proceeding
     if parser.has_error:
@@ -555,13 +775,13 @@ def main():
         except Exception as e:
             print(f"AST Visualization error: {e}", file=sys.stderr)
 
-    # TODO optimizations here (e.g. constant folding, dead code elimination, etc.)
+    # TODO optimizations here
     if args.optimize:
         # TODO Check if optimizations can use (and enjoy) semantic_info
         result = optimizations(result)
         # TODO perhaps code optimization will also need to propagate changes
         # to semantic_info in this case we could re-run:
-        # semantic_info = semantic_checks(parser, ast=result)
+        # semantic_info = result, semantic_checks(parser, ast=result)
         # NOTE this can be a bit expensive so we have to check of it's worth it
         # But ensure new code generation receives the updated semantic_info for
         # memory allocation, etc.
