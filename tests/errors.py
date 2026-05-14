@@ -81,10 +81,6 @@ DESCRIPTIONS = {
         "initialization, use of undeclared variables, assignment to undeclared "
         "variables, and variables declared but never used.",
 
-    "wrong_type.f":
-        "Tests type errors, like assigning a CHARACTER value to an INTEGER "
-        "variable.",
-
     "bad_if_syntax.f":
         "Tests invalid syntax in IF statements, like missing THEN or END IF.",
 
@@ -99,7 +95,22 @@ DESCRIPTIONS = {
 
     "misspelled_function.f":
         "Tests a misspelled function name in a function call.",
-
+    
+    "arith_with_string.f":
+        "Tests an arithmetic operation involving a string literal.",
+    
+    "if_cond_non_logical.f":
+        "Tests an IF statement with a non-logical condition.",
+    
+    "invalid_narrowing.f":
+        "Tests an assignment of a REAL literal to an INTEGER variable.",
+    
+    "logical_expr_mismatch.f":
+        "Tests a logical expression with incompatible operand types.",
+    
+    "wrong_assignment_type.f":
+        "Tests an assignment with incompatible types (assign a CHARACTER to an "
+        "INTEGER)."
 }
 
 
@@ -164,6 +175,7 @@ if __name__ == "__main__":
         ("LEXICAL ERRORS", ERROR_ROOT / "lexical"),
         ("SYNTAX ERRORS", ERROR_ROOT / "syntax"),
         ("SEMANTIC ERRORS", ERROR_ROOT / "semantic"),
+        ("TYPE SEMANTIC ERRORS", ERROR_ROOT / "semantic" / "types"),
         ("FUNCTION SEMANTIC ERRORS", ERROR_ROOT / "semantic" / "functions"),
     ]
 
