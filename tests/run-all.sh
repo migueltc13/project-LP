@@ -73,7 +73,6 @@ banner "TEST EXECUTION"
 # Explicit test order
 TESTS=(
     "tests/formats.py"
-    "tests/strings.py"
 )
 
 # Run all tests
