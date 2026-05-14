@@ -15,8 +15,8 @@ def p_logical_or(p):
     logical_or : logical_or OR logical_and
                | logical_and
     """
-    if len(p) == 5:
-        p[0] = ast.Logical(p[2], p[1], p[4])
+    if len(p) == 4:
+        p[0] = ast.Logical(p[2], p[1], p[3])
     else:
         p[0] = p[1]
 
@@ -26,8 +26,8 @@ def p_logical_and(p):
     logical_and : logical_and AND relational
                 | relational
     """
-    if len(p) == 5:
-        p[0] = ast.Logical(p[2], p[1], p[4])
+    if len(p) == 4:
+        p[0] = ast.Logical(p[2], p[1], p[3])
     else:
         p[0] = p[1]
 
@@ -42,8 +42,8 @@ def p_relational(p):
                | additive GE additive
                | additive
     """
-    if len(p) == 5:
-        p[0] = ast.Rel(p[2], p[1], p[4])
+    if len(p) == 4:
+        p[0] = ast.Rel(p[2], p[1], p[3])
     else:
         p[0] = p[1]
 
@@ -54,8 +54,8 @@ def p_additive(p):
              | additive MINUS multiplicative
              | multiplicative
     """
-    if len(p) == 5:
-        p[0] = ast.Arith(p[2], p[1], p[4])
+    if len(p) == 4:
+        p[0] = ast.Arith(p[2], p[1], p[3])
     else:
         p[0] = p[1]
 
@@ -66,8 +66,8 @@ def p_multiplicative(p):
                    | multiplicative DIVIDE unary
                    | unary
     """
-    if len(p) == 5:
-        p[0] = ast.Arith(p[2], p[1], p[4])
+    if len(p) == 4:
+        p[0] = ast.Arith(p[2], p[1], p[3])
     else:
         p[0] = p[1]
 
@@ -96,8 +96,8 @@ def p_power(p):
     power : primary POWER power
           | primary
     """
-    if len(p) == 5:
-        p[0] = ast.Arith(p[2], p[1], p[4])
+    if len(p) == 4:
+        p[0] = ast.Arith(p[2], p[1], p[3])
     else:
         p[0] = p[1]
 
