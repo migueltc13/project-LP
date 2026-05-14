@@ -1,0 +1,47 @@
+      PROGRAM FULL_PROGRAM
+      INTEGER N, I, FACTOR, TOTAL, RESULT
+      INTEGER VALUES(5)
+      LOGICAL READY
+
+      PRINT *, 'Full program demo'
+      N = 5
+      FACTOR = 3
+      READY = .TRUE.
+      TOTAL = 0
+
+      DO 10 I = 1, N
+        VALUES(I) = I * FACTOR
+   10 CONTINUE
+
+      IF (READY) THEN
+        CALL BUMP_ALL(VALUES, N, FACTOR)
+      ENDIF
+
+      TOTAL = ISUM_VALUES(VALUES, N)
+      RESULT = TOTAL + FACTOR
+
+      PRINT *, 'N =', N
+      PRINT *, 'TOTAL =', TOTAL
+      PRINT *, 'RESULT =', RESULT
+      PRINT *, VALUES(1), VALUES(2), VALUES(3)
+      PRINT *, VALUES(4), VALUES(5)
+      END
+
+      INTEGER FUNCTION ISUM_VALUES(VALUES, COUNT)
+      INTEGER VALUES(5), COUNT, I, TOTAL
+      TOTAL = 0
+      DO 20 I = 1, COUNT
+        TOTAL = TOTAL + VALUES(I)
+   20 CONTINUE
+      PRINT *, I
+      ISUM_VALUES = TOTAL
+      RETURN
+      END
+
+      SUBROUTINE BUMP_ALL(VALUES, COUNT, DELTA)
+      INTEGER VALUES(5), COUNT, DELTA, I
+      DO 30 I = 1, COUNT
+        VALUES(I) = VALUES(I) + DELTA
+   30 CONTINUE
+      RETURN
+      END
