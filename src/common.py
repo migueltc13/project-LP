@@ -85,3 +85,24 @@ def open_file(path: str) -> None:
         os.startfile(path)  # type: ignore[attr-defined]
     else:
         subprocess.run(["xdg-open", path], check=False)
+
+
+def write_output(output_path: Optional[str], data: str) -> None:
+    """
+    Writes the given data to a file or standard output.
+
+    Arguments:
+        output_path (Optional[str]): The path to the output file. If None,
+                                     writes to standard output.
+        data (str): The data to write.
+
+    Raises:
+        OSError: If there is an error accessing the file.
+        IOError: If there is an error writing to the file.
+    """
+
+    if output_path is None:
+        sys.stdout.write(data)
+    else:
+        with open(output_path, "w", encoding="utf-8") as file:
+            file.write(data)
