@@ -102,6 +102,7 @@ def write_output(output_path: Optional[str], data: str) -> None:
     """
 
     if output_path is None:
+        print("\nEWVM Assembly:\n==============\n")
         sys.stdout.write(data)
     else:
         with open(output_path, "w", encoding="utf-8") as file:
