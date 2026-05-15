@@ -828,7 +828,7 @@ def main():
 
     # Write output assembly code to file or stdout
     try:
-        write_output(args.output, assembly)
+        write_output(args.output, assembly, verbose=args.verbose)
     except Exception as e:
         print(f"Error writing output: {e}", file=sys.stderr)
         sys.exit(1)

@@ -87,7 +87,11 @@ def open_file(path: str) -> None:
         subprocess.run(["xdg-open", path], check=False)
 
 
-def write_output(output_path: Optional[str], data: str) -> None:
+def write_output(
+    output_path: Optional[str],
+    data: str,
+    verbose: bool = False
+) -> None:
     """
     Writes the given data to a file or standard output.
 
@@ -95,6 +99,8 @@ def write_output(output_path: Optional[str], data: str) -> None:
         output_path (Optional[str]): The path to the output file. If None,
                                      writes to standard output.
         data (str): The data to write.
+        verbose (bool): Prints header message when writing to standard output,
+                        or prints output path when writing to a file, when True.
 
     Raises:
         OSError: If there is an error accessing the file.
@@ -102,8 +108,11 @@ def write_output(output_path: Optional[str], data: str) -> None:
     """
 
     if output_path is None:
-        print("\nEWVM Assembly:\n==============\n")
+        if verbose:
+            print("\nEWVM Assembly:\n==============\n")
         sys.stdout.write(data)
     else:
         with open(output_path, "w", encoding="utf-8") as file:
             file.write(data)
+        if verbose:
+            print(f"EWVM Assembly written to: {output_path}")
