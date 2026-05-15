@@ -117,7 +117,7 @@ class EWVMGenerator:
             self.emitter.emit(f"STOREG {slot}")
 
     def new_label(self, prefix: str) -> str:
-        label = f"L_{prefix}_{self.label_counter}"
+        label = f"L{prefix}{self.label_counter}"
         self.label_counter += 1
         return label
 
@@ -521,8 +521,8 @@ class EWVMGenerator:
         self.emitter.emit("STOREN")
 
     def visit_if(self, node):
-        else_label = self.new_label("IF_ELSE")
-        end_label = self.new_label("IF_END")
+        else_label = self.new_label("IFELSE")
+        end_label = self.new_label("IFEND")
 
         self.emitter.comment("if condition")
         self.visit_expression(node.condition)
@@ -579,7 +579,7 @@ class EWVMGenerator:
         loop_id = self.loop_counter
         self.loop_counter += 1
 
-        start_label = f"L_DO_START_{loop_id}"
+        start_label = f"LDOSTART{loop_id}"
         var_name = node.variable.name
 
         self.visit_expression(node.start)
@@ -590,10 +590,10 @@ class EWVMGenerator:
         self.emitter.emit(f"PUSHG {self.layout.global_slot(var_name)}")
         self.visit_expression(node.end)
         self.emitter.emit("SUP")
-        self.emitter.emit(f"JZ L_DO_BODY_{loop_id}")
+        self.emitter.emit(f"JZ LDOBODY{loop_id}")
         self.emitter.emit(f"JUMP L{node.end_label}")
 
-        self.emitter.label(f"L_DO_BODY_{loop_id}")
+        self.emitter.label(f"LDOBODY{loop_id}")
 
         self.pending_do_by_label[node.end_label] = {
             "variable": var_name,
