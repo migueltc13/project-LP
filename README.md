@@ -12,7 +12,6 @@
 
 ## TODO list
 
-- [ ] Rename CD/CI GitHub action
 - [ ] Sort errors by line/column/length and severity, then if so,
       remove label-related errors sorting
 - [ ] Optional step counter (example: `2`) in do_statement (example: `DO 100 I = 1, 10, 2`)
