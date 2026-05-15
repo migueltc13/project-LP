@@ -684,7 +684,9 @@ class EWVMGenerator:
             return
 
         if isinstance(node, ast.String):
-            self.emitter.emit(f"PUSHS {EWVMEmitter.string_literal(node.value)}")
+            self.emitter.emit(
+                f"PUSHS {EWVMEmitter.string_literal(node.value)}"
+            )
             return
 
         if isinstance(node, ast.Bool):
@@ -1077,7 +1079,7 @@ def main():
     from preprocessor import preprocess
     from lexer import lexer, clear_lexer_state
     from parser import parser, clear_parser_state
-    from semantics import semantic_checks
+    from semantics import semantic_checks, semantic_checks_post_optimizations
     from semantics.semantic_info import print_semantic_info
     from optimizations import optimizations
     from abstract_syntax_tree import (
@@ -1210,10 +1212,14 @@ def main():
     # Semantic checks
     result, semantic_info = semantic_checks(parser, ast=result)
 
-    # Check for semantic errors before proceeding
-    flush_diagnostics(parser)
-
+    # Stop immediately on semantic errors
+    # Do not proceed to optimization if the program is invalid
     if parser.has_error:
+        flush_diagnostics(parser)
+        print(
+            f"\n{len(parser.diagnostics)} error(s) encountered.",
+            file=sys.stderr
+        )
         sys.exit(1)
 
     # Verbose output of semantic information and initial AST
@@ -1234,18 +1240,32 @@ def main():
         except Exception as e:
             print(f"AST Visualization error: {e}", file=sys.stderr)
 
-    # TODO optimizations here
-    if args.optimize:
-        # TODO Check if optimizations can use (and enjoy) semantic_info
+    if not args.optimize:
+        # Report diagnostics from the normal semantic pass
+        flush_diagnostics(parser)
+    else:
+        # Discard pre-optimization warnings. They may no longer be true after
+        # optimization, for example unused variables removed by DCE.
+        parser.diagnostics.clear()
+
         result = optimizations(result)
-        # TODO perhaps code optimization will also need to propagate changes
-        # to semantic_info in this case we could re-run:
-        # semantic_info = result, semantic_checks(parser, ast=result)
-        # NOTE this can be a bit expensive so we have to check of it's worth it
-        # But ensure new code generation receives the updated semantic_info for
-        # memory allocation, etc.
-        # Alternatively we could have optimizations return both the optimized
-        # AST and updated semantic_info.
+
+        # Re-run semantic checks to ensure consistent semantic information.
+        # INFO Alternatively we could have optimizations return both the
+        # optimized AST as the updated semantic_info
+        result, semantic_info = semantic_checks_post_optimizations(
+            parser,
+            ast=result
+        )
+
+        flush_diagnostics(parser)
+
+        if parser.has_error:
+            print(
+                f"\n{len(parser.diagnostics)} error(s) encountered.",
+                file=sys.stderr
+            )
+            sys.exit(1)
 
         # Verbose output of optimized AST
         if args.verbose:

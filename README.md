@@ -30,8 +30,10 @@
 - [ ] Optimizations
     - [ ] Constant folding
     - [ ] Expression simplification
-    - [ ] Unused variable elimination
-    - [ ] Constant `IF` elimination
+    - [ ] Dead code elimination
+        - [ ] Unused variables/functions/subroutines elimination
+        - [ ] If statements with constant conditions
+        - [ ] Unreachable code after STOP, RETURN, etc.
     - [ ] Loop unrolling
 - [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
       From the lexer to the parser and then to the code generation.

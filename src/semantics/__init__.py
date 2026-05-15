@@ -12,12 +12,14 @@ from .semantic_info import SemanticInfo
 from abstract_syntax_tree import AST
 
 
-def semantic_checks(parser, ast) -> Tuple[AST, SemanticInfo]:
+def semantic_checks(
+    parser,
+    ast: AST
+) -> Tuple[AST, SemanticInfo]:
     """
     Run all semantic checks on the parsed Fortran 77 source code.
 
     This includes:
-
     1. Program unit checks
     2. Label checks
     3. Loop checks
@@ -25,7 +27,6 @@ def semantic_checks(parser, ast) -> Tuple[AST, SemanticInfo]:
     5. Reference resolution
     6. Procedures checks
     7. Type checks
-    TODO Maybe 8. Control flow checks
 
     Note:
         The reference resolution step is necessary after variable checks
@@ -44,6 +45,45 @@ def semantic_checks(parser, ast) -> Tuple[AST, SemanticInfo]:
     check_program(parser)
     check_labels(parser)
     check_loops(parser)
+
+    semantic_info = check_variables(parser, ast)
+
+    resolved_ast = resolve_references(ast, semantic_info)
+
+    procedures = check_procedures(parser, resolved_ast)
+    semantic_info.procedures = procedures
+
+    type_result = check_types(parser, resolved_ast, semantic_info)
+    semantic_info.expression_types = type_result.expression_types
+
+    return resolved_ast, semantic_info
+
+
+def semantic_checks_post_optimizations(
+    parser,
+    ast: AST
+) -> Tuple[AST, SemanticInfo]:
+    """
+    Rebuild semantic metadata after AST optimizations.
+
+    This pass intentionally skips checks that depend on parser-collected state:
+        - check_program
+        - check_labels
+        - check_loops
+
+    Those checks use parser metadata collected before optimization and may be
+    stale after AST transformations.
+
+    The post-optimization pass rebuilds the metadata required by code
+    generation:
+        1. variable scopes
+        2. resolved references
+        3. procedure table
+        4. expression types
+
+    This is necessary because optimizations may create new AST nodes, and
+    expression_types is keyed by id(expression_node).
+    """
 
     semantic_info = check_variables(parser, ast)
 
