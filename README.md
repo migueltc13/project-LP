@@ -39,30 +39,32 @@
       warning for unused labels)
 - [ ] NOTE in report that strict version was implemented instead of implicit typing rules
 
-## Compiler Pipeline
+## Compiler Pipeline Overview
 
 ```mermaid
 graph LR
     %% Modules
-    subgraph Preprocessor
+    subgraph PRE[Preprocessor]
+        direction TB
         P_FIXED[Fixed-Format Logic]
         P_FREE[Free-Format Logic]
+        P_FIXED ~~~ P_FREE
     end
     LEX[Lexer]
-    YACC[Parser + Semantic checks]
+    PARSER[Parser]
+    SEMANTIC[Semantic Analysis]
+    DECIDE{"Optimization enabled?"}
     OPT[Optimizations]
     GEN[Code Generation]
 
     %% Connections
-    Preprocessor --> LEX
-    %% P_FIXED --> LEX
-    %% P_FREE --> LEX
-    LEX --> YACC
-    OPT --> GEN
-    YACC --> OPT
-    %% YACC -->|Optimization Flag| OPT
-    YACC --> GEN
-
+    PRE      --> LEX
+    LEX      --> PARSER
+    PARSER   --> SEMANTIC
+    SEMANTIC --> DECIDE
+    DECIDE   -->|"Yes"| OPT
+    OPT      --> GEN
+    DECIDE   -->|"No"| GEN
 ```
 
 ## Preprocessing
