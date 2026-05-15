@@ -145,6 +145,7 @@ t_FALSE = r'\.FALSE\.'
 # )
 def t_STRING(t):
     r'(\"([^\\\n]|(\\.))*?\")|(\'([^\\\n]|(\\.))*?\')'
+    t.lexeme_length = len(t.value)
     t.value = bytes(t.value[1:-1], "utf-8").decode("unicode_escape")
     return t
 
@@ -173,6 +174,7 @@ def t_DOUBLE_NUMBER(t):
     r'(\d+(\.\d*)?|\.\d+)[dD][+-]?\d+'
 
     literal = t.value
+    t.lexeme_length = len(literal)
 
     try:
         value = float(literal.replace("D", "E").replace("d", "e"))
@@ -199,6 +201,7 @@ def t_REAL_NUMBER(t):
     r'(\d+\.\d*|\.\d+)([eE][+-]?\d+)?|\d+[eE][+-]?\d+'
 
     literal = t.value
+    t.lexeme_length = len(literal)
 
     try:
         value = float(literal)
@@ -225,6 +228,7 @@ def t_INTEGER_NUMBER(t):
     r'\d+'
 
     literal = t.value
+    t.lexeme_length = len(literal)
     value = int(literal)
 
     # Check for out of range value (semantic error)
@@ -250,6 +254,8 @@ def t_INTEGER_NUMBER(t):
 def t_IDENTIFIER(t):
     r'[A-Za-z][A-Za-z0-9_]*'
 
+    t.lexeme_length = len(t.value)
+
     # Fortran is case insensitive
     t.value = t.value.upper()
 
@@ -265,6 +271,7 @@ def t_IDENTIFIER(t):
 
 def t_LABEL(t):
     r'@LABEL\(\d+\)'
+    t.lexeme_length = len(t.value)
     t.value = int(t.value[7:-1])
     return t
 

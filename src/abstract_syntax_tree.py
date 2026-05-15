@@ -529,7 +529,7 @@ def location_from_token(token, lexdata: Optional[str] = None) -> SourceLocation:
     return SourceLocation(
         lineno=token.lineno,
         col_start=get_token_column(token, lexdata),
-        length=max(1, len(str(token.value))),
+        length=max(1, getattr(token, "lexeme_length", len(str(token.value)))),
     )
 
 
