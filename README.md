@@ -163,6 +163,13 @@ In free-format Fortran, it may be interpreted as an assignment to variable `C`.
 This ambiguity makes explicit or extension-based format selection more
 predictable.
 
+The preprocessing stage is additionally validated through the automated test
+[tests/formats.py](tests/formats.py), this test compares the outputed lexed
+tokens for equivalent fixed-format (`.f`) and free-format (`.f90`) source
+files. When running the lexer, the `--test` flag is used to remove the column
+field from the lexed tokens, since, naturally, the positions will differ from
+the two formats.
+
 ## Lexical Analysis
 
 ## Syntax Analysis
