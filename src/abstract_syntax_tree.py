@@ -523,7 +523,10 @@ def _node_children(node):
 # Source Location extraction helpers
 ###
 
-def location_from_token(token, lexdata: Optional[str] = None) -> SourceLocation:
+def location_from_token(
+    token,
+    lexdata: Optional[str] = None
+) -> SourceLocation:
     from error import get_token_column
 
     return SourceLocation(
@@ -565,7 +568,11 @@ def _location_from_span(
     )
 
 
-def location_from_parser_span(p, start_index: int, end_node) -> SourceLocation:
+def location_from_parser_span(
+    p,
+    start_index: int,
+    end_node
+) -> SourceLocation:
     return _location_from_span(
         p.slice[start_index],
         end_node,
