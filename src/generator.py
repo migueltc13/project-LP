@@ -46,34 +46,45 @@ class EWVMEmitter:
 
 class MemoryLayout:
     def __init__(self):
-        self.global_slots: dict[str, int] = {}
-        self.arrays: set[str] = set()
+        self.global_slots: dict[tuple[str, str, str], int] = {}
+        self.arrays: set[tuple[str, str, str]] = set()
 
-    def allocate_global(self, name: str) -> int:
-        if name not in self.global_slots:
-            self.global_slots[name] = len(self.global_slots)
-        return self.global_slots[name]
+    def key(self, scope, name: str) -> tuple[str, str, str]:
+        return (scope.kind, scope.name.upper(), name.upper())
 
-    def global_slot(self, name: str) -> int:
+    def allocate_global(self, scope, name: str) -> int:
+        key = self.key(scope, name)
+
+        if key not in self.global_slots:
+            self.global_slots[key] = len(self.global_slots)
+
+        return self.global_slots[key]
+
+    def global_slot(self, scope, name: str) -> int:
+        key = self.key(scope, name)
+
         try:
-            return self.global_slots[name]
+            return self.global_slots[key]
         except KeyError:
             raise CodeGenerationError(
-                f"internal error: variable {name!r} has no slot"
+                f"internal error: variable {name!r} has no slot "
+                f"in {scope.kind} {scope.name!r}"
             )
 
-    def mark_array(self, name: str) -> None:
-        self.arrays.add(name)
+    def mark_array(self, scope, name: str) -> None:
+        self.arrays.add(self.key(scope, name))
 
-    def is_array(self, name: str) -> bool:
-        return name in self.arrays
+    def is_array(self, scope, name: str) -> bool:
+        return self.key(scope, name) in self.arrays
 
 
 # TODO(codegen): Verify EWVM LOADN/STOREN stack operand order with runtime tests.
 # TODO(codegen): Support multidimensional arrays.
 # TODO(codegen): Support CHARACTER arrays/fixed-length strings.
 # TODO(codegen): Support negative DO step termination logic.
-# TODO(codegen): Support function/subroutine CALL and RETURN conventions.
+# TODO(codegen): Support pass-by-reference procedure arguments.
+# TODO(codegen): Support proper local stack-frame allocation.
+# TODO(codegen): Support recursion-safe procedure calls.
 # TODO(codegen): Support intrinsic function calls.
 # TODO(codegen): Support power operator.
 # TODO(codegen): Add bounds checks for array indices using CHECK.
@@ -87,6 +98,7 @@ class EWVMGenerator:
         self.loop_counter = 0
         self.pending_do_by_label = {}
         self.label_counter = 0
+        self.procedure_labels: dict[str, str] = {}
 
     def generate(self, tree) -> str:
         self.visit_file(tree)
@@ -94,18 +106,22 @@ class EWVMGenerator:
 
     def allocate_scope(self, scope) -> None:
         for name in scope.variable_order:
-            self.layout.allocate_global(name)
+            self.layout.allocate_global(scope, name)
 
             info = scope.variables[name]
             if info.is_array:
-                self.layout.mark_array(name)
+                self.layout.mark_array(scope, name)
 
-    def initialize_arrays(self):
-        if self.current_scope is None:
-            return
+    def allocate_all_scopes(self) -> None:
+        for scope in self.semantic_info.scopes:
+            self.allocate_scope(scope)
 
-        for name in self.current_scope.variable_order:
-            info = self.current_scope.variables[name]
+    def initialize_arrays(self, scope):
+        previous_scope = self.current_scope
+        self.current_scope = scope
+
+        for name in scope.variable_order:
+            info = scope.variables[name]
 
             if not info.is_array:
                 continue
@@ -123,23 +139,57 @@ class EWVMGenerator:
                 )
 
             self.emitter.new_line()
-            self.emitter.comment(f"allocate array {name}")
+            self.emitter.comment(f"allocate array {scope.name}.{name}")
 
             dimension = declaration_node.dimensions[0]
 
             if isinstance(dimension, ast.Integer):
                 self.emitter.emit(f"ALLOC {dimension.value}")
             else:
+                if scope.kind != "program":
+                    raise CodeGenerationError(
+                        "dynamic array dimensions inside procedures "
+                        "are not supported yet"
+                    )
+
                 self.visit_expression(dimension)
                 self.emitter.emit("ALLOCN")
 
-            slot = self.layout.global_slot(name)
+            slot = self.layout.global_slot(scope, name)
             self.emitter.emit(f"STOREG {slot}")
+
+        self.current_scope = previous_scope
+
+    def initialize_all_arrays(self):
+        for scope in self.semantic_info.scopes:
+            self.initialize_arrays(scope)
+
+    def variable_slot(self, name: str) -> int:
+        if self.current_scope is None:
+            raise CodeGenerationError(
+                f"internal error: no current scope for variable {name!r}"
+            )
+
+        return self.layout.global_slot(self.current_scope, name)
 
     def new_label(self, prefix: str) -> str:
         label = f"L{prefix}{self.label_counter}"
         self.label_counter += 1
         return label
+
+    def register_procedure_labels(self, tree) -> None:
+        for unit in tree.program_units:
+            if isinstance(unit, (ast.Subroutine, ast.Function)):
+                name = unit.name.upper()
+                self.procedure_labels[name] = f"P{len(self.procedure_labels)}"
+
+    def procedure_label(self, name: str) -> str:
+        try:
+            return self.procedure_labels[name.upper()]
+        except KeyError:
+            raise CodeGenerationError(
+                f"internal error: procedure {name!r} has no generated label"
+            )
 
     def find_scope(self, name: str, kind: str):
         for scope in self.semantic_info.scopes:
@@ -148,6 +198,16 @@ class EWVMGenerator:
         raise CodeGenerationError(
             f"internal error: missing semantic scope {kind} {name}"
         )
+
+    def procedure_info(self, name: str):
+        info = self.semantic_info.procedures.get(name.upper())
+
+        if info is None:
+            raise CodeGenerationError(
+                f"internal error: missing procedure info for {name!r}"
+            )
+
+        return info
 
     def variable_type(self, name: str) -> str:
         if self.current_scope is None:
@@ -200,6 +260,34 @@ class EWVMGenerator:
                 f"READ has unsupported target type {type_name!r}"
             )
 
+    def unwrap_label_statement(self, node):
+        """
+        Labels wrap statements in the AST. For control-flow checks, the effective
+        statement is the labelled statement itself.
+        """
+
+        while isinstance(node, ast.Label):
+            node = node.statement
+
+        return node
+
+    def ends_with_return(self, statements) -> bool:
+        """
+        Return True when the procedure body definitely ends with RETURN.
+
+        Conservative by design:
+            - RETURN as the final statement: yes
+            - labelled RETURN as the final statement: yes
+            - anything else: no
+        """
+
+        if not statements:
+            return False
+
+        last_statement = self.unwrap_label_statement(statements[-1])
+
+        return isinstance(last_statement, ast.Return)
+
     def comment_node(self, node, text: str) -> None:
         self.emitter.new_line()
         self.emitter.comment(text)
@@ -241,6 +329,9 @@ class EWVMGenerator:
         if isinstance(node, ast.Call):
             return f"{node.name}(...)"
 
+        if isinstance(node, ast.CallStatement):
+            return f"CALL {node.name}"
+
         return type(node).__name__
 
     def describe_statement(self, node) -> str:
@@ -280,20 +371,30 @@ class EWVMGenerator:
         if not isinstance(node, ast.File):
             raise CodeGenerationError(f"expected File node, got {node!r}")
 
-        programs = [unit for unit in node.program_units
-                    if isinstance(unit, ast.Program)]
+        programs = [
+            unit for unit in node.program_units
+            if isinstance(unit, ast.Program)
+        ]
 
         if not programs:
             raise CodeGenerationError(
                 "code generation requires a PROGRAM unit"
             )
 
+        self.register_procedure_labels(node)
+        self.allocate_all_scopes()
+
         program = programs[0]
         self.visit_program(program)
 
+        for unit in node.program_units:
+            if isinstance(unit, ast.Subroutine):
+                self.visit_subroutine(unit)
+            elif isinstance(unit, ast.Function):
+                self.visit_function(unit)
+
     def visit_program(self, node):
         self.current_scope = self.find_scope(node.name, "program")
-        self.allocate_scope(self.current_scope)
 
         self.emitter.comment(f"PROGRAM {node.name}")
         self.emitter.emit("START")
@@ -306,7 +407,7 @@ class EWVMGenerator:
             )
             self.emitter.emit(f"PUSHN {len(self.layout.global_slots)}")
 
-        self.initialize_arrays()
+        self.initialize_all_arrays()
 
         for statement in node.statements:
             self.visit_statement(statement)
@@ -314,6 +415,38 @@ class EWVMGenerator:
         self.emitter.new_line()
         self.emitter.comment(f"END PROGRAM {node.name}")
         self.emitter.emit("STOP")
+
+    def visit_subroutine(self, node):
+        label = self.procedure_label(node.name)
+        self.current_scope = self.find_scope(node.name, "subroutine")
+
+        self.emitter.new_line()
+        self.emitter.comment(f"SUBROUTINE {node.name}")
+        self.emitter.label(label)
+
+        for statement in node.statements:
+            self.visit_statement(statement)
+
+        self.emitter.comment(f"END SUBROUTINE {node.name}")
+
+        if not self.ends_with_return(node.statements):
+            self.emitter.emit("RETURN")
+
+    def visit_function(self, node):
+        label = self.procedure_label(node.name)
+        self.current_scope = self.find_scope(node.name, "function")
+
+        self.emitter.new_line()
+        self.emitter.comment(f"FUNCTION {node.name}")
+        self.emitter.label(label)
+
+        for statement in node.statements:
+            self.visit_statement(statement)
+
+        self.emitter.comment(f"END FUNCTION {node.name}")
+
+        if not self.ends_with_return(node.statements):
+            self.emitter.emit("RETURN")
 
     def visit_statement(self, node):
         if isinstance(node, ast.Declare):
@@ -345,6 +478,14 @@ class EWVMGenerator:
             self.visit_label(node)
             return
 
+        if isinstance(node, ast.Do):
+            self.visit_do(node)
+            return
+
+        if isinstance(node, ast.CallStatement):
+            self.visit_call_statement(node)
+            return
+
         if isinstance(node, ast.Goto):
             self.emitter.emit(f"JUMP L{node.label}")
             return
@@ -353,12 +494,12 @@ class EWVMGenerator:
             self.emitter.emit("STOP")
             return
 
-        if isinstance(node, ast.Continue):
-            self.emitter.emit("NOP")
+        if isinstance(node, ast.Return):
+            self.emitter.emit("RETURN")
             return
 
-        if isinstance(node, ast.Do):
-            self.visit_do(node)
+        if isinstance(node, ast.Continue):
+            self.emitter.emit("NOP")
             return
 
         raise CodeGenerationError(
@@ -374,7 +515,7 @@ class EWVMGenerator:
 
             self.emit_conversion(value_type, target_type)
 
-            slot = self.layout.global_slot(node.target.name)
+            slot = self.variable_slot(node.target.name)
             self.emitter.comment(f"store into global slot {slot} ({node.target.name})")
             self.emitter.emit(f"STOREG {slot}")
             return
@@ -410,7 +551,7 @@ class EWVMGenerator:
             return
 
         if isinstance(node, ast.Var):
-            slot = self.layout.global_slot(node.name)
+            slot = self.variable_slot(node.name)
             self.emitter.emit(f"PUSHG {slot}")
             return
 
@@ -432,6 +573,10 @@ class EWVMGenerator:
 
         if isinstance(node, ast.Unary):
             self.visit_unary(node)
+            return
+
+        if isinstance(node, ast.Call):
+            self.visit_function_call(node)
             return
 
         if isinstance(node, ast.IndexedOrCall):
@@ -457,7 +602,7 @@ class EWVMGenerator:
 
         self.emitter.comment(f"load array element {node.name}(...)")
 
-        slot = self.layout.global_slot(node.name)
+        slot = self.variable_slot(node.name)
 
         self.emitter.emit(f"PUSHG {slot}")
         self.visit_array_index_zero_based(node.indices[0])
@@ -471,7 +616,7 @@ class EWVMGenerator:
 
         self.emitter.comment(f"store array element {target.name}(...)")
 
-        slot = self.layout.global_slot(target.name)
+        slot = self.variable_slot(target.name)
 
         # STOREN expects: address, index, value
         self.emitter.emit(f"PUSHG {slot}")
@@ -613,7 +758,7 @@ class EWVMGenerator:
 
         self.emit_read_value_for_type(type_name)
 
-        slot = self.layout.global_slot(variable.name)
+        slot = self.variable_slot(variable.name)
         self.emitter.emit(f"STOREG {slot}")
 
     def visit_read_array_ref(self, variable):
@@ -624,7 +769,7 @@ class EWVMGenerator:
 
         self.emitter.comment(f"read into array element {variable.name}(...)")
 
-        slot = self.layout.global_slot(variable.name)
+        slot = self.variable_slot(variable.name)
 
         # STOREN expects: address, index, value
         self.emitter.emit(f"PUSHG {slot}")
@@ -673,7 +818,7 @@ class EWVMGenerator:
 
         if loop_info is not None and isinstance(node.statement, ast.Continue):
             var_name = loop_info["variable"]
-            slot = self.layout.global_slot(var_name)
+            slot = self.variable_slot(var_name)
             step = loop_info["step"]
 
             self.emitter.comment(f"increment DO variable {var_name}")
@@ -708,12 +853,12 @@ class EWVMGenerator:
 
         self.emitter.comment(f"initialize DO variable {var_name}")
         self.visit_expression(node.start)
-        self.emitter.emit(f"STOREG {self.layout.global_slot(var_name)}")
+        self.emitter.emit(f"STOREG {self.variable_slot(var_name)}")
 
         self.emitter.label(start_label)
 
         self.emitter.comment(f"check DO loop {var_name} <= end")
-        self.emitter.emit(f"PUSHG {self.layout.global_slot(var_name)}")
+        self.emitter.emit(f"PUSHG {self.variable_slot(var_name)}")
         self.visit_expression(node.end)
         self.emitter.emit("SUP")
         self.emitter.emit(f"JZ {body_label}")
@@ -726,6 +871,97 @@ class EWVMGenerator:
             "start_label": start_label,
             "step": node.step,
         }
+
+    def visit_call_statement(self, node):
+        info = self.procedure_info(node.name)
+
+        if info.kind.startswith("intrinsic"):
+            raise CodeGenerationError(
+                f"intrinsic procedure {node.name!r} is not supported by code "
+                "generation yet"
+            )
+
+        if info.kind != "subroutine":
+            raise CodeGenerationError(
+                f"{node.name!r} is not a subroutine"
+            )
+
+        target_scope = self.find_scope(info.name, "subroutine")
+
+        self.emitter.comment(f"CALL {node.name}")
+
+        self.copy_call_arguments(
+            actual_arguments=node.arguments,
+            formal_arguments=info.arguments,
+            target_scope=target_scope,
+        )
+
+        self.emitter.emit(f"PUSHA {self.procedure_label(node.name)}")
+        self.emitter.emit("CALL")
+
+    def copy_call_arguments(
+        self,
+        *,
+        actual_arguments,
+        formal_arguments,
+        target_scope,
+    ):
+        if len(actual_arguments) != len(formal_arguments):
+            raise CodeGenerationError(
+                "internal error: procedure argument count mismatch"
+            )
+
+        caller_scope = self.current_scope
+
+        for actual, formal_name in zip(actual_arguments, formal_arguments):
+            self.current_scope = caller_scope
+            self.visit_expression(actual)
+
+            actual_type = self.expression_type(actual)
+
+            formal_info = target_scope.variables.get(formal_name)
+            if formal_info is None:
+                raise CodeGenerationError(
+                    f"internal error: formal argument {formal_name!r} "
+                    f"has no slot"
+                )
+
+            self.emit_conversion(actual_type, formal_info.type_name)
+
+            formal_slot = self.layout.global_slot(target_scope, formal_name)
+            self.emitter.emit(f"STOREG {formal_slot}")
+
+        self.current_scope = caller_scope
+
+    def visit_function_call(self, node):
+        info = self.procedure_info(node.name)
+
+        if info.kind.startswith("intrinsic"):
+            raise CodeGenerationError(
+                f"intrinsic procedure {node.name!r} is not supported by code "
+                "generation yet"
+            )
+
+        if info.kind != "function":
+            raise CodeGenerationError(
+                f"{node.name!r} is not a function"
+            )
+
+        target_scope = self.find_scope(info.name, "function")
+
+        self.emitter.comment(f"call function {node.name}")
+
+        self.copy_call_arguments(
+            actual_arguments=node.arguments,
+            formal_arguments=info.arguments,
+            target_scope=target_scope,
+        )
+
+        self.emitter.emit(f"PUSHA {self.procedure_label(node.name)}")
+        self.emitter.emit("CALL")
+
+        return_slot = self.layout.global_slot(target_scope, info.name)
+        self.emitter.emit(f"PUSHG {return_slot}")
 
 
 def generate(
@@ -763,7 +999,7 @@ def main():
         visualize,
         DEFAULT_VIS_OUTPUT_PATH
     )
-    from error import flush_diagnostics, record_diagnostic
+    from error import flush_diagnostics
 
     # CLI argument parsing
     parser_args = argparse.ArgumentParser(

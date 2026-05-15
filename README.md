@@ -20,6 +20,13 @@
 
 ## TODO list
 
+- Codegen: SUBROUTINE and FUNCTION:
+    - Procedure arguments are currently passed by value.
+    - Recursive procedures are not supported.
+    - Local procedure variables are stored in generated global slots.
+    - Intrinsic procedure code generation is not supported yet.
+    - Dynamic array dimensions inside procedures are not supported yet.
+
 - [ ] Optimizations
     - [ ] Constant folding
     - [ ] Expression simplification
