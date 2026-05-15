@@ -43,7 +43,8 @@ class MemoryLayout:
             return self.global_slots[name]
         except KeyError:
             raise CodeGenerationError(
-                f"internal error: variable {name!r} has no slot")
+                f"internal error: variable {name!r} has no slot"
+            )
 
     def mark_array(self, name: str) -> None:
         self.arrays.add(name)
@@ -298,7 +299,7 @@ class EWVMGenerator:
             return
 
         if isinstance(node, ast.String):
-            self.emitter.emit(f"PUSHS {node.value!r}")
+            self.emitter.emit(f"PUSHS \"{node.value}\"")
             return
 
         if isinstance(node, ast.Bool):
