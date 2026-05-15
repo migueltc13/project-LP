@@ -3,6 +3,7 @@
 from pathlib import Path
 import shutil
 import subprocess
+import argparse
 import sys
 import re
 
@@ -237,6 +238,9 @@ def section(title: str):
 
 
 def print_program(filepath: Path):
+    if not VERBOSE:
+        return
+
     print(f"\n{C['blu']}Program:{C['rst']}")
 
     preview = subprocess.run(
@@ -250,6 +254,9 @@ def print_program(filepath: Path):
 
 
 def print_output(result: subprocess.CompletedProcess):
+    if not VERBOSE:
+        return
+
     print(f"\n{C['blu']}Parser output:{C['rst']}")
 
     output = result.stdout.strip()
@@ -270,6 +277,12 @@ def print_output(result: subprocess.CompletedProcess):
 # ============================================================
 
 if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true")
+    args = parser.parse_args()
+
+    VERBOSE = args.verbose
 
     sections = [
         ("LEXICAL ERRORS", ERROR_ROOT / "lexical"),

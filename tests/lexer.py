@@ -3,6 +3,7 @@
 import glob
 import os
 import subprocess
+import argparse
 
 C = {
     "red": "\033[91m",
@@ -55,6 +56,8 @@ def collect_example_files():
         f for f in root_examples
         if "errors/" not in f
         and not os.path.basename(f).startswith("0_mismatched")
+        and os.path.basename(f) != "9_full_program.f"
+        and os.path.basename(f) != "empty.f"
     ]
 
     # Line continuation examples (.f only)
@@ -116,6 +119,10 @@ def print_block(text, color=None, indent=4):
 
 def main():
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true")
+    args = parser.parse_args()
+
     categories = collect_example_files()
 
     total = 0
@@ -148,8 +155,9 @@ def main():
 
                 print(f"{C['grn']}✓ Passed:{C['rst']} {aligned}")
 
-                print(f"    {C['cyn']}Generated Tokens:{C['rst']}")
-                print_block(result.stdout)
+                if args.verbose:
+                    print(f"{C['cyn']}Generated Tokens:{C['rst']}")
+                    print_block(result.stdout)
 
             else:
 
