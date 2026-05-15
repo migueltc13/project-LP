@@ -821,16 +821,7 @@ def main():
     try:
         assembly = generate(result, semantic_info, debug=args.debug)
     except CodeGenerationError as e:
-        record_diagnostic(
-            parser,
-            error=f"code generation error: {e}",
-            line="",
-            lineno=1,
-            col_start=1,
-            length=1,
-            filename=parser.source_filename,
-        )
-        flush_diagnostics(parser)
+        print(f"Code generation error: {e}", file=sys.stderr)
         sys.exit(1)
 
     # Write output assembly code to file or stdout
