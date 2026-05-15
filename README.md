@@ -169,6 +169,6 @@ predictable.
 
 ## Semantic Analysis
 
-## Code Generation
+## Optimizations
 
-## Code Optimization
+## Code Generation
