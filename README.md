@@ -43,43 +43,26 @@
 
 ```mermaid
 graph LR
-    %% Source Files
-    %% F77[example.f - Fixed-format]
-    %% F90[example.f90 - Free-format]
-
-    %% Preprocessing Layer
+    %% Modules
     subgraph Preprocessor
         P_FIXED[Fixed-Format Logic]
         P_FREE[Free-Format Logic]
     end
-
-    %% Unified Path
-    %% UNIFIED[Unified Pseudo-Fortran]
-
-    %% Analysis
     LEX[Lexer]
-    YACC[YACC Parser]
-
-    %% Backend
+    YACC[Parser + Semantic checks]
     OPT[Optimizations]
     GEN[Code Generation]
 
-    %% Connections with (source files and unified pseudo-Fortran)
-    %% F77 --> P_FIXED
-    %% F90 --> P_FREE
-    %% P_FIXED --> UNIFIED
-    %% P_FREE --> UNIFIED
-    %% UNIFIED --> LEX
-    %% LEX --> YACC
-    %% YACC --> OPT
-    %% OPT --> GEN
-
     %% Connections
-    P_FIXED --> LEX
-    P_FREE --> LEX
+    Preprocessor --> LEX
+    %% P_FIXED --> LEX
+    %% P_FREE --> LEX
     LEX --> YACC
-    YACC --> OPT
     OPT --> GEN
+    YACC --> OPT
+    %% YACC -->|Optimization Flag| OPT
+    YACC --> GEN
+
 ```
 
 ## Preprocessing
