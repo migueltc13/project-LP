@@ -17,6 +17,10 @@ class EWVMEmitter:
     def emit(self, instruction: str) -> None:
         self.instructions.append(instruction)
 
+    def new_line(self) -> None:
+        if self.debug:
+            self.emit("")
+
     def comment(self, text: str) -> None:
         if self.debug:
             self.emit(f"// {text}")
@@ -26,6 +30,18 @@ class EWVMEmitter:
 
     def render(self) -> str:
         return "\n".join(self.instructions) + "\n"
+
+    @staticmethod
+    def string_literal(value: str) -> str:
+        escaped = (
+            value
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\t", "\\t")
+        )
+
+        return f"\"{escaped}\""
 
 
 class MemoryLayout:
@@ -106,6 +122,9 @@ class EWVMGenerator:
                     "only one-dimensional arrays are supported yet"
                 )
 
+            self.emitter.new_line()
+            self.emitter.comment(f"allocate array {name}")
+
             dimension = declaration_node.dimensions[0]
 
             if isinstance(dimension, ast.Integer):
@@ -181,6 +200,82 @@ class EWVMGenerator:
                 f"READ has unsupported target type {type_name!r}"
             )
 
+    def comment_node(self, node, text: str) -> None:
+        self.emitter.new_line()
+        self.emitter.comment(text)
+
+    def describe_expression(self, node) -> str:
+        if isinstance(node, ast.Integer):
+            return str(node.value)
+
+        if isinstance(node, ast.Real):
+            return str(node.value)
+
+        if isinstance(node, ast.Double):
+            return str(node.value)
+
+        if isinstance(node, ast.String):
+            return repr(node.value)
+
+        if isinstance(node, ast.Bool):
+            return ".TRUE." if node.value else ".FALSE."
+
+        if isinstance(node, ast.Var):
+            return node.name
+
+        if isinstance(node, ast.ArrayRef):
+            return f"{node.name}(...)"
+
+        if isinstance(node, ast.Arith):
+            return f"({self.describe_expression(node.left)} {node.op} {self.describe_expression(node.right)})"
+
+        if isinstance(node, ast.Rel):
+            return f"({self.describe_expression(node.left)} {node.op} {self.describe_expression(node.right)})"
+
+        if isinstance(node, ast.Logical):
+            return f"({self.describe_expression(node.left)} {node.op} {self.describe_expression(node.right)})"
+
+        if isinstance(node, ast.Unary):
+            return f"({node.op} {self.describe_expression(node.value)})"
+
+        if isinstance(node, ast.Call):
+            return f"{node.name}(...)"
+
+        return type(node).__name__
+
+    def describe_statement(self, node) -> str:
+        if isinstance(node, ast.Assign):
+            return f"assignment to {self.describe_expression(node.target)}"
+
+        if isinstance(node, ast.Print):
+            return "PRINT statement"
+
+        if isinstance(node, ast.Write):
+            return "WRITE statement"
+
+        if isinstance(node, ast.Read):
+            return "READ statement"
+
+        if isinstance(node, ast.If):
+            return "IF statement"
+
+        if isinstance(node, ast.Label):
+            return f"label {node.number}"
+
+        if isinstance(node, ast.Goto):
+            return f"GOTO {node.label}"
+
+        if isinstance(node, ast.Stop):
+            return "STOP statement"
+
+        if isinstance(node, ast.Continue):
+            return "CONTINUE statement"
+
+        if isinstance(node, ast.Do):
+            return f"DO loop {node.variable.name} -> label {node.end_label}"
+
+        return type(node).__name__
+
     def visit_file(self, node):
         if not isinstance(node, ast.File):
             raise CodeGenerationError(f"expected File node, got {node!r}")
@@ -200,11 +295,15 @@ class EWVMGenerator:
         self.current_scope = self.find_scope(node.name, "program")
         self.allocate_scope(self.current_scope)
 
-        self.emitter.comment(f"program {node.name}")
+        self.emitter.comment(f"PROGRAM {node.name}")
         self.emitter.emit("START")
 
         if self.layout.global_slots:
-            self.emitter.comment("global variable storage")
+            self.emitter.new_line()
+            self.emitter.comment(
+                f"allocate {len(self.layout.global_slots)} "
+                "global variable slot(s)"
+            )
             self.emitter.emit(f"PUSHN {len(self.layout.global_slots)}")
 
         self.initialize_arrays()
@@ -212,11 +311,15 @@ class EWVMGenerator:
         for statement in node.statements:
             self.visit_statement(statement)
 
+        self.emitter.new_line()
+        self.emitter.comment(f"END PROGRAM {node.name}")
         self.emitter.emit("STOP")
 
     def visit_statement(self, node):
         if isinstance(node, ast.Declare):
             return
+
+        self.comment_node(node, self.describe_statement(node))
 
         if isinstance(node, ast.Assign):
             self.visit_assign(node)
@@ -272,7 +375,7 @@ class EWVMGenerator:
             self.emit_conversion(value_type, target_type)
 
             slot = self.layout.global_slot(node.target.name)
-            self.emitter.comment(f"{node.target.name} = ...")
+            self.emitter.comment(f"store into global slot {slot} ({node.target.name})")
             self.emitter.emit(f"STOREG {slot}")
             return
 
@@ -294,12 +397,12 @@ class EWVMGenerator:
             return
 
         if isinstance(node, ast.Double):
-            # EWVM appears to have one real/float stack type.
+            # EWVM only has one real/float stack type
             self.emitter.emit(f"PUSHF {node.value}")
             return
 
         if isinstance(node, ast.String):
-            self.emitter.emit(f"PUSHS \"{node.value}\"")
+            self.emitter.emit(f"PUSHS {EWVMEmitter.string_literal(node.value)}")
             return
 
         if isinstance(node, ast.Bool):
@@ -352,6 +455,8 @@ class EWVMGenerator:
                 "only one-dimensional array references are supported yet"
             )
 
+        self.emitter.comment(f"load array element {node.name}(...)")
+
         slot = self.layout.global_slot(node.name)
 
         self.emitter.emit(f"PUSHG {slot}")
@@ -363,6 +468,8 @@ class EWVMGenerator:
             raise CodeGenerationError(
                 "only one-dimensional array assignments are supported yet"
             )
+
+        self.emitter.comment(f"store array element {target.name}(...)")
 
         self.visit_expression(value)
 
@@ -561,6 +668,7 @@ class EWVMGenerator:
             var_name = loop_info["variable"]
             slot = self.layout.global_slot(var_name)
 
+            self.emitter.comment(f"increment DO variable {var_name}")
             self.emitter.emit(f"PUSHG {slot}")
             self.emitter.emit("PUSHI 1")
             self.emitter.emit("ADD")
@@ -581,20 +689,23 @@ class EWVMGenerator:
         self.loop_counter += 1
 
         start_label = f"LDOSTART{loop_id}"
+        body_label = f"LDOBODY{loop_id}"
         var_name = node.variable.name
 
+        self.emitter.comment(f"initialize DO variable {var_name}")
         self.visit_expression(node.start)
         self.emitter.emit(f"STOREG {self.layout.global_slot(var_name)}")
 
         self.emitter.label(start_label)
 
+        self.emitter.comment(f"check DO loop {var_name} <= end")
         self.emitter.emit(f"PUSHG {self.layout.global_slot(var_name)}")
         self.visit_expression(node.end)
         self.emitter.emit("SUP")
-        self.emitter.emit(f"JZ LDOBODY{loop_id}")
+        self.emitter.emit(f"JZ {body_label}")
         self.emitter.emit(f"JUMP L{node.end_label}")
 
-        self.emitter.label(f"LDOBODY{loop_id}")
+        self.emitter.label(body_label)
 
         self.pending_do_by_label[node.end_label] = {
             "variable": var_name,
