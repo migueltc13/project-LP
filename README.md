@@ -20,7 +20,6 @@
 
 ## TODO list
 
-- [ ] Optional step counter (example: `2`) in do_statement (example: `DO 100 I = 1, 10, 2`)
 - [ ] Optimizations
     - [ ] Constant folding
     - [ ] Expression simplification

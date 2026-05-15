@@ -164,6 +164,11 @@ class ReferenceResolver:
                 variable=node.variable,
                 start=self.visit_expression(node.start),
                 end=self.visit_expression(node.end),
+                step=(
+                    self.visit_expression(node.step)
+                    if node.step is not None
+                    else None
+                ),
             )
 
         if isinstance(node, ast.CallStatement):

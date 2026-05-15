@@ -171,7 +171,7 @@ def p_call_statement(p):
 
 
 def p_do_statement(p):
-    "do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression"
+    "do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression do_step_opt"
     end_label = p[2]
     label_col = get_token_column(p.slice[2], getattr(p.lexer, "lexdata", None))
 
@@ -194,7 +194,19 @@ def p_do_statement(p):
         variable=ast.Var(p[3], ast.location_from_parser_token(p, 3)),
         start=p[5],
         end=p[7],
+        step=p[8],
     )
+
+
+def p_do_step_opt(p):
+    """
+    do_step_opt : ',' expression
+                | empty
+    """
+    if len(p) == 3:
+        p[0] = p[2]
+    else:
+        p[0] = None
 
 
 def p_continue_statement(p):

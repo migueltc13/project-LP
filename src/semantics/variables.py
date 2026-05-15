@@ -202,6 +202,10 @@ class VariableChecker:
 
             self.visit_expression(node.start)
             self.visit_expression(node.end)
+
+            if node.step is not None:
+                self.visit_expression(node.step)
+
             return
 
         if isinstance(node, ast.CallStatement):
