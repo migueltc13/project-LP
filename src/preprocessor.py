@@ -85,9 +85,9 @@ def _preprocess_fixed_format(raw_input: str) -> str:
 
     Rationale:
         Fixed-format is highly column-sensitive (Label 1-5, Cont 6, Stmt 7-72).
-        Since standard Lexers (like PLY) are not column-aware, this function
-        normalizes the structure, ensuring a 1:1 mapping of input lines to
-        output allowing the lexer to operate on a more uniform token stream,
+        Since standard Lexers (like PLY) are not natively column-aware, this
+        function normalizes the structure, ensuring a 1:1 mapping of input lines
+        to output allowing the lexer to operate on a more uniform token stream,
         and preserving the original line numbers for accurate error reporting.
 
     Arguments:
