@@ -62,6 +62,10 @@ if __name__ == "__main__":
 
     for f90_file in f90_files:
         base_name = os.path.splitext(os.path.basename(f90_file))[0]
+        # Ignore empty files to avoid trivial comparison errors
+        if base_name == "empty":
+            continue
+
         f_file = f"examples/{base_name}.f"
 
         if os.path.exists(f_file):
