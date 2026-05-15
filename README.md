@@ -51,8 +51,9 @@ graph LR
         P_FIXED ~~~ P_FREE
     end
     LEX[Lexer]
-    PARSER[Parser]
-    SEMANTIC[Semantic Analysis]
+    PARSER["Parser
+            +
+            Semantic Analysis"]
     DECIDE{"Optimization enabled?"}
     OPT[Optimizations]
     GEN[Code Generation]
@@ -60,8 +61,7 @@ graph LR
     %% Connections
     PRE      --> LEX
     LEX      --> PARSER
-    PARSER   --> SEMANTIC
-    SEMANTIC --> DECIDE
+    PARSER   --> DECIDE
     DECIDE   -->|"Yes"| OPT
     OPT      --> GEN
     DECIDE   -->|"No"| GEN
