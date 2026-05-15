@@ -1,7 +1,9 @@
 FC=gfortran
 FFLAGS=-ffixed-form
 
-FIXED_SOURCES=$(wildcard *.f)
+ALL_FIXED=$(wildcard *.f)
+FIXED_SOURCES=$(filter-out empty.f, $(ALL_FIXED))
+
 FREE_SOURCES=$(wildcard *.f90)
 
 FIXED_TARGETS=$(FIXED_SOURCES:%.f=$(BIN_DIR)/%_f)
