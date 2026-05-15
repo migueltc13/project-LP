@@ -13,36 +13,31 @@
 ## TODO list
 
 - [ ] Rename CD/CI GitHub action
-- [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
-      From the lexer to the parser and then to the code generation.
-      Also see `# TODO remove intrinsics that we don't support` at the same file.
+- [ ] Sort errors by line/column/length and severity, then if so,
+      remove label-related errors sorting
 - [ ] Optional step counter (example: `2`) in do_statement (example: `DO 100 I = 1, 10, 2`)
-- [ ] NOTE that strict version was implemented instead of implicit typing rules
-- [ ] `semantics/numbers.py`
-    - [ ] Detect division by zero and other similar errors
-    - [ ] Out of range errors are detected in the lexer, but they are not complete
-          (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
-          parsing, also adjust values for EWVM compatibility
-- [ ] Use `parser.has_error` fields to raise an exception once at the end of
-      parsing in the code generation phase
-- [ ] Type checking with new AST object
-- [x] Variables (unused warning, redefinition, etc.)
-- [ ] Functions check if they exist, right number of arguments, etc. (similarity function for hints)
-- [ ] Add more lexer tests
-    - [x] strings (escaped delimiter, multiline, etc.)
-- [x] Write equivalent .f90 (free-format) at examples/
-- [x] Clean parser rules documentation "AST node: ..."
 - [ ] Optimizations
     - [ ] Constant folding
     - [ ] Expression simplification
     - [ ] Unused variable elimination
     - [ ] Constant `IF` elimination
     - [ ] Loop unrolling
-- [x] (parser) check if check for special statements like RETURN, CONTINUE, STOP,
+- [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
+      From the lexer to the parser and then to the code generation.
+      Also see `# TODO remove intrinsics that we don't support` at the same file.
+- [ ] `semantics/numbers.py`
+    - [ ] Detect division by zero and other similar errors
+    - [ ] Out of range errors are detected in the lexer, but they are not complete
+          (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
+          parsing, also adjust values for EWVM compatibility
+- [x] Variables (unused warning, redefinition, etc.)
+- [x] Write equivalent .f90 (free-format) at examples/
+- [x] (parser) check for special statements like RETURN, CONTINUE, STOP,
       are being only recognized in the right contexts
       (e.g. RETURN only inside subroutines/functions, etc.)
 - [x] test labels errors (e.g. redefinition, use of undefined labels,
       warning for unused labels)
+- [ ] NOTE in report that strict version was implemented instead of implicit typing rules
 
 ## Compiler Pipeline
 
