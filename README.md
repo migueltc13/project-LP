@@ -76,7 +76,7 @@ graph LR
     DECIDE   -->|"No"| GEN
 ```
 
-## Preprocessing
+## Preprocessor
 
 The compiler pipeline begins with a dedicated **Preprocessor** module. Its
 original purpose was to simplify the handling of Fortran 77 fixed-format source
@@ -164,11 +164,10 @@ This ambiguity makes explicit or extension-based format selection more
 predictable.
 
 The preprocessing stage is additionally validated through the automated test
-[tests/formats.py](tests/formats.py), this test compares the outputed lexed
-tokens for equivalent fixed-format (`.f`) and free-format (`.f90`) source
-files. When running the lexer, the `--test` flag is used to remove the column
-field from the lexed tokens, since, naturally, the positions will differ from
-the two formats.
+[tests/formats.py](tests/formats.py), it compares the outputted lexed tokens for
+equivalent fixed-format (`.f`) and free-format (`.f90`) source files. When
+running the lexer, the `--test` flag is used to remove the column field from
+the lexed tokens, since positions naturally differ between the two formats.
 
 ## Lexical Analysis
 
