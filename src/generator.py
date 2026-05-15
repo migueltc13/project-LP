@@ -97,6 +97,98 @@ class ProcedureRegistry:
             )
 
 
+class DebugFormatter:
+    def expression(self, node) -> str:
+        if isinstance(node, ast.Integer):
+            return str(node.value)
+
+        if isinstance(node, ast.Real):
+            return str(node.value)
+
+        if isinstance(node, ast.Double):
+            return str(node.value)
+
+        if isinstance(node, ast.String):
+            return repr(node.value)
+
+        if isinstance(node, ast.Bool):
+            return ".TRUE." if node.value else ".FALSE."
+
+        if isinstance(node, ast.Var):
+            return node.name
+
+        if isinstance(node, ast.ArrayRef):
+            return f"{node.name}(...)"
+
+        if isinstance(node, ast.Call):
+            return f"{node.name}(...)"
+
+        if isinstance(node, ast.Arith):
+            return (
+                f"({self.expression(node.left)} "
+                f"{node.op} "
+                f"{self.expression(node.right)})"
+            )
+
+        if isinstance(node, ast.Rel):
+            return (
+                f"({self.expression(node.left)} "
+                f"{node.op} "
+                f"{self.expression(node.right)})"
+            )
+
+        if isinstance(node, ast.Logical):
+            return (
+                f"({self.expression(node.left)} "
+                f"{node.op} "
+                f"{self.expression(node.right)})"
+            )
+
+        if isinstance(node, ast.Unary):
+            return f"({node.op} {self.expression(node.value)})"
+
+        return type(node).__name__
+
+    def statement(self, node) -> str:
+        if isinstance(node, ast.Assign):
+            return f"assignment to {self.expression(node.target)}"
+
+        if isinstance(node, ast.Print):
+            return "PRINT statement"
+
+        if isinstance(node, ast.Write):
+            return "WRITE statement"
+
+        if isinstance(node, ast.Read):
+            return "READ statement"
+
+        if isinstance(node, ast.If):
+            return "IF statement"
+
+        if isinstance(node, ast.Label):
+            return f"label {node.number}"
+
+        if isinstance(node, ast.Goto):
+            return f"GOTO {node.label}"
+
+        if isinstance(node, ast.Stop):
+            return "STOP statement"
+
+        if isinstance(node, ast.Return):
+            return "RETURN statement"
+
+        if isinstance(node, ast.Continue):
+            return "CONTINUE statement"
+
+        if isinstance(node, ast.Do):
+            return f"DO loop {node.variable.name} -> label {node.end_label}"
+
+        if isinstance(node, ast.CallStatement):
+            return f"CALL {node.name}"
+
+        return type(node).__name__
+
+
 # TODO(codegen): Verify EWVM LOADN/STOREN stack operand order with runtime tests.
 # TODO(codegen): Support multidimensional arrays.
 # TODO(codegen): Support CHARACTER arrays/fixed-length strings.
@@ -114,6 +206,7 @@ class EWVMGenerator:
         self.emitter = EWVMEmitter(debug=debug)
         self.layout = MemoryLayout()
         self.procedures = ProcedureRegistry()
+        self.debug_formatter = DebugFormatter()
         self.current_scope = None
         self.loop_counter = 0
         self.pending_do_by_label = {}
@@ -297,81 +390,6 @@ class EWVMGenerator:
         self.emitter.new_line()
         self.emitter.comment(text)
 
-    def describe_expression(self, node) -> str:
-        if isinstance(node, ast.Integer):
-            return str(node.value)
-
-        if isinstance(node, ast.Real):
-            return str(node.value)
-
-        if isinstance(node, ast.Double):
-            return str(node.value)
-
-        if isinstance(node, ast.String):
-            return repr(node.value)
-
-        if isinstance(node, ast.Bool):
-            return ".TRUE." if node.value else ".FALSE."
-
-        if isinstance(node, ast.Var):
-            return node.name
-
-        if isinstance(node, ast.ArrayRef):
-            return f"{node.name}(...)"
-
-        if isinstance(node, ast.Arith):
-            return f"({self.describe_expression(node.left)} {node.op} {self.describe_expression(node.right)})"
-
-        if isinstance(node, ast.Rel):
-            return f"({self.describe_expression(node.left)} {node.op} {self.describe_expression(node.right)})"
-
-        if isinstance(node, ast.Logical):
-            return f"({self.describe_expression(node.left)} {node.op} {self.describe_expression(node.right)})"
-
-        if isinstance(node, ast.Unary):
-            return f"({node.op} {self.describe_expression(node.value)})"
-
-        if isinstance(node, ast.Call):
-            return f"{node.name}(...)"
-
-        if isinstance(node, ast.CallStatement):
-            return f"CALL {node.name}"
-
-        return type(node).__name__
-
-    def describe_statement(self, node) -> str:
-        if isinstance(node, ast.Assign):
-            return f"assignment to {self.describe_expression(node.target)}"
-
-        if isinstance(node, ast.Print):
-            return "PRINT statement"
-
-        if isinstance(node, ast.Write):
-            return "WRITE statement"
-
-        if isinstance(node, ast.Read):
-            return "READ statement"
-
-        if isinstance(node, ast.If):
-            return "IF statement"
-
-        if isinstance(node, ast.Label):
-            return f"label {node.number}"
-
-        if isinstance(node, ast.Goto):
-            return f"GOTO {node.label}"
-
-        if isinstance(node, ast.Stop):
-            return "STOP statement"
-
-        if isinstance(node, ast.Continue):
-            return "CONTINUE statement"
-
-        if isinstance(node, ast.Do):
-            return f"DO loop {node.variable.name} -> label {node.end_label}"
-
-        return type(node).__name__
-
     def visit_file(self, node):
         if not isinstance(node, ast.File):
             raise CodeGenerationError(f"expected File node, got {node!r}")
@@ -457,7 +475,7 @@ class EWVMGenerator:
         if isinstance(node, ast.Declare):
             return
 
-        self.comment_node(node, self.describe_statement(node))
+        self.comment_node(node, self.debug_formatter.statement(node))
 
         if isinstance(node, ast.Assign):
             self.visit_assign(node)
