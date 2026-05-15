@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import abstract_syntax_tree as ast
-from error import print_node_error
+from error import record_node_error
 
 # TODO(ast): Store DO loop variable as ast.Var instead of str for better diagnostics.
 # TODO(ast): Add SourceLocation to operator nodes for better type diagnostics.
@@ -216,7 +216,7 @@ class TypeChecker:
             condition_type = self.infer_expression(node.condition)
 
             if condition_type not in {LOGICAL, UNKNOWN}:
-                print_node_error(
+                record_node_error(
                     self.parser,
                     node.condition,
                     message=(
@@ -224,7 +224,6 @@ class TypeChecker:
                         f"got {condition_type}"
                     ),
                 )
-                self.parser.has_error = True
 
             self.visit(node.then_branch)
 
@@ -253,7 +252,7 @@ class TypeChecker:
                     dimension_type = self.infer_expression(dimension)
 
                     if dimension_type not in {INTEGER, UNKNOWN}:
-                        print_node_error(
+                        record_node_error(
                             self.parser,
                             dimension,
                             message=(
@@ -261,14 +260,13 @@ class TypeChecker:
                                 f"got {dimension_type}"
                             ),
                         )
-                        self.parser.has_error = True
 
     def check_assignment(self, node: ast.Assign) -> None:
         target_type = self.check_assignment_target(node.target)
         value_type = self.infer_expression(node.value)
 
         if not is_assignable(target_type, value_type):
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.target,
                 message=(
@@ -276,7 +274,6 @@ class TypeChecker:
                     f"to {target_type} variable"
                 ),
             )
-            self.parser.has_error = True
 
     def check_assignment_target(self, node) -> str:
         if isinstance(node, ast.Var):
@@ -289,7 +286,7 @@ class TypeChecker:
                 index_type = self.infer_expression(index)
 
                 if index_type not in {INTEGER, UNKNOWN}:
-                    print_node_error(
+                    record_node_error(
                         self.parser,
                         index,
                         message=(
@@ -297,7 +294,6 @@ class TypeChecker:
                             f"got {index_type}"
                         ),
                     )
-                    self.parser.has_error = True
 
             return array_type
 
@@ -309,7 +305,7 @@ class TypeChecker:
         if loop_type not in {INTEGER, UNKNOWN}:
             # Fortran variants may allow real DO variables historically, but
             # INTEGER loop variables keep this compiler simpler and safer.
-            print_node_error(
+            record_node_error(
                 self.parser,
                 ast.Var(node.variable),
                 message=(
@@ -317,13 +313,12 @@ class TypeChecker:
                     f"got {loop_type}"
                 ),
             )
-            self.parser.has_error = True
 
         start_type = self.infer_expression(node.start)
         end_type = self.infer_expression(node.end)
 
         if start_type not in {INTEGER, UNKNOWN}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.start,
                 message=(
@@ -331,10 +326,9 @@ class TypeChecker:
                     f"got {start_type}"
                 ),
             )
-            self.parser.has_error = True
 
         if end_type not in {INTEGER, UNKNOWN}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.end,
                 message=(
@@ -342,7 +336,6 @@ class TypeChecker:
                     f"got {end_type}"
                 ),
             )
-            self.parser.has_error = True
 
     def check_call_statement(self, node: ast.CallStatement) -> None:
         for argument in node.arguments:
@@ -365,7 +358,7 @@ class TypeChecker:
                 index_type = self.infer_expression(index)
 
                 if index_type not in {INTEGER, UNKNOWN}:
-                    print_node_error(
+                    record_node_error(
                         self.parser,
                         index,
                         message=(
@@ -373,7 +366,6 @@ class TypeChecker:
                             f"got {index_type}"
                         ),
                     )
-                    self.parser.has_error = True
 
             return self.set_expression_type(
                 node,
@@ -421,7 +413,7 @@ class TypeChecker:
 
         if node.op == "+":
             if value_type not in NUMERIC_TYPES | {UNKNOWN}:
-                print_node_error(
+                record_node_error(
                     self.parser,
                     node,
                     message=(
@@ -429,13 +421,12 @@ class TypeChecker:
                         f"got {value_type}"
                     ),
                 )
-                self.parser.has_error = True
 
             return self.set_expression_type(node, value_type)
 
         if node.op == "-":
             if value_type not in NUMERIC_TYPES | {UNKNOWN}:
-                print_node_error(
+                record_node_error(
                     self.parser,
                     node,
                     message=(
@@ -443,13 +434,12 @@ class TypeChecker:
                         f"got {value_type}"
                     ),
                 )
-                self.parser.has_error = True
 
             return self.set_expression_type(node, value_type)
 
         if node.op in {".NOT.", "NOT"}:
             if value_type not in {LOGICAL, UNKNOWN}:
-                print_node_error(
+                record_node_error(
                     self.parser,
                     node,
                     message=(
@@ -457,7 +447,6 @@ class TypeChecker:
                         f"got {value_type}"
                     ),
                 )
-                self.parser.has_error = True
 
             return self.set_expression_type(node, LOGICAL)
 
@@ -468,7 +457,7 @@ class TypeChecker:
         right_type = self.infer_expression(node.right)
 
         if left_type not in NUMERIC_TYPES | {UNKNOWN}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.left,
                 message=(
@@ -476,10 +465,9 @@ class TypeChecker:
                     f"got {left_type}"
                 ),
             )
-            self.parser.has_error = True
 
         if right_type not in NUMERIC_TYPES | {UNKNOWN}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.right,
                 message=(
@@ -487,7 +475,6 @@ class TypeChecker:
                     f"got {right_type}"
                 ),
             )
-            self.parser.has_error = True
 
         result_type = widest_numeric_type(left_type, right_type)
 
@@ -506,7 +493,7 @@ class TypeChecker:
         if left_type == right_type:
             return self.set_expression_type(node, LOGICAL)
 
-        print_node_error(
+        record_node_error(
             self.parser,
             node,
             message=(
@@ -514,7 +501,6 @@ class TypeChecker:
                 f"got {left_type} and {right_type}"
             ),
         )
-        self.parser.has_error = True
 
         return self.set_expression_type(node, LOGICAL)
 
@@ -523,7 +509,7 @@ class TypeChecker:
         right_type = self.infer_expression(node.right)
 
         if left_type not in {LOGICAL, UNKNOWN}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.left,
                 message=(
@@ -531,10 +517,9 @@ class TypeChecker:
                     f"got {left_type}"
                 ),
             )
-            self.parser.has_error = True
 
         if right_type not in {LOGICAL, UNKNOWN}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node.right,
                 message=(
@@ -542,7 +527,6 @@ class TypeChecker:
                     f"got {right_type}"
                 ),
             )
-            self.parser.has_error = True
 
         return self.set_expression_type(node, LOGICAL)
 

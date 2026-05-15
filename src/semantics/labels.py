@@ -1,4 +1,5 @@
-from error import print_label_diagnostic
+from error import record_label_diagnostic
+
 
 PREPROCESSED_LABEL_PREFIX_LEN = len("@LABEL(")
 
@@ -56,25 +57,13 @@ def check_labels(parser):
                 "warning": True
             })
 
-    diagnostics.sort(
-        key=lambda diagnostic: (
-            diagnostic["location"]["lineno"],
-            diagnostic["location"]["col_start"],
-            diagnostic["location"]["length"],
-            diagnostic["message"]
-        )
-    )
-
     for diagnostic in diagnostics:
-        print_label_diagnostic(
+        record_label_diagnostic(
             parser,
             message=diagnostic["message"],
             location=diagnostic["location"],
             warning=diagnostic["warning"]
         )
-
-        if not diagnostic["warning"]:
-            parser.has_errors = True
 
 
 def record_label_definition(parser, label: int, lineno: int, col_start: int):

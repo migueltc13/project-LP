@@ -635,6 +635,7 @@ def main():
         visualize,
         DEFAULT_VIS_OUTPUT_PATH
     )
+    from error import flush_diagnostics, record_diagnostic
 
     # CLI argument parsing
     parser_args = argparse.ArgumentParser(
@@ -742,18 +743,26 @@ def main():
     # Parse the input data
     result = parser.parse(source_data, lexer=lexer, debug=False)
 
-    # Propagate lexer errors to parser error state,
-    # since the lexer doesn't exit on error
+    # Propagate lexer errors to parser, since the lexer doesn't exit on error
+    parser.diagnostics.extend(lexer.diagnostics)
     if lexer.has_error:
         parser.has_error = True
 
     if result is None:
+        flush_diagnostics(parser)
+        print(
+            f"\n{len(parser.diagnostics)} error(s) encountered.",
+            file=sys.stderr
+        )
+        print("[panic] parser could't produce an AST", file=sys.stderr)
         sys.exit(1)
 
     # Semantic checks
     result, semantic_info = semantic_checks(parser, ast=result)
 
     # Check for semantic errors before proceeding
+    flush_diagnostics(parser)
+
     if parser.has_error:
         sys.exit(1)
 
@@ -812,7 +821,16 @@ def main():
     try:
         assembly = generate(result, semantic_info, debug=args.debug)
     except CodeGenerationError as e:
-        print(f"Code generation error: {e}", file=sys.stderr)
+        record_diagnostic(
+            parser,
+            error=f"code generation error: {e}",
+            line="",
+            lineno=1,
+            col_start=1,
+            length=1,
+            filename=parser.source_filename,
+        )
+        flush_diagnostics(parser)
         sys.exit(1)
 
     # Write output assembly code to file or stdout

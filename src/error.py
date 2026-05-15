@@ -5,12 +5,12 @@ Provides modern compiler-style error and warning reporting.
 
 Example:
 
-    print_error(
+    _print_error(
         error="label 100 referenced but not defined",
         line="      GOTO 100",
         lineno=12,
         col_start=12,
-        length=3,
+        length=3
     )
 
 Output:
@@ -24,35 +24,22 @@ Output:
 
 from __future__ import annotations
 
-import sys
+from dataclasses import dataclass
 
 
-_RED = "\033[31m"
+# ANSI color codes for terminal output
+
+_RED    = "\033[31m"
 _YELLOW = "\033[33m"
-_BLUE = "\033[34m"
-_CYAN = "\033[36m"
-_BOLD = "\033[1m"
-_RESET = "\033[0m"
+_BLUE   = "\033[34m"
+_CYAN   = "\033[36m"
+_BOLD   = "\033[1m"
+_RESET  = "\033[0m"
 
 
-def _supports_color() -> bool:
-    """
-    Return True if diagnostics should use ANSI colors.
-    """
-
-    return sys.stderr.isatty()
-
-
-def _color(text: str, color_code: str, *, enabled: bool) -> str:
-    """
-    Apply an ANSI color if enabled.
-    """
-
-    if not enabled:
-        return text
-
-    return f"{color_code}{text}{_RESET}"
-
+###
+# Helpers
+###
 
 def get_source_line(obj, lineno: int) -> str:
     """
@@ -64,8 +51,8 @@ def get_source_line(obj, lineno: int) -> str:
         lineno: The 1-based line number to retrieve.
 
     Returns:
-        str: The source line at the given line number, or an empty string if out
-             of range.
+        str: The source line at the given line number, or an empty string if
+             out of range.
     """
 
     try:
@@ -110,7 +97,258 @@ def get_parser_eof_location(parser) -> tuple[str, int, int]:
     return line, lineno, col_start
 
 
-def print_error(
+###
+# Diagnostics
+###
+
+@dataclass(frozen=True)
+class Diagnostic:
+    error: str
+    line: str
+    lineno: int
+    col_start: int
+    length: int
+    warning: bool = False
+    hint: str | None = None
+    filename: str | None = None
+
+
+def flush_diagnostics(*objects, stream=None) -> None:
+    """
+    Print all stored diagnostics from the given objects in source order.
+
+    Sorting order:
+        1. line
+        2. column
+        3. underline length
+        4. severity, errors before warnings
+        5. message, for deterministic output
+    """
+
+    def diagnostic_sort_key(diagnostic: Diagnostic):
+        severity_rank = 1 if diagnostic.warning else 0
+
+        return (
+            diagnostic.lineno,
+            diagnostic.col_start,
+            diagnostic.length,
+            severity_rank,
+            diagnostic.error,
+        )
+
+    diagnostics = []
+
+    for obj in objects:
+        diagnostics.extend(getattr(obj, "diagnostics", []))
+
+    sorted_diagnostics = sorted(diagnostics, key=diagnostic_sort_key)
+
+    for i, diagnostic in enumerate(sorted_diagnostics):
+        _print_error(
+            error=diagnostic.error,
+            line=diagnostic.line,
+            lineno=diagnostic.lineno,
+            col_start=diagnostic.col_start,
+            length=diagnostic.length,
+            warning=diagnostic.warning,
+            hint=diagnostic.hint,
+            filename=diagnostic.filename,
+            stream=stream,
+        )
+
+        if i < len(sorted_diagnostics) - 1:
+            print(file=stream)
+
+
+def record_diagnostic(
+    obj,
+    *,
+    error: str,
+    line: str,
+    lineno: int,
+    col_start: int,
+    length: int,
+    warning: bool = False,
+    hint: str | None = None,
+    filename: str | None = None,
+) -> None:
+    """
+    Store a diagnostic in obj.diagnostics instead of printing it immediately.
+
+    obj is usually the lexer or parser.
+    """
+
+    if not hasattr(obj, "diagnostics"):
+        obj.diagnostics = []
+
+    obj.diagnostics.append(
+        Diagnostic(
+            error=error,
+            line=line,
+            lineno=lineno,
+            col_start=col_start,
+            length=length,
+            warning=warning,
+            hint=hint,
+            filename=filename,
+        )
+    )
+
+    if not warning and hasattr(obj, "has_error"):
+        obj.has_error = True
+
+
+def record_parser_token_error(
+    parser,
+    token,
+    *,
+    message: str,
+    hint: str | None = None,
+    warning: bool = False,
+) -> None:
+    """
+    Record a semantic diagnostic attached to a parser token.
+    """
+
+    record_diagnostic(
+        parser,
+        error=message,
+        line=get_source_line(parser, token.lineno),
+        lineno=token.lineno,
+        col_start=get_token_column(token),
+        length=max(1, len(str(token.value))),
+        warning=warning,
+        filename=parser.source_filename,
+        hint=hint,
+    )
+
+
+def record_node_error(
+    parser,
+    node,
+    *,
+    message: str,
+    hint: str | None = None,
+    warning: bool = False,
+) -> None:
+    """
+    Record a diagnostic attached to an AST node with a SourceLocation.
+    """
+
+    location = getattr(node, "location", None)
+
+    if location is None:
+        record_diagnostic(
+            parser,
+            error=message,
+            line="",
+            lineno=1,
+            col_start=1,
+            length=1,
+            warning=warning,
+            filename=parser.source_filename,
+            hint=hint,
+        )
+        return
+
+    record_diagnostic(
+        parser,
+        error=message,
+        line=get_source_line(parser, location.lineno),
+        lineno=location.lineno,
+        col_start=location.col_start,
+        length=location.length,
+        warning=warning,
+        filename=parser.source_filename,
+        hint=hint,
+    )
+
+
+def report_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> None:
+    """
+    Record a numeric literal out-of-range diagnostic.
+    """
+
+    record_diagnostic(
+        t.lexer,
+        error=f"{type_name} literal {literal!r} out of range",
+        line=get_source_line(t.lexer, t.lineno),
+        lineno=t.lineno,
+        col_start=get_token_column(t),
+        length=len(literal),
+        filename=getattr(t.lexer, "source_filename", None),
+        hint=hint,
+    )
+
+
+def record_syntax_error(parser, token) -> None:
+    """
+    Record a parser syntax error diagnostic.
+
+    If token is None, report unexpected EOF.
+    Otherwise, report the unexpected token location.
+    """
+
+    if token is None:
+        line, lineno, col_start = get_parser_eof_location(parser)
+
+        record_diagnostic(
+            parser,
+            error="unexpected end of file",
+            line=line,
+            lineno=lineno,
+            col_start=col_start,
+            length=1,
+            filename=parser.source_filename,
+            hint="perhaps you forgot the END statement",
+        )
+
+        return
+
+    record_diagnostic(
+        parser,
+        error=f"syntax error at token {token.value!r}",
+        line=get_source_line(parser, token.lineno),
+        lineno=token.lineno,
+        col_start=get_token_column(token),
+        length=max(1, len(str(token.value))),
+        filename=parser.source_filename,
+    )
+
+
+def record_label_diagnostic(
+    parser,
+    *,
+    message: str,
+    location: dict,
+    warning: bool = False,
+) -> None:
+    """
+    Record a label diagnostic using stored location metadata.
+    """
+
+    lineno = location["lineno"]
+    col_start = location["col_start"]
+    length = location["length"]
+
+    record_diagnostic(
+        parser,
+        error=message,
+        line=get_source_line(parser, lineno),
+        lineno=lineno,
+        col_start=col_start,
+        length=length,
+        warning=warning,
+        filename=parser.source_filename,
+    )
+
+
+###
+# Printing errors
+###
+
+
+def _print_error(
     error: str,
     line: str,
     lineno: int,
@@ -139,11 +377,23 @@ def print_error(
         use_color: Force color on/off. Defaults to terminal detection.
     """
 
+    import sys
+
+    def color(text: str, color_code: str, *, enabled: bool) -> str:
+        """
+        Apply an ANSI color if enabled.
+        """
+
+        if not enabled:
+            return text
+
+        return f"{color_code}{text}{_RESET}"
+
     if stream is None:
         stream = sys.stderr
 
     if use_color is None:
-        use_color = _supports_color()
+        use_color = sys.stderr.isatty()
 
     if lineno < 1:
         lineno = 1
@@ -165,9 +415,9 @@ def print_error(
     kind = "warning" if warning else "error"
     kind_color = _YELLOW if warning else _RED
 
-    colored_kind = _color(kind, kind_color + _BOLD, enabled=use_color)
-    colored_message = _color(error, _BOLD, enabled=use_color)
-    colored_arrow = _color("-->", _BLUE, enabled=use_color)
+    colored_kind = color(kind, kind_color + _BOLD, enabled=use_color)
+    colored_message = color(error, _BOLD, enabled=use_color)
+    colored_arrow = color("-->", _BLUE, enabled=use_color)
 
     line_number_text = str(lineno)
     gutter_width = len(line_number_text)
@@ -178,7 +428,7 @@ def print_error(
 
     pointer_padding = " " * (col_start - 1)
     pointer = "^" * length
-    colored_pointer = _color(pointer, kind_color + _BOLD, enabled=use_color)
+    colored_pointer = color(pointer, kind_color + _BOLD, enabled=use_color)
 
     print(f"{colored_kind}: {colored_message}", file=stream)
     print(f"{' ' * gutter_width} {colored_arrow} {location}", file=stream)
@@ -187,150 +437,6 @@ def print_error(
     print(f"{' ' * gutter_width} | {pointer_padding}{colored_pointer}", file=stream)
 
     if hint is not None:
-        colored_hint_label = _color("hint", _CYAN + _BOLD, enabled=use_color)
-        colored_hint = _color(hint, _CYAN, enabled=use_color)
+        colored_hint_label = color("hint", _CYAN + _BOLD, enabled=use_color)
+        colored_hint = color(hint, _CYAN, enabled=use_color)
         print(f"{' ' * gutter_width} = {colored_hint_label}: {colored_hint}", file=stream)
-
-
-def print_parser_token_error(
-    parser,
-    token,
-    *,
-    message: str,
-    hint: str | None = None,
-    warning: bool = False,
-) -> None:
-    """
-    Print a semantic diagnostic attached to a parser token.
-    """
-
-    parser.has_error = True
-
-    print_error(
-        error=message,
-        line=get_source_line(parser, token.lineno),
-        lineno=token.lineno,
-        col_start=get_token_column(token),
-        length=max(1, len(str(token.value))),
-        warning=warning,
-        filename=parser.source_filename,
-        hint=hint,
-    )
-
-
-def print_node_error(
-    parser,
-    node,
-    *,
-    message: str,
-    hint: str | None = None,
-    warning: bool = False,
-) -> None:
-    """
-    Print a diagnostic attached to an AST node with a SourceLocation.
-    """
-
-    location = getattr(node, "location", None)
-
-    if location is None:
-        print_error(
-            error=message,
-            line="",
-            lineno=1,
-            col_start=1,
-            length=1,
-            warning=warning,
-            filename=parser.source_filename,
-            hint=hint,
-        )
-        return
-
-    print_error(
-        error=message,
-        line=get_source_line(parser, location.lineno),
-        lineno=location.lineno,
-        col_start=location.col_start,
-        length=location.length,
-        warning=warning,
-        filename=parser.source_filename,
-        hint=hint,
-    )
-
-
-def print_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> None:
-    """
-    Report a numeric literal out of range diagnostic.
-    """
-
-    t.lexer.has_error = True
-
-    print_error(
-        error=f"{type_name} literal {literal!r} out of range",
-        line=get_source_line(t.lexer, t.lineno),
-        lineno=t.lineno,
-        col_start=get_token_column(t),
-        length=len(literal),
-        filename=getattr(t.lexer, "source_filename", None),
-        hint=hint,
-    )
-
-
-def print_syntax_error(parser, token) -> None:
-    """
-    Print a parser syntax error diagnostic.
-
-    If token is None, report unexpected EOF.
-    Otherwise, report the unexpected token location.
-    """
-
-    parser.has_error = True
-
-    if token is None:
-        line, lineno, col_start = get_parser_eof_location(parser)
-
-        print_error(
-            error="unexpected end of file",
-            line=line,
-            lineno=lineno,
-            col_start=col_start,
-            length=1,
-            filename=parser.source_filename,
-            hint="perhaps you forgot the END statement",
-        )
-
-        return
-
-    print_error(
-        error=f"syntax error at token {token.value!r}",
-        line=get_source_line(parser, token.lineno),
-        lineno=token.lineno,
-        col_start=get_token_column(token),
-        length=max(1, len(str(token.value))),
-        filename=parser.source_filename,
-    )
-
-
-def print_label_diagnostic(
-    parser,
-    *,
-    message: str,
-    location: dict,
-    warning: bool = False,
-) -> None:
-    """
-    Print a label diagnostic using stored location metadata.
-    """
-
-    lineno = location["lineno"]
-    col_start = location["col_start"]
-    length = location["length"]
-
-    print_error(
-        error=message,
-        line=get_source_line(parser, lineno),
-        lineno=lineno,
-        col_start=col_start,
-        length=length,
-        warning=warning,
-        filename=parser.source_filename,
-    )

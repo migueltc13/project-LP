@@ -1,4 +1,4 @@
-from error import print_error, get_source_line
+from error import record_diagnostic, get_source_line
 
 
 def check_loops(parser):
@@ -28,7 +28,8 @@ def check_loops(parser):
             continue
 
         if end_label not in continue_labels:
-            print_error(
+            record_diagnostic(
+                parser,
                 error=(
                     f"DO loop target label {end_label} "
                     "does not label a CONTINUE statement"
@@ -39,5 +40,3 @@ def check_loops(parser):
                 length=do_reference["length"],
                 filename=parser.source_filename
             )
-
-            parser.has_error = True

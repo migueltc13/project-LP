@@ -1,5 +1,5 @@
 import abstract_syntax_tree as ast
-from error import get_token_column, print_parser_token_error
+from error import get_token_column, record_parser_token_error
 from semantics.labels import (
     record_label_definition,
     record_label_reference,
@@ -145,7 +145,7 @@ def p_return_statement(p):
     if not any(ctx in p.parser.context_stack
                for ctx in {"function", "subroutine"}):
 
-        print_parser_token_error(
+        record_parser_token_error(
             p.parser,
             p.slice[1],
             message="RETURN statement outside FUNCTION or SUBROUTINE"

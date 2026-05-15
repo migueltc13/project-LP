@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 
 import ply.lex as lex
-from error import (
-    print_error,
-    print_numeric_range_error,
-    get_source_line,
-    get_token_column
-)
+from error import report_numeric_range_error
 
 ###
 # Reserved words
@@ -186,7 +181,7 @@ def t_DOUBLE_NUMBER(t):
 
     # Check for out of range value (semantic error)
     if value == float("inf") or abs(value) > DOUBLE_MAX:
-        print_numeric_range_error(
+        report_numeric_range_error(
             t,
             literal=literal,
             type_name="double precision",
@@ -212,7 +207,7 @@ def t_REAL_NUMBER(t):
 
     # Check for out of range value (semantic error)
     if value == float("inf") or abs(value) > REAL_MAX:
-        print_numeric_range_error(
+        report_numeric_range_error(
             t,
             literal=literal,
             type_name="real",
@@ -234,7 +229,7 @@ def t_INTEGER_NUMBER(t):
 
     # Check for out of range value (semantic error)
     if value > INTEGER_MAX_CHECK:  # NOTE the upper limit assumes a MINUS before
-        print_numeric_range_error(
+        report_numeric_range_error(
             t,
             literal=literal,
             type_name="integer",
@@ -330,9 +325,9 @@ def t_error(t):
 
     import re
 
-    lexer = t.lexer
+    from error import record_diagnostic, get_source_line, get_token_column
 
-    lexer.has_error = True
+    lexer = t.lexer
 
     # NOTE '@' is not an usual char in Fortran source code,
     #      but it's introduced by preprocessor for labels.
@@ -355,7 +350,8 @@ def t_error(t):
             "replace them with valid Fortran 77 syntax"
         )
 
-    print_error(
+    record_diagnostic(
+        lexer,
         error=error,
         line=get_source_line(lexer, t.lineno),
         lineno=t.lineno,
@@ -385,6 +381,9 @@ lexer.source_filename = None
 # Whether the lexer has encountered an error
 lexer.has_error = False
 
+# List of diagnostics generated during lexing (e.g. illegal characters)
+lexer.diagnostics = []
+
 
 # Auxiliary function to clean lexer state
 
@@ -396,6 +395,7 @@ def clear_lexer_state(lexer):
     lexer.source_lines.clear()
     lexer.source_filename = None
     lexer.has_error = False
+    lexer.diagnostics.clear()
 
 
 ###
@@ -412,6 +412,7 @@ def main():
 
     from common import read_input, detect_source_format
     from preprocessor import preprocess
+    from error import flush_diagnostics
 
     global lexer
 
@@ -484,8 +485,15 @@ def main():
         for tok in lexer:
             print(f"LexToken({tok.type}, {repr(tok.value)}, {tok.lineno})")
 
+    # Flush diagnostics to stderr
+    flush_diagnostics(lexer)
+
     # Exit with non-zero status if any errors were encountered
     if lexer.has_error:
+        print(
+            f"\n{len(lexer.diagnostics)} error(s) encountered.",
+            file=sys.stderr
+        )
         sys.exit(1)
 
 

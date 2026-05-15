@@ -3,7 +3,7 @@ from __future__ import annotations
 from difflib import SequenceMatcher
 
 import abstract_syntax_tree as ast
-from error import print_node_error
+from error import record_node_error
 
 from .semantic_info import ProcedureInfo
 
@@ -175,7 +175,7 @@ class ProcedureChecker:
             "intrinsic_function",
             "intrinsic_subroutine",
         }:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=(
@@ -183,17 +183,15 @@ class ProcedureChecker:
                     f"{existing.kind} {existing.name!r}"
                 )
             )
-            self.parser.has_error = True
             return
 
         if existing is not None and existing.kind.startswith("intrinsic"):
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"{kind} {name!r} conflicts with intrinsic procedure {existing.name!r}",
                 hint="choose a different name or explicitly support intrinsic shadowing later",
             )
-            self.parser.has_error = True
             return
 
         self.procedures[normalized_name] = ProcedureInfo(
@@ -340,13 +338,12 @@ class ProcedureChecker:
             return
 
         if procedure.kind not in {"subroutine", "intrinsic_subroutine"}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"{node.name!r} is not a subroutine",
                 hint="use function calls in expressions, and subroutines with CALL",
             )
-            self.parser.has_error = True
             return
 
         self.check_argument_count(node, procedure)
@@ -364,13 +361,12 @@ class ProcedureChecker:
             return
 
         if procedure.kind not in {"function", "intrinsic_function"}:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"{node.name!r} is not a function",
                 hint="use CALL for subroutines, and function calls inside expressions",
             )
-            self.parser.has_error = True
             return
 
         if procedure.kind == "intrinsic_function":
@@ -383,21 +379,19 @@ class ProcedureChecker:
 
         hint = suggestion_hint(name, candidates)
 
-        print_node_error(
+        record_node_error(
             self.parser,
             node,
             message=f"unknown {expected_kind} {name!r}",
             hint=hint,
         )
 
-        self.parser.has_error = True
-
     def check_argument_count(self, node, procedure: ProcedureInfo):
         expected = len(procedure.arguments)
         actual = len(node.arguments)
 
         if expected != actual:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=(
@@ -405,7 +399,6 @@ class ProcedureChecker:
                     f"{expected} argument(s), got {actual}"
                 ),
             )
-            self.parser.has_error = True
 
 
 def check_procedures(parser, tree) -> dict[str, ProcedureInfo]:

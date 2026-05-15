@@ -9,7 +9,7 @@ from parser_rules.conditionals import *
 from parser_rules.io import *
 from parser_rules.statements import *
 import abstract_syntax_tree as ast
-from error import print_syntax_error, get_token_column
+from error import record_syntax_error, get_token_column
 
 start = 'file'
 
@@ -163,7 +163,7 @@ def p_error(p):
     Report syntax errors using compiler-style diagnostics.
     """
 
-    print_syntax_error(parser, p)
+    record_syntax_error(parser, p)
 
 
 ###
@@ -189,6 +189,9 @@ parser.source_filename = None
 
 # Whether any parser (syntax/semantic) errors were encountered during parsing
 parser.has_error = False
+
+# List of diagnostics collected during lexing and parsing
+parser.diagnostics = []
 
 # Context stack used for semantic checks in RETURN statements
 # Tracks nested contexts - functions and subroutines
@@ -231,6 +234,8 @@ def clear_parser_state(parser):
 
     parser.has_error = False
 
+    parser.diagnostics.clear()
+
     parser.context_stack.clear()
 
     parser.do_references.clear()
@@ -267,6 +272,7 @@ def main():
         visualize,
         DEFAULT_VIS_OUTPUT_PATH
     )
+    from error import flush_diagnostics
 
     global lexer, parser
 
@@ -340,19 +346,31 @@ def main():
     # Parse the input data
     result = parser.parse(source_data, lexer=lexer, debug=False)
 
-    # Propagate lexer errors to parser error state,
-    # since the lexer doesn't exit on error
+    # Propagate lexer errors to parser, since the lexer doesn't exit on error
+    parser.diagnostics.extend(lexer.diagnostics)
     if lexer.has_error:
         parser.has_error = True
 
     if result is None:
+        flush_diagnostics(parser)
+        print(
+            f"\n{len(parser.diagnostics)} error(s) encountered.",
+            file=sys.stderr
+        )
+        print("[panic] parser could't produce an AST", file=sys.stderr)
         sys.exit(1)
 
     # Semantic checks
     result, _ = semantic_checks(parser, ast=result)
 
     # Exit with non-zero status if any errors were encountered
+    flush_diagnostics(parser)
+
     if parser.has_error:
+        print(
+            f"\n{len(parser.diagnostics)} error(s) encountered.",
+            file=sys.stderr
+        )
         sys.exit(1)
 
     # Pretty print the resulting AST

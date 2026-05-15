@@ -1,5 +1,5 @@
 import abstract_syntax_tree as ast
-from error import print_node_error
+from error import record_node_error
 
 from .semantic_info import SemanticInfo, ScopeInfo, VariableInfo
 
@@ -43,12 +43,11 @@ class VariableChecker:
                 info.declaration_node = node
                 return
 
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"variable {name!r} already declared",
             )
-            self.parser.has_error = True
             return
 
         info.type_name = type_name
@@ -68,15 +67,14 @@ class VariableChecker:
         info.used = True
 
         if not info.declared:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"use of undeclared variable {name!r}"
             )
-            self.parser.has_error = True
 
         elif not info.initialized:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"variable {name!r} may be used before being initialized",
@@ -89,12 +87,11 @@ class VariableChecker:
         info.initialized = True
 
         if not info.declared:
-            print_node_error(
+            record_node_error(
                 self.parser,
                 node,
                 message=f"assignment to undeclared variable {name!r}"
             )
-            self.parser.has_error = True
 
     def visit(self, node):
         if node is None:
@@ -289,7 +286,7 @@ class VariableChecker:
                 node = info.declaration_node
 
                 if node is not None:
-                    print_node_error(
+                    record_node_error(
                         self.parser,
                         node,
                         message=f"variable {info.name!r} declared but never used",

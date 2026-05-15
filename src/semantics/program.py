@@ -1,4 +1,4 @@
-from error import print_error, get_source_line
+from error import record_diagnostic, get_source_line
 
 
 def check_program(parser):
@@ -22,7 +22,8 @@ def check_program(parser):
     for location in program_locations[1:]:
         lineno = location["lineno"]
 
-        print_error(
+        record_diagnostic(
+            parser,
             error=(
                 f"multiple main PROGRAM units: {location['name']!r}; "
                 f"first PROGRAM is {first['name']!r}"
@@ -34,5 +35,3 @@ def check_program(parser):
             filename=parser.source_filename,
             hint="keep only one main PROGRAM unit"
         )
-
-        parser.has_error = True
