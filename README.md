@@ -54,7 +54,8 @@ graph LR
     PARSER["Parser
             +
             Semantic Analysis"]
-    DECIDE{"Optimization enabled?"}
+    DECIDE{"Optimization
+            enabled?"}
     OPT[Optimizations]
     GEN[Code Generation]
 
