@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
 
+from utils.utils import C
 import glob
 import os
 import subprocess
 import difflib
-
-C = {
-    "red":    "\033[91m",
-    "grn":    "\033[92m",
-    "cyn":    "\033[96m",
-    "red_bg": "\033[41m",
-    "grn_bg": "\033[42m",
-    "rst":    "\033[0m",
-}
 
 def pretty_diff(f90_out: str, f_out: str, indent: int = 4):
     diff = difflib.ndiff(

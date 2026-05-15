@@ -1,61 +1,8 @@
 #!/usr/bin/env python3
 
-from email import parser
-import glob
-import os
+from utils.utils import C, collect_example_files, print_block
 import subprocess
-
-import parser
 import argparse
-
-C = {
-    "red": "\033[91m",
-    "grn": "\033[92m",
-    "yel": "\033[93m",
-    "blu": "\033[94m",
-    "cyn": "\033[96m",
-    "bld": "\033[1m",
-    "rst": "\033[0m",
-}
-
-
-def natural_sort_key(path):
-    name = os.path.basename(path)
-    prefix = name.split("_")[0]
-
-    if prefix.isdigit():
-        return (int(prefix), name)
-
-    return (float("inf"), name)
-
-
-def collect_example_files():
-    """
-    Parser tests use only `.f` files.
-
-    Reason:
-    `.f` vs `.f90` equivalence is already validated in `tests/formats.py`,
-    so parser tests focus on AST construction and semantic correctness.
-    """
-
-    main_examples = glob.glob("examples/*.f")
-    line_continuation = glob.glob("examples/line_continuation/*.f")
-
-    main_examples = [
-        f for f in main_examples
-        if "errors/" not in f
-        and not os.path.basename(f).startswith("0_mismatched")
-        and os.path.basename(f) != "9_full_program.f"
-        and os.path.basename(f) != "empty.f"
-    ]
-
-    main_examples.sort(key=natural_sort_key)
-    line_continuation.sort(key=natural_sort_key)
-
-    return {
-        "Main Examples": main_examples,
-        "Line Continuation": line_continuation,
-    }
 
 
 def run_parser(filepath):
@@ -69,17 +16,6 @@ def run_parser(filepath):
         text=True,
         capture_output=True,
     )
-
-
-def print_block(text, indent=4):
-    if not text.strip():
-        return
-
-    prefix = " " * indent
-
-    for line in text.rstrip().splitlines():
-        print(f"{prefix}{line}")
-
 
 def main():
 
