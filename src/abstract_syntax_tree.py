@@ -10,6 +10,17 @@ DEFAULT_VIS_OUTPUT_PATH = "/tmp/ast.png"
 
 
 ###
+# Source location definition
+###
+
+@dataclass(frozen=True)
+class SourceLocation:
+    lineno: int
+    col_start: int
+    length: int
+
+
+###
 # AST node definitions
 ###
 
@@ -99,7 +110,7 @@ class If:
 @dataclass(frozen=True)
 class Do:
     end_label: int
-    variable: str
+    variable: Var
     start: Expression
     end: Expression
 
@@ -129,17 +140,6 @@ class CallStatement:
     name: str
     arguments: list[Expression]
     location: Optional[SourceLocation] = None
-
-
-###
-# Source location for variables
-###
-
-@dataclass(frozen=True)
-class SourceLocation:
-    lineno: int
-    col_start: int
-    length: int
 
 
 ###
@@ -179,26 +179,31 @@ class ArrayRef:
 @dataclass(frozen=True)
 class Double:
     value: float
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class Real:
     value: float
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class Integer:
     value: int
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class String:
     value: str
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class Bool:
     value: bool
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -206,6 +211,7 @@ class Arith:
     op: str
     left: Expression
     right: Expression
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -213,6 +219,7 @@ class Rel:
     op: str
     left: Expression
     right: Expression
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -220,12 +227,14 @@ class Logical:
     op: str
     left: Expression
     right: Expression
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
 class Unary:
     op: str
     value: Expression
+    location: Optional[SourceLocation] = None
 
 
 @dataclass(frozen=True)
@@ -362,7 +371,7 @@ def _node_label(node) -> str:
         return "if"
 
     if isinstance(node, Do):
-        return f"do: {node.variable}, end label {node.end_label}"
+        return f"do: {node.variable.name}, end label {node.end_label}"
 
     if isinstance(node, Goto):
         return f"goto: {node.label}"
@@ -469,7 +478,7 @@ def _node_children(node):
 
     if isinstance(node, Do):
         return [
-            Var(node.variable),
+            node.variable,
             node.start,
             node.end
         ]
@@ -511,16 +520,96 @@ def _node_children(node):
 
 
 ###
-# Source Location extraction from tokens helper
+# Source Location extraction helpers
 ###
 
-def location_from_token(token) -> SourceLocation:
+def location_from_token(token, lexdata: str | None = None) -> SourceLocation:
     from error import get_token_column
 
     return SourceLocation(
         lineno=token.lineno,
-        col_start=get_token_column(token),
-        length=len(str(token.value)),
+        col_start=get_token_column(token, lexdata),
+        length=max(1, len(str(token.value))),
+    )
+
+
+def location_from_parser_token(p, index: int) -> SourceLocation:
+    return location_from_token(
+        p.slice[index],
+        getattr(p.lexer, "lexdata", None),
+    )
+
+
+def _location_from_span(
+    start_token,
+    end_node,
+    lexdata: str | None = None,
+) -> SourceLocation:
+    from error import get_token_column
+
+    lineno = start_token.lineno
+    col_start = get_token_column(start_token, lexdata)
+
+    end_location = getattr(end_node, "location", None)
+
+    if end_location is not None and end_location.lineno == lineno:
+        end_col = end_location.col_start + end_location.length
+        length = max(1, end_col - col_start)
+    else:
+        length = max(1, len(str(start_token.value)))
+
+    return SourceLocation(
+        lineno=lineno,
+        col_start=col_start,
+        length=length,
+    )
+
+
+def location_from_parser_span(p, start_index: int, end_node) -> SourceLocation:
+    return _location_from_span(
+        p.slice[start_index],
+        end_node,
+        getattr(p.lexer, "lexdata", None),
+    )
+
+
+def _location_from_children(
+    left,
+    fallback_token,
+    right,
+    lexdata: str | None = None,
+) -> SourceLocation:
+    left_location = getattr(left, "location", None)
+    right_location = getattr(right, "location", None)
+
+    if left_location is None:
+        return location_from_token(fallback_token, lexdata)
+
+    if (
+        right_location is not None
+        and right_location.lineno == left_location.lineno
+    ):
+        end_col = right_location.col_start + right_location.length
+        return SourceLocation(
+            lineno=left_location.lineno,
+            col_start=left_location.col_start,
+            length=max(1, end_col - left_location.col_start),
+        )
+
+    return left_location
+
+
+def location_from_parser_children(
+    left,
+    p,
+    fallback_index: int,
+    right,
+) -> SourceLocation:
+    return _location_from_children(
+        left,
+        p.slice[fallback_index],
+        right,
+        getattr(p.lexer, "lexdata", None),
     )
 
 

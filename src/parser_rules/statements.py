@@ -29,19 +29,21 @@ def p_statement(p):
 def p_label_statement(p):
     "label_statement : LABEL nonlabel_statement"
     label = p[1]
+    label_col = get_token_column(p.slice[1],
+                                 getattr(p.lexer, "lexdata", None))
 
     record_label_definition(
         p.parser,
         label,
         lineno=p.lineno(1),
-        col_start=get_token_column(p.slice[1]),
+        col_start=label_col,
     )
 
     if isinstance(p[2], ast.Continue):
         p.parser.continue_locations.append({
             "label": label,
             "lineno": p.lineno(1),
-            "col_start": get_token_column(p.slice[1]) + PREPROCESSED_LABEL_PREFIX_LEN,
+            "col_start": label_col + PREPROCESSED_LABEL_PREFIX_LEN,
             "length": len(str(label)),
         })
 
@@ -92,7 +94,7 @@ def p_declarator(p):
     declarator : IDENTIFIER
                | IDENTIFIER '(' expression_list ')'
     """
-    location = ast.location_from_token(p.slice[1])
+    location = ast.location_from_parser_token(p, 1)
 
     if len(p) == 2:
         p[0] = ast.VarDeclarator(p[1], location)
@@ -110,7 +112,7 @@ def p_variable(p):
     variable : IDENTIFIER
              | IDENTIFIER '(' expression_list ')'
     """
-    location = ast.location_from_token(p.slice[1])
+    location = ast.location_from_parser_token(p, 1)
 
     if len(p) == 2:
         p[0] = ast.Var(p[1], location)
@@ -129,7 +131,8 @@ def p_goto_statement(p):
         p.parser,
         label,
         lineno=p.lineno(2),
-        col_start=get_token_column(p.slice[2])
+        col_start=get_token_column(p.slice[2],
+                                   getattr(p.lexer, "lexdata", None)),
     )
 
     p[0] = ast.Goto(label)
@@ -159,7 +162,7 @@ def p_call_statement(p):
     call_statement : CALL IDENTIFIER '(' expression_list ')'
                    | CALL IDENTIFIER
     """
-    location = ast.location_from_token(p.slice[2])
+    location = ast.location_from_parser_token(p, 2)
 
     if len(p) == 6:
         p[0] = ast.CallStatement(p[2], p[4], location)
@@ -170,24 +173,25 @@ def p_call_statement(p):
 def p_do_statement(p):
     "do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression"
     end_label = p[2]
+    label_col = get_token_column(p.slice[2], getattr(p.lexer, "lexdata", None))
 
     record_label_reference(
         p.parser,
         end_label,
         lineno=p.lineno(2),
-        col_start=get_token_column(p.slice[2]),
+        col_start=label_col,
     )
 
     p.parser.do_references.append({
         "end_label": end_label,
         "lineno": p.lineno(2),
-        "col_start": get_token_column(p.slice[2]),
+        "col_start": label_col,
         "length": len(str(end_label)),
     })
 
     p[0] = ast.Do(
         end_label=end_label,
-        variable=p[3],
+        variable=ast.Var(p[3], ast.location_from_parser_token(p, 3)),
         start=p[5],
         end=p[7],
     )

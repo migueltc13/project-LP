@@ -580,13 +580,14 @@ class EWVMGenerator:
         self.loop_counter += 1
 
         start_label = f"L_DO_START_{loop_id}"
+        var_name = node.variable.name
 
         self.visit_expression(node.start)
-        self.emitter.emit(f"STOREG {self.layout.global_slot(node.variable)}")
+        self.emitter.emit(f"STOREG {self.layout.global_slot(var_name)}")
 
         self.emitter.label(start_label)
 
-        self.emitter.emit(f"PUSHG {self.layout.global_slot(node.variable)}")
+        self.emitter.emit(f"PUSHG {self.layout.global_slot(var_name)}")
         self.visit_expression(node.end)
         self.emitter.emit("SUP")
         self.emitter.emit(f"JZ L_DO_BODY_{loop_id}")
@@ -595,7 +596,7 @@ class EWVMGenerator:
         self.emitter.label(f"L_DO_BODY_{loop_id}")
 
         self.pending_do_by_label[node.end_label] = {
-            "variable": node.variable,
+            "variable": var_name,
             "start_label": start_label,
         }
 

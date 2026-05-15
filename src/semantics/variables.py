@@ -196,9 +196,7 @@ class VariableChecker:
             return
 
         if isinstance(node, ast.Do):
-            # Loop variable is assigned/updated by the loop.
-            loop_var = ast.Var(node.variable)
-            self.mark_assigned(loop_var, node.variable)
+            self.mark_assigned(node.variable, node.variable.name)
 
             self.visit_expression(node.start)
             self.visit_expression(node.end)

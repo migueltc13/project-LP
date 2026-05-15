@@ -16,7 +16,8 @@ def p_logical_or(p):
                | logical_and
     """
     if len(p) == 4:
-        p[0] = ast.Logical(p[2], p[1], p[3])
+        p[0] = ast.Logical(p[2], p[1], p[3],
+                           ast.location_from_parser_children(p[1], p, 2, p[3]))
     else:
         p[0] = p[1]
 
@@ -27,7 +28,8 @@ def p_logical_and(p):
                 | relational
     """
     if len(p) == 4:
-        p[0] = ast.Logical(p[2], p[1], p[3])
+        p[0] = ast.Logical(p[2], p[1], p[3],
+                           ast.location_from_parser_children(p[1], p, 2, p[3]))
     else:
         p[0] = p[1]
 
@@ -43,7 +45,8 @@ def p_relational(p):
                | additive
     """
     if len(p) == 4:
-        p[0] = ast.Rel(p[2], p[1], p[3])
+        p[0] = ast.Rel(p[2], p[1], p[3],
+                       ast.location_from_parser_children(p[1], p, 2, p[3]))
     else:
         p[0] = p[1]
 
@@ -55,7 +58,8 @@ def p_additive(p):
              | multiplicative
     """
     if len(p) == 4:
-        p[0] = ast.Arith(p[2], p[1], p[3])
+        p[0] = ast.Arith(p[2], p[1], p[3],
+                         ast.location_from_parser_children(p[1], p, 2, p[3]))
     else:
         p[0] = p[1]
 
@@ -67,7 +71,8 @@ def p_multiplicative(p):
                    | unary
     """
     if len(p) == 4:
-        p[0] = ast.Arith(p[2], p[1], p[3])
+        p[0] = ast.Arith(p[2], p[1], p[3],
+                         ast.location_from_parser_children(p[1], p, 2, p[3]))
     else:
         p[0] = p[1]
 
@@ -79,13 +84,16 @@ def p_unary(p):
           | NOT unary
           | power
     """
-    if len(p) == 4:
+    if len(p) == 3:
         if p[1] == '+':
-            p[0] = ast.Unary('+', p[3])
+            op = '+'
         elif p[1] == '-':
-            p[0] = ast.Unary('-', p[3])
+            op = '-'
         else:
-            p[0] = ast.Unary('not', p[3])
+            op = '.NOT.'
+
+        p[0] = ast.Unary(op, p[2],
+                         ast.location_from_parser_span(p, 1, p[2]))
     else:
         p[0] = p[1]
 
@@ -97,7 +105,8 @@ def p_power(p):
           | primary
     """
     if len(p) == 4:
-        p[0] = ast.Arith(p[2], p[1], p[3])
+        p[0] = ast.Arith(p[2], p[1], p[3],
+                         ast.location_from_parser_children(p[1], p, 2, p[3]))
     else:
         p[0] = p[1]
 
@@ -115,28 +124,28 @@ def p_primary_double_number(p):
     """
     primary : DOUBLE_NUMBER
     """
-    p[0] = ast.Double(p[1])
+    p[0] = ast.Double(p[1], ast.location_from_parser_token(p, 1))
 
 
 def p_primary_real_number(p):
     """
     primary : REAL_NUMBER
     """
-    p[0] = ast.Real(p[1])
+    p[0] = ast.Real(p[1], ast.location_from_parser_token(p, 1))
 
 
 def p_primary_integer_number(p):
     """
     primary : INTEGER_NUMBER
     """
-    p[0] = ast.Integer(p[1])
+    p[0] = ast.Integer(p[1], ast.location_from_parser_token(p, 1))
 
 
 def p_primary_string(p):
     """
     primary : STRING
     """
-    p[0] = ast.String(p[1])
+    p[0] = ast.String(p[1], ast.location_from_parser_token(p, 1))
 
 
 def p_primary_boolean(p):
@@ -144,7 +153,8 @@ def p_primary_boolean(p):
     primary : TRUE
             | FALSE
     """
-    p[0] = ast.Bool(p.slice[1].type == "TRUE")
+    p[0] = ast.Bool(p.slice[1].type == "TRUE",
+                    ast.location_from_parser_token(p, 1))
 
 
 # Primary identifiers can be variables or function calls
@@ -153,7 +163,7 @@ def p_primary_identifier(p):
     primary : IDENTIFIER
             | IDENTIFIER '(' argument_list_opt ')'
     """
-    location = ast.location_from_token(p.slice[1])
+    location = ast.location_from_parser_token(p, 1)
 
     if len(p) == 2:
         p[0] = ast.Var(p[1], location)

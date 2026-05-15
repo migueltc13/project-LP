@@ -61,21 +61,29 @@ def get_source_line(obj, lineno: int) -> str:
         return ""
 
 
-def get_token_column(t) -> int:
+def get_token_column(t, lexdata: str | None = None) -> int:
     """
-    Return the 1-based column where token t starts.
+    Return the 1-based column where token/symbol t starts.
 
-    Arguments:
-        t: A lexer token with `t.lexer.lexdata` containing the full source text
-           and `t.lexpos` indicating the position of the token in the source
-           text.
-
-    Returns:
-        int: The 1-based column number where the token starts.
+    In lexer callbacks, t usually has t.lexer.lexdata.
+    In parser callbacks, p.slice[i] may not have .lexer, so callers should pass
+    p.lexer.lexdata explicitly.
     """
 
-    line_start = t.lexer.lexdata.rfind("\n", 0, t.lexpos) + 1
-    return t.lexpos - line_start + 1
+    if lexdata is None:
+        lexer = getattr(t, "lexer", None)
+        lexdata = getattr(lexer, "lexdata", None)
+
+    if lexdata is None:
+        return 1
+
+    lexpos = getattr(t, "lexpos", None)
+
+    if lexpos is None:
+        return 1
+
+    line_start = lexdata.rfind("\n", 0, lexpos) + 1
+    return lexpos - line_start + 1
 
 
 def get_parser_eof_location(parser) -> tuple[str, int, int]:

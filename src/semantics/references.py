@@ -161,6 +161,7 @@ class ReferenceResolver:
         if isinstance(node, ast.Do):
             return replace(
                 node,
+                variable=node.variable,
                 start=self.visit_expression(node.start),
                 end=self.visit_expression(node.end),
             )

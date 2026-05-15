@@ -300,14 +300,14 @@ class TypeChecker:
         raise RuntimeError(f"invalid assignment target in type checker: {node!r}")
 
     def check_do(self, node: ast.Do) -> None:
-        loop_type = self.variable_type(node.variable)
+        loop_type = self.variable_type(node.variable.name)
 
         if loop_type not in {INTEGER, UNKNOWN}:
             # Fortran variants may allow real DO variables historically, but
             # INTEGER loop variables keep this compiler simpler and safer.
             record_node_error(
                 self.parser,
-                ast.Var(node.variable),
+                node.variable,
                 message=(
                     "DO loop variable must be INTEGER, "
                     f"got {loop_type}"

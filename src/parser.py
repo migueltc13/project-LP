@@ -54,22 +54,23 @@ def p_main_program(p):
     p.parser.program_locations.append({
         "name": p[2],
         "lineno": p.lineno(1),
-        "col_start": get_token_column(p.slice[1]),
+        "col_start": get_token_column(p.slice[1],
+                                      getattr(p.lexer, "lexdata", None)),
         "length": len(p[1]),
     })
 
-    p[0] = ast.Program(p[2], p[3], ast.location_from_token(p.slice[2]))
+    p[0] = ast.Program(p[2], p[3], ast.location_from_parser_token(p, 2))
 
 
 def p_subroutine(p):
     "subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END"
-    p[0] = ast.Subroutine(p[2], p[4], p[7], ast.location_from_token(p.slice[2]))
+    p[0] = ast.Subroutine(p[2], p[4], p[7], ast.location_from_parser_token(p, 2))
 
 
 def p_function(p):
     "function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END"
     p[0] = ast.Function(p[1], p[3], p[5], p[8],
-                        ast.location_from_token(p.slice[3]))
+                        ast.location_from_parser_token(p, 3))
 
 
 ###
