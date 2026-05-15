@@ -73,6 +73,7 @@ banner "TEST EXECUTION"
 # Explicit test order
 TESTS=(
     "tests/formats.py"
+    "tests/lexer.py"
 )
 
 # Run all tests
@@ -81,13 +82,14 @@ exit_code=0
 for TEST in "${TESTS[@]}"; do
     section "$TEST"
 
-    if ! python3 "$TEST"; then
+    python3 "$TEST"
+    test_exit_code=$?
+
+    # Ensure visual separation between tests
+    echo ""
+
+    if [ $test_exit_code -ne 0 ]; then
         echo "Error: $TEST failed!"
         exit_code=1
     fi
 done
-
-echo
-echo "All tests completed."
-
-exit $exit_code

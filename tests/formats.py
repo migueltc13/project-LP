@@ -50,45 +50,69 @@ def pretty_diff(f90_out: str, f_out: str, indent: int = 4):
 
 
 if __name__ == "__main__":
-    f90_files = glob.glob("examples/*.f90")
+    # Sort files naturally by numeric prefix
+    f90_files = sorted(
+        glob.glob("examples/*.f90"),
+        key=lambda x: (
+            int(os.path.basename(x).split("_")[0])
+            if os.path.basename(x).split("_")[0].isdigit()
+            else float("inf"),
+            x,
+        ),
+    )
+
     if not f90_files:
         print("No .f90 files found in examples/")
         exit(1)
 
+    # Build all valid pairs first
+    file_pairs = []
+
     for f90_file in f90_files:
-        # Get the corresponding .f file name
         base_name = os.path.splitext(os.path.basename(f90_file))[0]
         f_file = f"examples/{base_name}.f"
-        if not os.path.exists(f_file):
-            continue
 
-        # print(f"Comparing lexer for {f90_file} and {f_file}...")
+        if os.path.exists(f_file):
+            file_pairs.append((f90_file, f_file))
 
-        # Run "python3 src/lexer.py --test --format=free < {f90_file}"
+    # Compute alignment width
+    left_width = max(len(f90) for f90, _ in file_pairs)
+
+    for f90_file, f_file in file_pairs:
+
+        # Run free-format lexer
         f90_result = subprocess.run(
             ["python3", "src/lexer.py", "--test", "--format=free"],
             input=open(f90_file).read(),
             text=True,
             capture_output=True,
         )
+
         if f90_result.returncode != 0:
             print(f"Error processing {f90_file}: {f90_result.stderr}")
             continue
 
-        # Run "python3 src/lexer.py --test --format=fixed < {f_file}"
+        # Run fixed-format lexer
         f_result = subprocess.run(
             ["python3", "src/lexer.py", "--test", "--format=fixed"],
             input=open(f_file).read(),
             text=True,
             capture_output=True,
         )
+
         if f_result.returncode != 0:
             print(f"Error processing {f_file}: {f_result.stderr}")
             continue
 
-        # Compare the outputs
+        # Align filenames
+        left = f90_file.ljust(left_width)
+
         if f90_result.stdout != f_result.stdout:
-            print(f"{C['red']}✗ Failed: {f90_file} != {f_file}{C['rst']}")
+            print(
+                f"{C['red']}✗ Failed: {left} != {f_file}{C['rst']}"
+            )
             pretty_diff(f90_result.stdout, f_result.stdout)
         else:
-            print(f"{C['grn']}✓ Passed: {f90_file} == {f_file}{C['rst']}")
+            print(
+                f"{C['grn']}✓ Passed: {left} == {f_file}{C['rst']}"
+            )
