@@ -78,6 +78,25 @@ class MemoryLayout:
         return self.key(scope, name) in self.arrays
 
 
+class ProcedureRegistry:
+    def __init__(self):
+        self.labels: dict[str, str] = {}
+
+    def register_from_file(self, tree: ast.File) -> None:
+        for unit in tree.program_units:
+            if isinstance(unit, (ast.Subroutine, ast.Function)):
+                name = unit.name.upper()
+                self.labels[name] = f"P{len(self.labels)}"
+
+    def label(self, name: str) -> str:
+        try:
+            return self.labels[name.upper()]
+        except KeyError:
+            raise CodeGenerationError(
+                f"internal error: procedure {name!r} has no generated label"
+            )
+
+
 # TODO(codegen): Verify EWVM LOADN/STOREN stack operand order with runtime tests.
 # TODO(codegen): Support multidimensional arrays.
 # TODO(codegen): Support CHARACTER arrays/fixed-length strings.
@@ -94,11 +113,11 @@ class EWVMGenerator:
         self.semantic_info = semantic_info
         self.emitter = EWVMEmitter(debug=debug)
         self.layout = MemoryLayout()
+        self.procedures = ProcedureRegistry()
         self.current_scope = None
         self.loop_counter = 0
         self.pending_do_by_label = {}
         self.label_counter = 0
-        self.procedure_labels: dict[str, str] = {}
 
     def generate(self, tree) -> str:
         self.visit_file(tree)
@@ -176,20 +195,6 @@ class EWVMGenerator:
         label = f"L{prefix}{self.label_counter}"
         self.label_counter += 1
         return label
-
-    def register_procedure_labels(self, tree) -> None:
-        for unit in tree.program_units:
-            if isinstance(unit, (ast.Subroutine, ast.Function)):
-                name = unit.name.upper()
-                self.procedure_labels[name] = f"P{len(self.procedure_labels)}"
-
-    def procedure_label(self, name: str) -> str:
-        try:
-            return self.procedure_labels[name.upper()]
-        except KeyError:
-            raise CodeGenerationError(
-                f"internal error: procedure {name!r} has no generated label"
-            )
 
     def find_scope(self, name: str, kind: str):
         for scope in self.semantic_info.scopes:
@@ -381,7 +386,7 @@ class EWVMGenerator:
                 "code generation requires a PROGRAM unit"
             )
 
-        self.register_procedure_labels(node)
+        self.procedures.register_from_file(node)
         self.allocate_all_scopes()
 
         program = programs[0]
@@ -417,7 +422,7 @@ class EWVMGenerator:
         self.emitter.emit("STOP")
 
     def visit_subroutine(self, node):
-        label = self.procedure_label(node.name)
+        label = self.procedures.label(node.name)
         self.current_scope = self.find_scope(node.name, "subroutine")
 
         self.emitter.new_line()
@@ -433,7 +438,7 @@ class EWVMGenerator:
             self.emitter.emit("RETURN")
 
     def visit_function(self, node):
-        label = self.procedure_label(node.name)
+        label = self.procedures.label(node.name)
         self.current_scope = self.find_scope(node.name, "function")
 
         self.emitter.new_line()
@@ -896,7 +901,7 @@ class EWVMGenerator:
             target_scope=target_scope,
         )
 
-        self.emitter.emit(f"PUSHA {self.procedure_label(node.name)}")
+        self.emitter.emit(f"PUSHA {self.procedures.label(node.name)}")
         self.emitter.emit("CALL")
 
     def copy_call_arguments(
@@ -957,7 +962,7 @@ class EWVMGenerator:
             target_scope=target_scope,
         )
 
-        self.emitter.emit(f"PUSHA {self.procedure_label(node.name)}")
+        self.emitter.emit(f"PUSHA {self.procedures.label(node.name)}")
         self.emitter.emit("CALL")
 
         return_slot = self.layout.global_slot(target_scope, info.name)
