@@ -5,15 +5,12 @@ from dataclasses import dataclass
 import abstract_syntax_tree as ast
 from error import record_node_error
 
-# TODO(ast): Store DO loop variable as ast.Var instead of str for better diagnostics.
-# TODO(ast): Add SourceLocation to operator nodes for better type diagnostics.
 
-UNKNOWN = "UNKNOWN"
-
-INTEGER = "INTEGER"
-REAL = "REAL"
-DOUBLE = "DOUBLE"
-LOGICAL = "LOGICAL"
+UNKNOWN   = "UNKNOWN"
+INTEGER   = "INTEGER"
+REAL      = "REAL"
+DOUBLE    = "DOUBLE"
+LOGICAL   = "LOGICAL"
 CHARACTER = "CHARACTER"
 
 NUMERIC_TYPES = {INTEGER, REAL, DOUBLE}
@@ -268,7 +265,7 @@ class TypeChecker:
         if not is_assignable(target_type, value_type):
             record_node_error(
                 self.parser,
-                node.target,
+                node.value,
                 message=(
                     f"cannot assign {value_type} value "
                     f"to {target_type} variable"
@@ -415,7 +412,7 @@ class TypeChecker:
             if value_type not in NUMERIC_TYPES | {UNKNOWN}:
                 record_node_error(
                     self.parser,
-                    node,
+                    node.value,
                     message=(
                         "unary '+' requires numeric operand, "
                         f"got {value_type}"
@@ -428,7 +425,7 @@ class TypeChecker:
             if value_type not in NUMERIC_TYPES | {UNKNOWN}:
                 record_node_error(
                     self.parser,
-                    node,
+                    node.value,
                     message=(
                         "unary '-' requires numeric operand, "
                         f"got {value_type}"
@@ -441,7 +438,7 @@ class TypeChecker:
             if value_type not in {LOGICAL, UNKNOWN}:
                 record_node_error(
                     self.parser,
-                    node,
+                    node.value,
                     message=(
                         "NOT requires LOGICAL operand, "
                         f"got {value_type}"
