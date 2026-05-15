@@ -1184,11 +1184,8 @@ def main():
 
     source_lines = source_data.splitlines()
 
-    lexer.source_lines = source_lines
-    lexer.source_filename = source_filename
-
-    parser.source_lines = source_lines
-    parser.source_filename = source_filename
+    lexer.source_lines, parser.source_lines = (source_lines,) * 2
+    lexer.source_filename, parser.source_filename = (source_filename,) * 2
 
     # Parse the input data
     result = parser.parse(source_data, lexer=lexer, debug=False)
