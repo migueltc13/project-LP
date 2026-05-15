@@ -76,7 +76,3 @@ graph LR
 ## Code Generation
 
 ## Code Optimization
-
-- Unused variable elimination
-- Constant `IF` elimination
-- Loop unrolling
