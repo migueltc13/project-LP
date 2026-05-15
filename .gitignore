@@ -8,6 +8,3 @@ venv/
 # Keep .gitkeep file to ensure the directory is tracked
 src/generated/*
 !src/generated/.gitkeep
-
-# Ignore main test source file in examples directory
-examples/test.f
