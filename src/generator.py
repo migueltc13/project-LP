@@ -493,12 +493,16 @@ class EWVMGenerator:
         is_float = self.expression_is_floatish(node)
 
         if node.op == "+":
+            self.emitter.comment("apply arithmetic operator +")
             self.emitter.emit("FADD" if is_float else "ADD")
         elif node.op == "-":
+            self.emitter.comment("apply arithmetic operator -")
             self.emitter.emit("FSUB" if is_float else "SUB")
         elif node.op == "*":
+            self.emitter.comment("apply arithmetic operator *")
             self.emitter.emit("FMUL" if is_float else "MUL")
         elif node.op == "/":
+            self.emitter.comment("apply arithmetic operator /")
             self.emitter.emit("FDIV" if is_float else "DIV")
         elif node.op == "**":
             raise CodeGenerationError("power operator is not supported yet")
