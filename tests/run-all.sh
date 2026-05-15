@@ -74,7 +74,7 @@ pushd examples/ >/dev/null || {
 }
 
 make clean
-make
+make -j
 
 popd >/dev/null || {
     echo "Error: Failed to return to the original directory!"
