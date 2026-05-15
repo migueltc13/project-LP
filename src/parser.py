@@ -265,12 +265,11 @@ def main():
     import argparse
     import sys
 
-    from common import read_input, detect_source_format, open_file
+    from common import read_input, detect_source_format, visualize_ast
     from preprocessor import preprocess
     from semantics import semantic_checks
     from abstract_syntax_tree import (
         pretty_print,
-        visualize,
         DEFAULT_VIS_OUTPUT_PATH
     )
     from error import flush_diagnostics
@@ -380,12 +379,7 @@ def main():
 
     # Visualize AST
     if args.visualize:
-        try:
-            visualize_file = visualize(result, output_path=args.visualize)
-            print(f"\nAST visualization generated at: {visualize_file}")
-            open_file(visualize_file)
-        except Exception as e:
-            print(f"AST Visualization error: {e}", file=sys.stderr)
+        visualize_ast(result, output_path=args.visualize)
 
 
 if __name__ == "__main__":

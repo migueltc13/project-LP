@@ -87,6 +87,55 @@ def open_file(path: str) -> None:
         subprocess.run(["xdg-open", path], check=False)
 
 
+def visualize_ast(
+    ast,
+    *,
+    output_path: str,
+    optimized: bool = False,
+) -> None:
+    """
+    Generate and open an AST visualization.
+
+    If optimized=True, write to a sibling file with '_optimized' appended to
+    the original output filename stem.
+
+    Examples:
+        /tmp/ast.png              -> /tmp/ast.png
+        /tmp/ast.png optimized    -> /tmp/ast_optimized.png
+    """
+
+    from abstract_syntax_tree import visualize
+
+    try:
+        final_output_path = output_path
+
+        if optimized:
+            vis_path = Path(output_path)
+            final_output_path = str(
+                vis_path.with_name(
+                    f"{vis_path.stem}_optimized{vis_path.suffix}"
+                )
+            )
+
+        visualize_file = visualize(ast, output_path=final_output_path)
+
+        if optimized:
+            print(
+                "\nOptimized AST visualization generated at: "
+                f"{visualize_file}"
+            )
+        else:
+            print(f"\nAST visualization generated at: {visualize_file}")
+
+        open_file(visualize_file)
+
+    except Exception as e:
+        if optimized:
+            print(f"Optimized AST Visualization error: {e}", file=sys.stderr)
+        else:
+            print(f"AST Visualization error: {e}", file=sys.stderr)
+
+
 def write_output(
     output_path: Optional[str],
     data: str,
@@ -100,7 +149,8 @@ def write_output(
                                      writes to standard output.
         data (str): The data to write.
         verbose (bool): Prints header message when writing to standard output,
-                        or prints output path when writing to a file, when True.
+                        or prints output path when writing to a file, when
+                        True.
 
     Raises:
         OSError: If there is an error accessing the file.

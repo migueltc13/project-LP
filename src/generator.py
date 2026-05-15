@@ -1068,12 +1068,11 @@ def main():
 
     import argparse
     import sys
-    from pathlib import Path
 
     from common import (
         read_input,
         detect_source_format,
-        open_file,
+        visualize_ast,
         write_output
     )
     from preprocessor import preprocess
@@ -1084,7 +1083,6 @@ def main():
     from optimizations import optimizations
     from abstract_syntax_tree import (
         pretty_print,
-        visualize,
         DEFAULT_VIS_OUTPUT_PATH
     )
     from error import flush_diagnostics
@@ -1233,12 +1231,7 @@ def main():
 
     # Visualize initial AST
     if args.visualize:
-        try:
-            visualize_file = visualize(result, output_path=args.visualize)
-            print(f"\nAST visualization generated at: {visualize_file}")
-            open_file(visualize_file)
-        except Exception as e:
-            print(f"AST Visualization error: {e}", file=sys.stderr)
+        visualize_ast(result, output_path=args.visualize, optimized=False)
 
     if not args.optimize:
         # Report diagnostics from the normal semantic pass
@@ -1274,18 +1267,7 @@ def main():
 
         # Visualize optimized AST
         if args.visualize:
-            try:
-                vis_path = Path(args.visualize)
-                output_path = str(vis_path.with_name(
-                    f"{vis_path.stem}_optimized{vis_path.suffix}"
-                ))
-                optimized_vis_file = visualize(result, output_path=output_path)
-                print("\nOptimized AST visualization generated at: "
-                      f"{optimized_vis_file}")
-                open_file(optimized_vis_file)
-            except Exception as e:
-                print(f"Optimized AST Visualization error: {e}",
-                      file=sys.stderr)
+            visualize_ast(result, output_path=args.visualize, optimized=True)
 
     # Generate EWVM assembly code from the AST and semantic information
     try:
