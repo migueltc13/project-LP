@@ -605,6 +605,21 @@ class EWVMGenerator:
             f"unsupported assignment target: {node.target!r}"
         )
 
+    def write_items(self, items):
+        for item in items:
+            self.visit_expression(item)
+
+            type_name = self.expression_type_hint(item)
+
+            if type_name == "CHARACTER":
+                self.emitter.emit("WRITES")
+            elif type_name in {"REAL", "DOUBLE"}:
+                self.emitter.emit("WRITEF")
+            else:
+                self.emitter.emit("WRITEI")
+
+        self.emitter.emit("WRITELN")
+
     def visit_print(self, node):
         self.write_items(node.items)
 
@@ -649,21 +664,6 @@ class EWVMGenerator:
         self.emit_read_value_for_type(type_name)
 
         self.emitter.emit("STOREN")
-
-    def write_items(self, items):
-        for item in items:
-            self.visit_expression(item)
-
-            type_name = self.expression_type_hint(item)
-
-            if type_name == "CHARACTER":
-                self.emitter.emit("WRITES")
-            elif type_name in {"REAL", "DOUBLE"}:
-                self.emitter.emit("WRITEF")
-            else:
-                self.emitter.emit("WRITEI")
-
-        self.emitter.emit("WRITELN")
 
     ###
     # Expression generation
