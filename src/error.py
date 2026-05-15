@@ -24,6 +24,7 @@ Output:
 
 from __future__ import annotations
 
+from typing import Optional
 from dataclasses import dataclass
 
 
@@ -61,7 +62,7 @@ def get_source_line(obj, lineno: int) -> str:
         return ""
 
 
-def get_token_column(t, lexdata: str | None = None) -> int:
+def get_token_column(t, lexdata: Optional[str] = None) -> int:
     """
     Return the 1-based column where token/symbol t starts.
 
@@ -117,8 +118,8 @@ class Diagnostic:
     col_start: int
     length: int
     warning: bool = False
-    hint: str | None = None
-    filename: str | None = None
+    hint: Optional[str] = None
+    filename: Optional[str] = None
 
 
 def flush_diagnostics(*objects, stream=None) -> None:
@@ -177,8 +178,8 @@ def record_diagnostic(
     col_start: int,
     length: int,
     warning: bool = False,
-    hint: str | None = None,
-    filename: str | None = None,
+    hint: Optional[str] = None,
+    filename: Optional[str] = None,
 ) -> None:
     """
     Store a diagnostic in obj.diagnostics instead of printing it immediately.
@@ -211,8 +212,8 @@ def record_parser_token_error(
     token,
     *,
     message: str,
-    hint: str | None = None,
-    warning: bool = False,
+    hint: Optional[str] = None,
+    warning: Optional[bool] = False,
 ) -> None:
     """
     Record a semantic diagnostic attached to a parser token.
@@ -236,8 +237,8 @@ def record_node_error(
     node,
     *,
     message: str,
-    hint: str | None = None,
-    warning: bool = False,
+    hint: Optional[str] = None,
+    warning: Optional[bool] = False,
 ) -> None:
     """
     Record a diagnostic attached to an AST node with a SourceLocation.
@@ -364,10 +365,10 @@ def _print_error(
     length: int,
     *,
     warning: bool = False,
-    hint: str | None = None,
-    filename: str | None = None,
+    hint: Optional[str] = None,
+    filename: Optional[str] = None,
     stream=None,
-    use_color: bool | None = None,
+    use_color: Optional[bool] = None,
 ) -> None:
     """
     Print a compiler-style diagnostic.

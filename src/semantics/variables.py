@@ -1,3 +1,5 @@
+from typing import Optional
+
 import abstract_syntax_tree as ast
 from error import record_node_error
 
@@ -16,7 +18,7 @@ class VariableChecker:
     def __init__(self, parser):
         self.parser = parser
         self.semantic_info = SemanticInfo()
-        self.scope: ScopeInfo | None = None
+        self.scope: Optional[ScopeInfo] = None
 
     def check(self, node) -> SemanticInfo:
         self.visit(node)

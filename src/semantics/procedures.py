@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from typing import Optional
 from difflib import SequenceMatcher
 
 import abstract_syntax_tree as ast
@@ -70,7 +71,7 @@ def similar_names(name: str, candidates: set[str], *, threshold: float = 0.65) -
     return [candidate for _, candidate in scored[:3]]
 
 
-def suggestion_hint(name: str, candidates: set[str]) -> str | None:
+def suggestion_hint(name: str, candidates: set[str]) -> Optional[str]:
     """
     Build a 'perhaps you meant ...' hint for an unknown procedure.
     """
@@ -165,7 +166,7 @@ class ProcedureChecker:
         kind: str,
         arguments: list[str],
         node,
-        return_type: str | None,
+        return_type: Optional[str],
     ):
         normalized_name = name.upper()
 

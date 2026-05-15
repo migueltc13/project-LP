@@ -523,7 +523,7 @@ def _node_children(node):
 # Source Location extraction helpers
 ###
 
-def location_from_token(token, lexdata: str | None = None) -> SourceLocation:
+def location_from_token(token, lexdata: Optional[str] = None) -> SourceLocation:
     from error import get_token_column
 
     return SourceLocation(
@@ -543,7 +543,7 @@ def location_from_parser_token(p, index: int) -> SourceLocation:
 def _location_from_span(
     start_token,
     end_node,
-    lexdata: str | None = None,
+    lexdata: Optional[str] = None,
 ) -> SourceLocation:
     from error import get_token_column
 
@@ -577,7 +577,7 @@ def _location_from_children(
     left,
     fallback_token,
     right,
-    lexdata: str | None = None,
+    lexdata: Optional[str] = None,
 ) -> SourceLocation:
     left_location = getattr(left, "location", None)
     right_location = getattr(right, "location", None)
