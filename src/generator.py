@@ -471,17 +471,18 @@ class EWVMGenerator:
 
         self.emitter.comment(f"store array element {target.name}(...)")
 
+        slot = self.layout.global_slot(target.name)
+
+        # STOREN expects: address, index, value
+        self.emitter.emit(f"PUSHG {slot}")
+        self.visit_array_index_zero_based(target.indices[0])
+
         self.visit_expression(value)
 
         value_type = self.expression_type(value)
         target_type = self.variable_type(target.name)
 
         self.emit_conversion(value_type, target_type)
-
-        self.visit_array_index_zero_based(target.indices[0])
-
-        slot = self.layout.global_slot(target.name)
-        self.emitter.emit(f"PUSHG {slot}")
 
         self.emitter.emit("STOREN")
 
@@ -617,14 +618,16 @@ class EWVMGenerator:
                 "only one-dimensional array READ is supported yet"
             )
 
-        type_name = self.variable_type(variable.name)
-
-        self.emit_read_value_for_type(type_name)
-
-        self.visit_array_index_zero_based(variable.indices[0])
+        self.emitter.comment(f"read into array element {variable.name}(...)")
 
         slot = self.layout.global_slot(variable.name)
+
+        # STOREN expects: address, index, value
         self.emitter.emit(f"PUSHG {slot}")
+        self.visit_array_index_zero_based(variable.indices[0])
+
+        type_name = self.variable_type(variable.name)
+        self.emit_read_value_for_type(type_name)
 
         self.emitter.emit("STOREN")
 
