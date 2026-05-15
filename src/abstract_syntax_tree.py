@@ -113,6 +113,7 @@ class Do:
     variable: Var
     start: Expression
     end: Expression
+    step: Optional[Expression] = None
 
 
 @dataclass(frozen=True)
@@ -477,11 +478,16 @@ def _node_children(node):
         return children
 
     if isinstance(node, Do):
-        return [
+        children = [
             node.variable,
             node.start,
             node.end
         ]
+
+        if node.step is not None:
+            children.append(node.step)
+
+        return children
 
     if isinstance(node, Goto):
         return []

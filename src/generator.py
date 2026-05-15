@@ -72,7 +72,7 @@ class MemoryLayout:
 # TODO(codegen): Verify EWVM LOADN/STOREN stack operand order with runtime tests.
 # TODO(codegen): Support multidimensional arrays.
 # TODO(codegen): Support CHARACTER arrays/fixed-length strings.
-# TODO(codegen): Support DO step expression and negative step.
+# TODO(codegen): Support negative DO step termination logic.
 # TODO(codegen): Support function/subroutine CALL and RETURN conventions.
 # TODO(codegen): Support intrinsic function calls.
 # TODO(codegen): Support power operator.
@@ -674,10 +674,17 @@ class EWVMGenerator:
         if loop_info is not None and isinstance(node.statement, ast.Continue):
             var_name = loop_info["variable"]
             slot = self.layout.global_slot(var_name)
+            step = loop_info["step"]
 
             self.emitter.comment(f"increment DO variable {var_name}")
+
             self.emitter.emit(f"PUSHG {slot}")
-            self.emitter.emit("PUSHI 1")
+
+            if step is None:
+                self.emitter.emit("PUSHI 1")
+            else:
+                self.visit_expression(step)
+
             self.emitter.emit("ADD")
             self.emitter.emit(f"STOREG {slot}")
             self.emitter.emit(f"JUMP {loop_info['start_label']}")
@@ -717,6 +724,7 @@ class EWVMGenerator:
         self.pending_do_by_label[node.end_label] = {
             "variable": var_name,
             "start_label": start_label,
+            "step": node.step,
         }
 
 

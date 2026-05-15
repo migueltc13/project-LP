@@ -313,6 +313,11 @@ class TypeChecker:
 
         start_type = self.infer_expression(node.start)
         end_type = self.infer_expression(node.end)
+        step_type = (
+            self.infer_expression(node.step)
+            if node.step is not None
+            else INTEGER
+        )
 
         if start_type not in {INTEGER, UNKNOWN}:
             record_node_error(
@@ -332,6 +337,34 @@ class TypeChecker:
                     "DO loop upper bound must be INTEGER, "
                     f"got {end_type}"
                 ),
+            )
+
+        if step_type not in {INTEGER, UNKNOWN}:
+            record_node_error(
+                self.parser,
+                node.step,
+                message=(
+                    "DO loop step must be INTEGER, "
+                    f"got {step_type}"
+                ),
+            )
+
+        if isinstance(node.step, ast.Integer) and node.step.value <= 0:
+            record_node_error(
+                self.parser,
+                node.step,
+                message="DO loop step must be a positive INTEGER",
+            )
+
+        if (
+            isinstance(node.step, ast.Unary)
+            and node.step.op == "-"
+            and isinstance(node.step.value, ast.Integer)
+        ):
+            record_node_error(
+                self.parser,
+                node.step,
+                message="DO loop step must be a positive INTEGER",
             )
 
     def check_call_statement(self, node: ast.CallStatement) -> None:
