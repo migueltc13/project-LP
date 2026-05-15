@@ -100,30 +100,6 @@ t_DIVIDE   = r'/'
 t_POWER    = r'\*\*'
 t_ASTERISK = r'\*'
 
-###
-# Dot operators
-###
-
-# Relational operators
-
-t_EQ = r'\.EQ\.'
-t_NE = r'\.NE\.'
-t_LT = r'\.LT\.'
-t_LE = r'\.LE\.'
-t_GT = r'\.GT\.'
-t_GE = r'\.GE\.'
-
-# Logical operators
-
-t_AND   = r'\.AND\.'
-t_OR    = r'\.OR\.'
-t_NOT   = r'\.NOT\.'
-
-# Logical constants
-
-t_TRUE  = r'\.TRUE\.'
-t_FALSE = r'\.FALSE\.'
-
 
 ###
 # String
@@ -273,6 +249,82 @@ def t_LABEL(t):
     r'@LABEL\(\d+\)'
     t.lexeme_length = len(t.value)
     t.value = int(t.value[7:-1])
+    return t
+
+
+###
+# Dot operators
+###
+
+# Relational operators
+
+def t_EQ(t):
+    r'(?i:\.EQ\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_NE(t):
+    r'(?i:\.NE\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_LT(t):
+    r'(?i:\.LT\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_LE(t):
+    r'(?i:\.LE\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_GT(t):
+    r'(?i:\.GT\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_GE(t):
+    r'(?i:\.GE\.)'
+    t.value = t.value.upper()
+    return t
+
+
+# Logical operators
+
+def t_AND(t):
+    r'(?i:\.AND\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_OR(t):
+    r'(?i:\.OR\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_NOT(t):
+    r'(?i:\.NOT\.)'
+    t.value = t.value.upper()
+    return t
+
+
+# Logical constants
+
+def t_TRUE(t):
+    r'(?i:\.TRUE\.)'
+    t.value = t.value.upper()
+    return t
+
+
+def t_FALSE(t):
+    r'(?i:\.FALSE\.)'
+    t.value = t.value.upper()
     return t
 
 

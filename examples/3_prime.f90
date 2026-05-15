@@ -3,11 +3,11 @@ integer num, i
 logical isprim
 print *, 'Insert a positive integer:'
 read *, num
-isprim = .TRUE.
+isprim = .true.
 i = 2
-20 if (i .LE. (num/2) .AND. isprim) then
-     if (mod(num, i) .EQ. 0) then
-        isprim = .FALSE.
+20 if (i .le. (num/2) .and. isprim) then
+     if (mod(num, i) .eq. 0) then
+        isprim = .false.
      endif
      i = i + 1
      goto 20
