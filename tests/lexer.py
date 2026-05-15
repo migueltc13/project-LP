@@ -1,74 +1,8 @@
 #!/usr/bin/env python3
 
-import glob
-import os
+from utils.utils import C, collect_example_files, print_block
 import subprocess
-
-C = {
-    "red": "\033[91m",
-    "grn": "\033[92m",
-    "yel": "\033[93m",
-    "blu": "\033[94m",
-    "cyn": "\033[96m",
-    "bld": "\033[1m",
-    "dim": "\033[90m",
-    "rst": "\033[0m",
-}
-
-
-def natural_sort_key(path):
-    """
-    Natural sorting for filenames with numeric prefixes.
-    """
-
-    name = os.path.basename(path)
-    prefix = name.split("_")[0]
-
-    if prefix.isdigit():
-        return (int(prefix), name)
-
-    return (float("inf"), name)
-
-
-def collect_example_files():
-    """
-    Collect lexer test inputs.
-
-    NOTE:
-    We intentionally use only `.f` files here because the equivalence between
-    `.f` (fixed format) and `.f90` (free format) is already validated in
-    `formats.py`, where both formats are preprocessed and compared at the
-    token level.
-
-    This keeps lexer testing focused on token generation correctness without
-    duplicating format-equivalence checks.
-    """
-
-    root_examples = []
-    line_continuation = []
-
-    # Main examples (.f only)
-    root_examples.extend(glob.glob("examples/*.f"))
-
-    # Exclude unwanted test cases
-    root_examples = [
-        f for f in root_examples
-        if "errors/" not in f
-        and not os.path.basename(f).startswith("0_mismatched")
-    ]
-
-    # Line continuation examples (.f only)
-    line_continuation.extend(
-        glob.glob("examples/line_continuation/*.f")
-    )
-
-    root_examples.sort(key=natural_sort_key)
-    line_continuation.sort(key=natural_sort_key)
-
-    return {
-        "Main Examples": root_examples,
-        "Line Continuation": line_continuation,
-    }
+import argparse
 
 
 def detect_format(filepath):
@@ -100,21 +34,11 @@ def run_lexer(filepath):
     )
 
 
-def print_block(text, color=None, indent=4):
-
-    if not text.strip():
-        return
-
-    prefix = " " * indent
-
-    for line in text.rstrip().splitlines():
-        if color:
-            print(f"{prefix}{color}{line}{C['rst']}")
-        else:
-            print(f"{prefix}{line}")
-
-
 def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="store_true")
+    args = parser.parse_args()
 
     categories = collect_example_files()
 
@@ -148,8 +72,9 @@ def main():
 
                 print(f"{C['grn']}✓ Passed:{C['rst']} {aligned}")
 
-                print(f"    {C['cyn']}Generated Tokens:{C['rst']}")
-                print_block(result.stdout)
+                if args.verbose:
+                    print(f"{C['cyn']}Generated Tokens:{C['rst']}")
+                    print_block(result.stdout)
 
             else:
 

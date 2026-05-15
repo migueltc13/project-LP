@@ -4,6 +4,8 @@ CYN='\033[0;36m'
 PRP='\033[0;35m'
 RST='\033[0m'
 
+VERBOSE=0
+
 banner() {
     echo -e "${CYN}"
     echo "╔══════════════════════════════════════════════════════════╗"
@@ -18,24 +20,35 @@ section() {
     echo -ne "${RST}"
 }
 
+usage() {
+    echo "Usage: $0 [options]"
+    echo "Options:"
+    echo "  --no-color     Disable colored output"
+    echo "  -v, --verbose  Show AST and lexer tokens"
+    echo "  -h, --help     Show this help message and exit"
+}
+
 # Process command-line arguments
 for arg in "$@"; do
     case $arg in
         -h|--help)
-            echo "Usage: $0 [options]"
-            echo "Options:"
-            echo "  --no-color    Disable colored output"
-            echo "  -h, --help    Show this help message and exit"
+            usage
             exit 0
             ;;
+
         --no-color)
             CYN=''
             PRP=''
             RST=''
             ;;
+
+        -v|--verbose)
+            VERBOSE=1
+            ;;
+
         *)
             echo "Unknown option: $arg"
-            echo "Use -h or --help for usage information."
+            usage
             exit 1
             ;;
     esac
@@ -74,6 +87,8 @@ banner "TEST EXECUTION"
 TESTS=(
     "tests/formats.py"
     "tests/lexer.py"
+    "tests/parser.py"
+    "tests/errors.py"
 )
 
 # Run all tests
@@ -82,10 +97,14 @@ exit_code=0
 for TEST in "${TESTS[@]}"; do
     section "$TEST"
 
-    python3 "$TEST"
+    if [ "$VERBOSE" -eq 1 ]; then
+        python3 "$TEST" --verbose
+    else
+        python3 "$TEST"
+    fi
+
     test_exit_code=$?
 
-    # Ensure visual separation between tests
     echo ""
 
     if [ $test_exit_code -ne 0 ]; then
