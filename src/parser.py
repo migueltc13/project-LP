@@ -303,7 +303,7 @@ def main():
     )
 
     parser_args.add_argument(
-        "--visualize", "--vis",
+        "--visualize", "--viz",
         nargs="?",
         const=DEFAULT_VIS_OUTPUT_PATH,
         metavar="OUTPUT",
