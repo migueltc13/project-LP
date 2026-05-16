@@ -1,0 +1,3 @@
+      PROGRAM TEST
+      INTEGER A(10,10)
+      END
