@@ -111,9 +111,13 @@ DESCRIPTIONS = {
         "Tests if multidimensional arrays are being used, since\n"
         "they're not supported yet.",
 
-    "procedures.f":
+    "dynamic_array_in_procedure.f":
         "Tests if dynamic array dimensions are being used in\n"
         "procedures, since it's not supported yet.",
+
+    "intrinsic_function.f":
+        "Tests the use of intrinsic functions, since they're not\n"
+        "supported yet.",
 
     "no_program.f":
         "Tests a source file with no main program unit defined."
