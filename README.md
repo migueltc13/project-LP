@@ -203,6 +203,95 @@ the lexed tokens, since positions naturally differ between the two formats.
 
 ### Lexical Analysis
 
+The lexical analysis phase is responsible for transforming the preprocessed
+Fortran 77 source code into a stream of tokens that can be consumed by the
+parser, using the `PLY` [(Python Lex-Yacc)](https://www.dabeaz.com/ply/ply.html)
+library.
+
+Unlike preprocessing, which handles format normalization and structural cleanup
+of fixed and free-format source code, the lexer operates directly on the
+normalized pseudo-Fortran representation produced by the preprocessing stage.
+At this point, fixed-format constraints have already been resolved, labels have
+been converted into `@LABEL(...)` pseudo-tokens, continuation lines have been
+merged, and both source formats share a unified input stream.
+This significantly reduces formatting ambiguities and simplifies the complexity
+of token recognition.
+
+#### Token Categories
+
+The lexer defines a set of tokens grouped into the following categories:
+
+1. **Reserved Keywords**
+
+- **Program Structure:** `PROGRAM`, `END`;
+- **I/O Statements:** `READ`, `WRITE`, `PRINT`;
+- **Data Types:** `INTEGER`, `REAL`, `DOUBLE`, `LOGICAL`, `CHARACTER`;
+- **Control Flow:** `IF`, `THEN`, `ELSE`, `ENDIF`;
+- **Iteration and Jumps:** `DO`, `CONTINUE`, `GOTO`, `STOP`;
+- **Procedures:** `SUBROUTINE`, `FUNCTION`, `RETURN`.
+
+2. **Identifiers, Literals and Punctuation**
+
+- **Identifiers:** Variable and procedure names;
+- **Numeric Literals:** Integer, double precision, and real literals;
+- **Strings:** Single or double-quoted strings, with proper handling of escaped
+characters;
+- **Labels:** Recognized through the preprocessor as `@LABEL(...)` pseudo-tokens.
+The lexer converts them into a `LABEL` token containing the numeric identifier.
+
+The lexer also supports a small set of punctuation symbols, such as `( ) , : =`.
+These are handled as single-character tokens for simplicity.
+
+3. **Operators**
+
+Instead of defining operators as literals, we used tokens, because they simplify
+the attachment of semantic information and precedence rules during later stages
+of compilation.
+For the `POWER` operator, we had to define it before the `ASTERISK` operator,
+otherwise it would be lexed as two separate `ASTERISK` tokens.
+
+- **Math Operators:** `PLUS`, `MINUS`, `DIVIDE`, `POWER`, `ASTERISK`;
+- **Dot Relational Operators:** `EQ`, `NE`, `LT`, `LE`, `GT`, `GE`;
+- **Logical Dot Operators and Constants:** `AND`, `OR`, `NOT`, `TRUE`, `FALSE`.
+
+Since Fortran 77 is case-insensitive, the lexer converts identifiers,
+dot operators, and logical constants to uppercase during tokenization.
+This allows the parser and later stages to operate over a uniform
+representation independently of the original source casing.
+
+4. **Whitespaces and Comments**
+
+Whitespace characters (space, tab, and the continuation marker `&`) are ignored
+by the lexer.
+
+Comments are fully discarded at lexical level:
+- Fixed-format comments starting with `C`, `c`, or `*` in column 1;
+- Inline comments starting with `!`.
+
+#### Error Handling
+
+The lexer includes error detection for invalid characters and unsupported
+sequences. Any character not matching the defined token rules triggers a
+lexical error, and consecutive invalid characters are grouped into a single
+diagnostic to improve error message readability.
+
+Errors are reported using the compiler's diagnostic system, including:
+- Source line extraction;
+- Column position calculation;
+- Error length highlighting;
+- Optional filename tracking.
+
+After reporting, the lexer skips the invalid input and continues analysis,
+allowing multiple errors to be detected in a single compilation run.
+
+
+The lexical analysis stage is additionally validated through an automated test
+[tests/lexer.py](tests/lexer.py). This test executes the lexer over all example
+source files in test mode, verifying that valid programs are tokenized
+successfully and that lexical errors are correctly reported when invalid input
+is encountered.
+
+
 ### Syntax Analysis
 
 ### Semantic Analysis
