@@ -45,7 +45,41 @@
       warning for unused labels)
 - [ ] NOTE in report that strict version was implemented instead of implicit typing rules
 
-## Compiler Pipeline Overview
+## Usage
+
+```
+usage: generator.py [-o OUTPUT] [-O] [-g] [--format {fixed,free}] [--no-preprocess]
+                    [--viz [OUTPUT]] [--no-open] [--show-intrinsics] [-v] [-h]
+                    [input_file]
+
+Compile Fortran 77 source code into EWVM assembly.
+
+positional arguments:
+  input_file            Fortran source file. If omitted, read from stdin.
+
+options:
+  -o OUTPUT, --output OUTPUT
+                        Output file. If omitted, output to stdout.
+  -O, --optimize        Enable optimizations.
+  -g, --debug           Enable debug comments.
+  --format {fixed,free}
+                        The source format. If omitted, inferred from file extension;
+                        stdin defaults to fixed.
+  --no-preprocess       Skip preprocessing stage.
+  --viz [OUTPUT], --visualize [OUTPUT]
+                        Generate a Graphviz image of the AST.
+  --no-open             Do not open the generated AST visualization file. Only valid
+                        with --viz/--visualize.
+  --show-intrinsics     Include intrinsic procedures in verbose semantic info output.
+                        Requires -v/--verbose.
+  -v, --verbose         Enable verbose output during compilation (e.g. print
+                        intermediate AST, semantic info, etc.)
+  -h, --help            Show this help message and exit.
+```
+
+## Compiler Pipeline
+
+### Overview
 
 ```mermaid
 graph LR
@@ -74,7 +108,7 @@ graph LR
     DECIDE   -->|"No"| GEN
 ```
 
-## Preprocessor
+### Preprocessor
 
 The compiler pipeline begins with a dedicated **Preprocessor** module. Its
 original purpose was to simplify the handling of Fortran 77 fixed-format source
@@ -92,7 +126,7 @@ representation that is easier for the lexer to process.
 For fixed-format source code, the preprocessor is responsible for:
 
 - enforcing the maximum column width of 72 characters;
-- normalizing full-line comments beginning with `C`, `c`, or `*` in column 
+- normalizing full-line comments beginning with `C`, `c`, or `*` in column
     into a common `!` comment form;
 - extracting labels from columns 1 to 5 and converting them into an explicit
     pseudo-token, such as `@LABEL(100)`;
@@ -167,31 +201,66 @@ equivalent fixed-format (`.f`) and free-format (`.f90`) source files. When
 running the lexer, the `--test` flag is used to remove the column field from
 the lexed tokens, since positions naturally differ between the two formats.
 
-## Lexical Analysis
+### Lexical Analysis
 
-## Syntax Analysis
+### Syntax Analysis
 
-## Semantic Analysis
+### Semantic Analysis
 
-## Optimizations
+### Optimizations
 
-### Constant Folding
+#### Constant Folding
 
-### Expression Simplification
+#### Expression Simplification
 
-### Dead Code Elimination
+#### Dead Code Elimination
 
-### Vectorization
+#### Vectorization
 
-## Code Generation
+### Code Generation
+
+## Error Handling
+
+### Supported Diagnostics
+
+Severity                                                                                                          | Type            | Category | Description | Hint
+---                                                                                                               | ---             | ---      | ---         | ---
+<span style="background:#ffecec;color:#b00020;padding:2px 6px;border-radius:4px;font-weight:bold;">Error</span>   |                 |          |             |
+<span style="background:#fff8db;color:#8a6d00;padding:2px 6px;border-radius:4px;font-weight:bold;">Warning</span> |                 |          |             |
+.                                                                                                                 | Preprocessor    |          |             |
+.                                                                                                                 | Lexical         |          |             |
+.                                                                                                                 | Syntax          |          |             |
+.                                                                                                                 | Semantic        | ...      |             |
+.                                                                                                                 | Code generation | ...      |             |
+.                                                                                                                 |                 |          |             | <span style="color:green">✓</span>
+.                                                                                                                 |                 |          |             | <span style="color:red">✗</span>
 
 <!--
+<span style="background:#ffecec;color:#b00020;padding:2px 6px;border-radius:4px;font-weight:bold;">Error</span>
+<span style="background:#fff8db;color:#8a6d00;padding:2px 6px;border-radius:4px;font-weight:bold;">Warning</span>
+<span style="color:green">✓</span>
+<span style="color:red">✗</span>
+-->
+
+## Testing
+
+## Conclusions and Future Work
+
 ## Resources
 
+### Tools
+
+- [PLY (Python Lex-Yacc)](https://www.dabeaz.com/ply/ply.html)
 - [EWVM](https://ewvm.epl.di.uminho.pt/)
+- [GraphViz](https://graphviz.org/)
 - [GFortran](https://gcc.gnu.org/wiki/GFortran)
+- [GitHub Actions](https://github.com/features/actions)
+
+### Fortran 77 References
+
 - [Fortran 77 Reference Language Manual | Innsbruck](http://physik.uibk.ac.at/hephy/praktikum/fortran_manual.pdf)
 - [Fortran 77 Reference Language | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
 - [Fortran 77 Standard Fixed Format | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
 - [Fortran 77 | Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
--->
+
+<a href="https://www.youtube.com/watch?v=4XF_Agllu7Q" target="_blank">🥚</a>
