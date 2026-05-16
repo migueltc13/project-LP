@@ -23,7 +23,7 @@ def run_parser(filepath: Path) -> subprocess.CompletedProcess:
     fmt = "free" if filepath.suffix == ".f90" else "fixed"
 
     return subprocess.run(
-        [sys.executable, "src/parser.py", "--format", fmt],
+        [sys.executable, "src/generator.py", "--format", fmt],
         input=filepath.read_text(),
         text=True,
         capture_output=True,
@@ -168,6 +168,7 @@ if __name__ == "__main__":
         ("SEMANTIC ERRORS", ERROR_ROOT / "semantic"),
         ("TYPE SEMANTIC ERRORS", ERROR_ROOT / "semantic" / "types"),
         ("FUNCTION SEMANTIC ERRORS", ERROR_ROOT / "semantic" / "functions"),
+        ("CODE GENERATION ERRORS", ERROR_ROOT / "code_gen"),
     ]
 
     total_passed = 0
