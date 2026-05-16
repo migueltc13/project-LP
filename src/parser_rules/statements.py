@@ -159,7 +159,7 @@ def p_return_statement(p):
 
 def p_call_statement(p):
     """
-    call_statement : CALL IDENTIFIER '(' expression_list ')'
+    call_statement : CALL IDENTIFIER '(' argument_list_opt ')'
                    | CALL IDENTIFIER
     """
     location = ast.location_from_parser_token(p, 2)
@@ -168,6 +168,14 @@ def p_call_statement(p):
         p[0] = ast.CallStatement(p[2], p[4], location)
     else:
         p[0] = ast.CallStatement(p[2], [], location)
+
+
+def p_argument_list_opt(p):
+    """
+    argument_list_opt : argument_list
+                      | empty
+    """
+    p[0] = p[1] or []
 
 
 def p_do_statement(p):
