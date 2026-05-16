@@ -274,13 +274,9 @@ The lexer includes error detection for invalid characters and unsupported
 sequences. Any character not matching the defined token rules triggers a
 lexical error, and consecutive invalid characters are grouped into a single
 diagnostic to improve error message readability.
-
-Errors are reported using the compiler's diagnostic system, including:
-- Source line extraction;
-- Column position calculation;
-- Error length highlighting;
-- Optional filename tracking.
-
+Errors are reported using the compiler's diagnostic system, including source
+line extraction; column position calculation, error length highlighting, and
+optional filename tracking.
 After reporting, the lexer skips the invalid input and continues analysis,
 allowing multiple errors to be detected in a single compilation run.
 
