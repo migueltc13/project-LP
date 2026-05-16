@@ -225,8 +225,6 @@ the lexed tokens, since positions naturally differ between the two formats.
 
 Severity                            | Type            | Category     | Description                                                       | Hint
 ---                                 | ---             | ---          | ---                                                               | ---
-$\color{Red}\textsf{Error}$         |                 |              |                                                                   |
-$\color{Goldenrod}\textsf{Warning}$ |                 |               |                                                                  |
 $\color{Red}\textsf{Error}$         | Preprocessor    | Format       | Line exceeds 72 columns                                           | $\color{Red}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Preprocessor    | Continuation | Orphaned continuation line                                        | $\color{Red}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Preprocessor    | Label        | Label field contains non-numeric characters or exceeds 5 digits   | $\color{Red}\textsf{✗}$
