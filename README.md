@@ -8,16 +8,6 @@
 
 **TODO**
 
-<!--
-## Resources
-
-- [EWVM](https://ewvm.epl.di.uminho.pt/)
-- [Fortran 77 Reference Language | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
-- [Fortran 77 Reference Language Manual | Innsbruck](http://physik.uibk.ac.at/hephy/praktikum/fortran_manual.pdf)
-- [Fortran 77 | Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
-- [Fortran 77 Standard Fixed Format | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
--->
-
 ## TODO list
 
 - Codegen: SUBROUTINE and FUNCTION:
@@ -35,9 +25,12 @@
         - [x] If statements with constant conditions
         - [x] Unreachable code after STOP, RETURN, etc.
     - [x] Vectorization
-- [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
-      From the lexer to the parser and then to the code generation.
+- [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at
+      [procedures.py](src/semantics/procedures.py),
+      Maybe reserved this functions as lexer `keywords`.
       Also see `# TODO remove intrinsics that we don't support` at the same file.
+      Update `**` to use `POW` intrinsic function instead of generating a loop
+      for exponentiation.
 - [ ] `semantics/numbers.py`
     - [ ] Detect division by zero and other similar errors
     - [ ] Out of range errors are detected in the lexer, but they are not complete
@@ -184,4 +177,21 @@ the lexed tokens, since positions naturally differ between the two formats.
 
 ### Constant Folding
 
+### Expression Simplification
+
+### Dead Code Elimination
+
+### Vectorization
+
 ## Code Generation
+
+<!--
+## Resources
+
+- [EWVM](https://ewvm.epl.di.uminho.pt/)
+- [GFortran](https://gcc.gnu.org/wiki/GFortran)
+- [Fortran 77 Reference Language Manual | Innsbruck](http://physik.uibk.ac.at/hephy/praktikum/fortran_manual.pdf)
+- [Fortran 77 Reference Language | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
+- [Fortran 77 Standard Fixed Format | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
+- [Fortran 77 | Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
+-->
