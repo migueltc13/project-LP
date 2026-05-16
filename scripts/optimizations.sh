@@ -18,7 +18,7 @@ for DIR in examples/optimizations/*; do
     DIRNAME=$(basename "$DIR")
     for FILE in "$DIR"/*"$EXT"; do
         FNAME=$(basename "$FILE" "$EXT")
-        src/generator.py -O --no-open --viz "$OUTPUT_DIR/$DIRNAME/$FNAME.png"     "$FILE" 1>/dev/null
+        src/generator.py -O --no-open --viz "$OUTPUT_DIR/$DIRNAME/png/$FNAME.png" "$FILE" 1>/dev/null
         src/generator.py -O --no-open --viz "$OUTPUT_DIR/$DIRNAME/svg/$FNAME.svg" "$FILE" 1>/dev/null
     done
 done
