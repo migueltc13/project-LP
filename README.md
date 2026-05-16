@@ -262,18 +262,18 @@ $\color{Red}\textsf{Error}$         | Semantic        | Types        | NOT requi
 $\color{Red}\textsf{Error}$         | Semantic        | Types        | Left/right arithmetic operand must be numeric                     | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic        | Types        | Relational operands must have compatible types                    | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic        | Types        | Left/right logical operand must be LOGICAL                        | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Arrays       | Only one-dimensional arrays are supported yet                     | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Arrays       | Only one-dimensional array references/assignments are supported yet | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Arrays       | Dynamic array dimensions inside procedures are not supported yet  | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Program      | Code generation requires a PROGRAM unit                           | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Statements   | Unsupported statement for EWVM generation                         | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Expressions  | Unsupported expression for EWVM generation                        | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Assignments  | Unsupported assignment target                                     | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Instructions | Unsupported READ target                                           | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Instructions | Only one-dimensional array READ is supported yet                  | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Operators    | Unsupported arithmetic/relational/logical/unary operator          | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Procedures   | Intrinsic procedure is not supported by code generation yet       | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code generation | Procedures   | Not a FUNCTION/SUBROUTINE                                         | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Arrays       | Only one-dimensional arrays are supported yet                     | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Arrays       | Only one-dimensional array references/assignments are supported yet | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Arrays       | Dynamic array dimensions inside procedures are not supported yet  | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Program      | Code generation requires a PROGRAM unit                           | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Statements   | Unsupported statement for EWVM generation                         | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Expressions  | Unsupported expression for EWVM generation                        | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Assignments  | Unsupported assignment target                                     | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Instructions | Unsupported READ target                                           | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Instructions | Only one-dimensional array READ is supported yet                  | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Operators    | Unsupported arithmetic/relational/logical/unary operator          | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Procedures   | Intrinsic procedure is not supported by code generation yet       | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code Gen  | Procedures   | Not a FUNCTION/SUBROUTINE                                         | $\color{White}\textsf{✗}$
 
 <!--
 HTML:
