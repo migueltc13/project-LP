@@ -27,14 +27,14 @@
     - Intrinsic procedure code generation is not supported yet.
     - Dynamic array dimensions inside procedures are not supported yet.
 
-- [ ] Optimizations
+- [x] Optimizations
     - [x] Constant folding
-    - [ ] Expression simplification
-    - [ ] Dead code elimination
-        - [ ] Unused variables/functions/subroutines elimination
-        - [ ] If statements with constant conditions
-        - [ ] Unreachable code after STOP, RETURN, etc.
-    - [ ] Loop unrolling
+    - [x] Expression simplification
+    - [x] Dead code elimination
+        - [x] Unused variables/functions/subroutines elimination
+        - [x] If statements with constant conditions
+        - [x] Unreachable code after STOP, RETURN, etc.
+    - [x] Vectorization
 - [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at [procedures.py](src/semantics/procedures.py)
       From the lexer to the parser and then to the code generation.
       Also see `# TODO remove intrinsics that we don't support` at the same file.
