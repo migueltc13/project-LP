@@ -1089,34 +1089,34 @@ def main():
 
     # CLI argument parsing
     parser_args = argparse.ArgumentParser(
-        description="Compile Fortran 77 source code into EWVM assembly."
+        description="Compile Fortran 77 source code into EWVM assembly.",
+        add_help=False,
     )
 
     parser_args.add_argument(
         "input_file",
         nargs="?",
-        help="Fortran source file to compile. If omitted, read from stdin.",
+        help="Fortran source file. If omitted, read from stdin.",
     )
 
     parser_args.add_argument(
-        "--output", "-o",
+        "-o", "--output",
         metavar="OUTPUT",
-        help="Output file for the generated EWVM assembly code. "
-             "If omitted, output to stdout."
+        help="Output file. If omitted, output to stdout."
     )
 
     parser_args.add_argument(
-        "--optimize", "-O",
+        "-O", "--optimize",
         action="store_true",
         default=False,
-        help="Enable optimizations in the generated assembly code."
+        help="Enable optimizations."
     )
 
     parser_args.add_argument(
-        "--debug", "-g",
+        "-g", "--debug",
         action="store_true",
         default=False,
-        help="Enable debug comments in the generated assembly code."
+        help="Enable debug comments."
     )
 
     parser_args.add_argument(
@@ -1131,34 +1131,55 @@ def main():
         "--no-preprocess",
         action="store_true",
         default=False,
-        help="Skip preprocessing and parse the raw input directly",
+        help="Skip preprocessing stage."
     )
 
     parser_args.add_argument(
-        "--visualize", "--viz",
+        "--viz", "--visualize",
+        dest="visualize",
         nargs="?",
         const=DEFAULT_VIS_OUTPUT_PATH,
         metavar="OUTPUT",
-        help="Generate a Graphviz image of the AST "
-             f"(default output: {DEFAULT_VIS_OUTPUT_PATH})"
+        help="Generate a Graphviz image of the AST."
+    )
+
+    parser_args.add_argument(
+        "--no-open",
+        action="store_true",
+        default=False,
+        help="Do not open the generated AST visualization file. "
+             "Only valid with --viz/--visualize."
     )
 
     parser_args.add_argument(
         "--show-intrinsics",
         action="store_true",
         default=False,
-        help="Include intrinsic procedures in verbose semantic info output",
+        help="Include intrinsic procedures in verbose semantic info output. "
+             "Requires -v/--verbose."
     )
 
     parser_args.add_argument(
-        "--verbose", "-v",
+        "-v", "--verbose",
         action="store_true",
         default=False,
-        help="Enable verbose output during compilation"
-             "(e.g. print intermediate ASTs, semantic info, etc.)"
+        help="Enable verbose output during compilation "
+             "(e.g. print intermediate AST, semantic info, etc.)"
+    )
+
+    parser_args.add_argument(
+        "-h", "--help",
+        help="Show this help message and exit.",
+        action="help"
     )
 
     args = parser_args.parse_args()
+
+    if args.no_open and not args.visualize:
+        parser_args.error("--no-open can only be used with --viz/--visualize")
+
+    if args.show_intrinsics and not args.verbose:
+        parser_args.error("--show-intrinsics requires -v/--verbose")
 
     # Read input data
     try:
@@ -1228,7 +1249,12 @@ def main():
 
     # Visualize initial AST
     if args.visualize:
-        visualize_ast(result, output_path=args.visualize, optimized=False)
+        visualize_ast(
+            result,
+            output_path=args.visualize,
+            optimized=False,
+            open_result=not args.no_open
+        )
 
     if not args.optimize:
         # Report diagnostics from the normal semantic pass
@@ -1264,7 +1290,12 @@ def main():
 
         # Visualize optimized AST
         if args.visualize:
-            visualize_ast(result, output_path=args.visualize, optimized=True)
+            visualize_ast(
+                result,
+                output_path=args.visualize,
+                optimized=True,
+                open_result=not args.no_open
+            )
 
     # Generate EWVM assembly code from the AST and semantic information
     try:

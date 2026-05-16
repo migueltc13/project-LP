@@ -92,6 +92,7 @@ def visualize_ast(
     *,
     output_path: str,
     optimized: bool = False,
+    open_result: bool = True,
 ) -> None:
     """
     Generate and open an AST visualization.
@@ -127,7 +128,8 @@ def visualize_ast(
         else:
             print(f"\nAST visualization generated at: {visualize_file}")
 
-        open_file(visualize_file)
+        if open_result:
+            open_file(visualize_file)
 
     except Exception as e:
         if optimized:
@@ -139,7 +141,7 @@ def visualize_ast(
 def write_output(
     output_path: Optional[str],
     data: str,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> None:
     """
     Writes the given data to a file or standard output.

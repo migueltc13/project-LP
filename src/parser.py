@@ -278,13 +278,15 @@ def main():
 
     # CLI argument parsing
     parser_args = argparse.ArgumentParser(
-        description="Parse Fortran 77 source code and print the resulting AST."
+        description="Parse Fortran 77 source code, run semantic checks, and "
+                    "print the resulting AST.",
+        add_help=False,
     )
 
     parser_args.add_argument(
         "input_file",
         nargs="?",
-        help="Fortran source file to parse. If omitted, read from stdin.",
+        help="Fortran source file. If omitted, read from stdin.",
     )
 
     parser_args.add_argument(
@@ -299,19 +301,36 @@ def main():
         "--no-preprocess",
         action="store_true",
         default=False,
-        help="Skip preprocessing and parse the raw input directly",
+        help="Skip preprocessing stage.",
     )
 
     parser_args.add_argument(
-        "--visualize", "--viz",
+        "--viz", "--visualize",
+        dest="visualize",
         nargs="?",
         const=DEFAULT_VIS_OUTPUT_PATH,
         metavar="OUTPUT",
-        help="Generate a Graphviz image of the AST "
-             f"(default output: {DEFAULT_VIS_OUTPUT_PATH})"
+        help="Generate a Graphviz image of the AST."
+    )
+
+    parser_args.add_argument(
+        "--no-open",
+        action="store_true",
+        default=False,
+        help="Do not open the generated AST visualization file. "
+             "Only valid with --viz/--visualize."
+    )
+
+    parser_args.add_argument(
+        "-h", "--help",
+        help="Show this help message and exit.",
+        action="help"
     )
 
     args = parser_args.parse_args()
+
+    if args.no_open and not args.visualize:
+        parser_args.error("--no-open can only be used with --viz/--visualize")
 
     # Read input data
     try:
@@ -379,7 +398,11 @@ def main():
 
     # Visualize AST
     if args.visualize:
-        visualize_ast(result, output_path=args.visualize)
+        visualize_ast(
+            result,
+            output_path=args.visualize,
+            open_result=not args.no_open
+        )
 
 
 if __name__ == "__main__":
