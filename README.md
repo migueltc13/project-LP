@@ -248,7 +248,7 @@ $\color{Red}\textsf{Error}$         | Semantic        | Procedures   | Procedure
 $\color{Red}\textsf{Error}$         | Semantic        | Procedures   | FUNCTION called as a SUBROUTINE                                   | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic        | Procedures   | SUBROUTINE called as a FUNCTION                                   | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic        | Procedures   | Procedure missing expected number of arguments                    | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | RETURN statement outside FUNCTION or SUBROUTINE                   | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | RETURN statement outside procedure                                | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic        | Types        | IF condition must be of type LOGICAL                              | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic        | Types        | Array dimension must be of type INTEGER                           | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic        | Types        | Array index must be of type INTEGER                               | $\color{White}\textsf{✗}$
