@@ -258,9 +258,9 @@ Severity                                                                        
 
 ### Fortran 77 References
 
-- [Fortran 77 Reference Language Manual | Innsbruck](http://physik.uibk.ac.at/hephy/praktikum/fortran_manual.pdf)
-- [Fortran 77 Reference Language | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
-- [Fortran 77 Standard Fixed Format | Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
-- [Fortran 77 | Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
+- [Fortran 77 Reference Language Manual, Innsbruck](http://physik.uibk.ac.at/hephy/praktikum/fortran_manual.pdf)
+- [Fortran 77 Reference Language, Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
+- [Fortran 77 Standard Fixed Format, Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
+- [Fortran 77, Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
 
 <a href="https://www.youtube.com/watch?v=4XF_Agllu7Q" target="_blank">🥚</a>
