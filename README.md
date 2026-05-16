@@ -223,23 +223,30 @@ the lexed tokens, since positions naturally differ between the two formats.
 
 ### Supported Diagnostics
 
-Severity                                                                                                          | Type            | Category | Description | Hint
----                                                                                                               | ---             | ---      | ---         | ---
-<span style="background:#ffecec;color:#b00020;padding:2px 6px;border-radius:4px;font-weight:bold;">Error</span>   |                 |          |             |
-<span style="background:#fff8db;color:#8a6d00;padding:2px 6px;border-radius:4px;font-weight:bold;">Warning</span> |                 |          |             |
-.                                                                                                                 | Preprocessor    |          |             |
-.                                                                                                                 | Lexical         |          |             |
-.                                                                                                                 | Syntax          |          |             |
-.                                                                                                                 | Semantic        | ...      |             |
-.                                                                                                                 | Code generation | ...      |             |
-.                                                                                                                 |                 |          |             | <span style="color:green">✓</span>
-.                                                                                                                 |                 |          |             | <span style="color:red">✗</span>
+Severity                            | Type            | Category | Description | Hint
+---                                 | ---             | ---      | ---         | ---
+$\color{Red}\textsf{Error}$         |                 |          |             |
+$\color{Goldenrod}\textsf{Warning}$ |                 |          |             |
+.                                   | Preprocessor    |          |             |
+.                                   | Lexical         |          |             |
+.                                   | Syntax          |          |             |
+.                                   | Semantic        | ...      |             |
+.                                   | Code generation | ...      |             |
+.                                   |                 |          |             | $\color{Green}\textsf{✓}$
+.                                   |                 |          |             | $\color{Red}\textsf{✗}$
 
 <!--
+HTML:
 <span style="background:#ffecec;color:#b00020;padding:2px 6px;border-radius:4px;font-weight:bold;">Error</span>
 <span style="background:#fff8db;color:#8a6d00;padding:2px 6px;border-radius:4px;font-weight:bold;">Warning</span>
 <span style="color:green">✓</span>
 <span style="color:red">✗</span>
+
+LaTeX:
+$\color{Goldenrod}\textsf{Warning}$
+$\color{Red}\textsf{Error}$
+$\color{Green}\textsf{✓}$
+$\color{Red}\textsf{✗}$
 -->
 
 ## Testing
