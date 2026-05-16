@@ -1198,7 +1198,7 @@ def main():
     if result is None:
         flush_diagnostics(parser)
         print(
-            f"\n{len(parser.diagnostics)} error(s) encountered.",
+            f"\n{len(parser.diagnostics)} error(s)/warning(s) encountered.",
             file=sys.stderr
         )
         print("[panic] parser could't produce an AST", file=sys.stderr)
@@ -1212,7 +1212,7 @@ def main():
     if parser.has_error:
         flush_diagnostics(parser)
         print(
-            f"\n{len(parser.diagnostics)} error(s) encountered.",
+            f"\n{len(parser.diagnostics)} error(s)/warning(s) encountered.",
             file=sys.stderr
         )
         sys.exit(1)
@@ -1252,7 +1252,7 @@ def main():
 
         if parser.has_error:
             print(
-                f"\n{len(parser.diagnostics)} error(s) encountered.",
+                f"\n{len(parser.diagnostics)} error(s)/warning(s) encountered.",
                 file=sys.stderr
             )
             sys.exit(1)

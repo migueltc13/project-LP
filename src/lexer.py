@@ -550,7 +550,7 @@ def main():
     # Exit with non-zero status if any errors were encountered
     if lexer.has_error:
         print(
-            f"\n{len(lexer.diagnostics)} error(s) encountered.",
+            f"\n{len(lexer.diagnostics)} error(s)/warning(s) encountered.",
             file=sys.stderr
         )
         sys.exit(1)
