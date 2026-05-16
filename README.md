@@ -28,7 +28,7 @@
     - Dynamic array dimensions inside procedures are not supported yet.
 
 - [ ] Optimizations
-    - [ ] Constant folding
+    - [x] Constant folding
     - [ ] Expression simplification
     - [ ] Dead code elimination
         - [ ] Unused variables/functions/subroutines elimination
@@ -181,5 +181,7 @@ the lexed tokens, since positions naturally differ between the two formats.
 ## Semantic Analysis
 
 ## Optimizations
+
+### Constant Folding
 
 ## Code Generation
