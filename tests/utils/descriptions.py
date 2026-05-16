@@ -105,5 +105,16 @@ DESCRIPTIONS = {
 
     "wrong_assignment_type.f":
         "Tests an assignment with incompatible types (assign\n"
-        "a CHARACTER to an INTEGER)."
+        "a CHARACTER to an INTEGER).",
+
+    "arrays.f":
+        "Tests if multidimensional arrays are being used, since\n"
+        "they're not supported yet.",
+
+    "procedures.f":
+        "Tests if dynamic array dimensions are being used in\n"
+        "procedures, since it's not supported yet.",
+
+    "no_program.f":
+        "Tests a source file with no main program unit defined."
 }
