@@ -223,17 +223,59 @@ the lexed tokens, since positions naturally differ between the two formats.
 
 ### Supported Diagnostics
 
-Severity                            | Type            | Category | Description | Hint
----                                 | ---             | ---      | ---         | ---
-$\color{Red}\textsf{Error}$         |                 |          |             |
-$\color{Goldenrod}\textsf{Warning}$ |                 |          |             |
-.                                   | Preprocessor    |          |             |
-.                                   | Lexical         |          |             |
-.                                   | Syntax          |          |             |
-.                                   | Semantic        | ...      |             |
-.                                   | Code generation | ...      |             |
-.                                   |                 |          |             | $\color{Green}\textsf{✓}$
-.                                   |                 |          |             | $\color{Red}\textsf{✗}$
+Severity                            | Type            | Category     | Description                                                       | Hint
+---                                 | ---             | ---          | ---                                                               | ---
+$\color{Red}\textsf{Error}$         |                 |              |                                                                   |
+$\color{Goldenrod}\textsf{Warning}$ |                 |               |                                                                  |
+$\color{Red}\textsf{Error}$         | Preprocessor    | Format       | Line exceeds 72 columns                                           | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Preprocessor    | Continuation | Orphaned continuation line                                        | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Preprocessor    | Label        | Label field contains non-numeric characters or exceeds 5 digits   | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Lexical         | Characters   | Character not valid in Fortran 77                                 | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Lexical         | Characters   | Character sequence not valid in Fortran 77                        | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Syntax          | Characters   | Syntax error in token                                             | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Syntax          | EOF          | Unexpected end of file                                            | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic        | Program      | Multiple main PROGRAM units defined                               | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic        | Labels       | Label redefined                                                   | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Labels       | Label referenced but not defined                                  | $\color{Red}\textsf{✗}$
+$\color{Goldenrod}\textsf{Warning}$ | Semantic        | Labels       | Label defined but not referenced                                  | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Labels/Loops | DO loop target label does not label a CONTINUE statement          | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Variables    | Variable already declared                                         | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Variables    | Use of undeclared variable                                        | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Variables    | Assignment to undeclared variable                                 | $\color{Red}\textsf{✗}$
+$\color{Goldenrod}\textsf{Warning}$ | Semantic        | Variables    | Variable may be used before being initialized                     | $\color{Red}\textsf{✗}$
+$\color{Goldenrod}\textsf{Warning}$ | Semantic        | Variables    | Variable declared but not used                                    | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | Undefined procedure reference                                     | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | Duplicate procedure definition                                    | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | Procedure definition conflicts with intrinsic procedure           | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | FUNCTION called as a SUBROUTINE                                   | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | SUBROUTINE called as a FUNCTION                                   | $\color{Green}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | Procedure missing expected number of arguments                    | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Procedures   | RETURN statement outside FUNCTION or SUBROUTINE                   | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | IF condition must be of type LOGICAL                              | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Array dimension must be of type INTEGER                           | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Array index must be of type INTEGER                               | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Cannot assign value of type X to type Y variable                  | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | DO loop variable must be of type INTEGER                          | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | DO loop upper/lower bound must be of type INTEGER                 | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | DO loop step must be of type INTEGER                              | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | DO loop step must be a positive INTEGER                           | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Unary operators ('+' and '-') require numeric operand             | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | NOT requires a LOGICAL operand                                    | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Left/right arithmetic operand must be numeric                     | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Relational operands must have compatible types                    | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic        | Types        | Left/right logical operand must be LOGICAL                        | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Arrays       | Only one-dimensional arrays are supported yet                     | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Arrays       | Only one-dimensional array references/assignments are supported yet | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Arrays       | Dynamic array dimensions inside procedures are not supported yet  | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Program      | Code generation requires a PROGRAM unit                           | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Statements   | Unsupported statement for EWVM generation                         | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Expressions  | Unsupported expression for EWVM generation                        | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Assignments  | Unsupported assignment target                                     | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Instructions | Unsupported READ target                                           | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Instructions | Only one-dimensional array READ is supported yet                  | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Operators    | Unsupported arithmetic/relational/logical/unary operator          | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Procedures   | Intrinsic procedure is not supported by code generation yet       | $\color{Red}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Code generation | Procedures   | Not a FUNCTION/SUBROUTINE                                         | $\color{Red}\textsf{✗}$
 
 <!--
 HTML:
