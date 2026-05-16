@@ -8,6 +8,7 @@ from parser_rules.expressions import *
 from parser_rules.conditionals import *
 from parser_rules.io import *
 from parser_rules.statements import *
+from parser_rules.common import *
 import abstract_syntax_tree as ast
 from error import record_syntax_error, get_token_column
 
@@ -29,11 +30,11 @@ def p_file(p):
 
 def p_program_units(p):
     """
-    program_units : program_unit program_units
+    program_units : program_units program_unit
                   | program_unit
     """
     if len(p) == 3:
-        p[0] = [p[1]] + p[2]
+        p[0] = p[1] + [p[2]]
     else:
         p[0] = [p[1]]
 
@@ -94,24 +95,20 @@ def p_type(p):
 
 def p_arguments(p):
     """
-    arguments : argument arguments_rest
+    arguments : arguments_rest
               | empty
     """
-    if len(p) == 3:
-        p[0] = [p[1]] + p[2]
-    else:
-        p[0] = []
-
+    p[0] = p[1] if p[1] is not None else []
 
 def p_arguments_rest(p):
     """
-    arguments_rest : ',' argument arguments_rest
-                   | empty
+    arguments_rest : arguments_rest ',' argument
+                   | argument
     """
     if len(p) == 4:
-        p[0] = [p[2]] + p[3]
+        p[0] = p[1] + [p[3]]
     else:
-        p[0] = []
+        p[0] = [p[1]]
 
 
 def p_argument(p):
@@ -144,15 +141,6 @@ def p_enter_function(p):
 def p_exit_function(p):
     "exit_function :"
     p.parser.context_stack.pop()
-
-
-###
-# Empty production (ε)
-###
-
-def p_empty(p):
-    "empty :"
-    p[0] = None
 
 
 ###

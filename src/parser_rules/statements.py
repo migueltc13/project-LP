@@ -9,11 +9,11 @@ from semantics.labels import (
 
 def p_statements(p):
     """
-    statements : statement statements
+    statements : statements statement
                | empty
     """
     if len(p) == 3:
-        p[0] = [p[1]] + p[2]
+        p[0] = p[1] + [p[2]]
     else:
         p[0] = []
 
@@ -74,19 +74,14 @@ def p_declaration(p):
 
 
 def p_declarator_list(p):
-    "declarator_list : declarator declarator_list_tail"
-    p[0] = [p[1]] + p[2]
-
-
-def p_declarator_list_tail(p):
     """
-    declarator_list_tail : ',' declarator declarator_list_tail
-                         | empty
+    declarator_list : declarator
+                    | declarator_list ',' declarator
     """
-    if len(p) == 4:
-        p[0] = [p[2]] + p[3]
+    if len(p) == 2:
+        p[0] = [p[1]]
     else:
-        p[0] = []
+        p[0] = p[1] + [p[3]]
 
 
 def p_declarator(p):
@@ -168,14 +163,6 @@ def p_call_statement(p):
         p[0] = ast.CallStatement(p[2], p[4], location)
     else:
         p[0] = ast.CallStatement(p[2], [], location)
-
-
-def p_argument_list_opt(p):
-    """
-    argument_list_opt : argument_list
-                      | empty
-    """
-    p[0] = p[1] or []
 
 
 def p_do_statement(p):

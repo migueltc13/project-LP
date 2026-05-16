@@ -41,35 +41,21 @@ def p_write_stmt(p):
 
 def p_variable_list(p):
     """
-    variable_list : variable variable_list_tail
+    variable_list : variable
+                  | variable_list ',' variable
     """
-    p[0] = [p[1]] + p[2]
-
-
-def p_variable_list_tail(p):
-    """
-    variable_list_tail : ',' variable variable_list_tail
-                       | empty
-    """
-    if len(p) == 4:
-        p[0] = [p[2]] + p[3]
+    if len(p) == 2:
+        p[0] = [p[1]]
     else:
-        p[0] = []
+        p[0] = p[1] + [p[3]]
 
 
 def p_expression_list(p):
     """
-    expression_list : expression expression_list_tail
+    expression_list : expression
+                    | expression_list ',' expression
     """
-    p[0] = [p[1]] + p[2]
-
-
-def p_expression_list_tail(p):
-    """
-    expression_list_tail : ',' expression expression_list_tail
-                         | empty
-    """
-    if len(p) == 4:
-        p[0] = [p[2]] + p[3]
+    if len(p) == 2:
+        p[0] = [p[1]]
     else:
-        p[0] = []
+        p[0] = p[1] + [p[3]]
