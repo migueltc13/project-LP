@@ -1,19 +1,30 @@
 #!/usr/bin/env python3
 
-from utils.utils import C, collect_example_files, print_block
-import subprocess
 import argparse
+import subprocess
+from utils.utils import C, collect_example_files, print_block
+from pathlib import Path
 
 
 def detect_format(filepath):
     """
     Detect source format from extension.
     """
+    if filepath is None:
+        return "fixed"
+
+    suffix = Path(filepath).suffix.lower()
+
+    if suffix in {".f", ".for", ".ftn"}:
+        return "fixed"
+
+    if suffix in {".f90", ".f95", ".f03", ".f08"}:
+        return "free"
 
     return "fixed"
 
 
-def run_lexer(filepath):
+def run_lexer(filepath, format="fixed"):
     """
     Run lexer.py in test mode.
     """
@@ -26,7 +37,7 @@ def run_lexer(filepath):
             "python3",
             "src/lexer.py",
             "--test",
-            "--format=fixed",
+            f"--format={format}",
         ],
         input=source,
         text=True,
@@ -62,7 +73,7 @@ def main():
         for filepath in files:
 
             total += 1
-            result = run_lexer(filepath)
+            result = run_lexer(filepath, format=detect_format(filepath))
 
             aligned = filepath.ljust(width)
 
