@@ -61,25 +61,6 @@ main optimization passes.
 
 ## TODO list
 
-- [x] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
-    and tests accordingly
-
-- [x] Provide test description for the new `examples/errors/semantic/numbers.f`
-- [x] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
-- [ ] Added pass-by-reference tests at `examples/references/`
-- [ ] Added recursion tests at `examples/recursion/`
-
-- report INTRINSIC FUNCTIONS supported:
-```
-ABS, IABS, DABS
-POW,
-SQRT, DSQRT
-EXP, DEXP
-INT, REAL, DBLE, FLOAT
-MAX, MIN
-MOD
-```
-
 - [ ] Explain sqrt algorithm in codegen
     and EXP that uses Taylor series expansion (12 iterations) to calculate the
     value of e^x.
@@ -87,19 +68,16 @@ MOD
 - [ ] TODO mention developed tests for each section
 - [ ] replace `parser.py` with direct link [parser.py](src/parser.py) etc.
 
-- [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at
-      [procedures.py](src/semantics/procedures.py),
-      Maybe reserved this functions as lexer `keywords`.
-      Also see `# TODO remove intrinsics that we don't support` at the same file.
-      Update `**` to use `POW` intrinsic function instead of generating a loop
-      for exponentiation.
 - [ ] mention in the report how the parser checks for the special statement
     RETURN, and it only recognizes it in the right contexts (inside procedures)
+
 - [ ] mention that the parser prioritizes left recursion since its more
     efficient for the LALR(1) (try to find a good reference for this,
     I think it was in the PLY documentation)
+
 - [ ] mention in report that strict version was implemented instead of implicit
     typing rules
+
 - [ ] mention as future work: constant folding for intrinsic calls
 - [ ] mention as future work: combine semantic checks for efficiency
     (e.g. type checks and reference resolution in a single pass)
