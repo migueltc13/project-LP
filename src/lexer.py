@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import ply.lex as lex
-from error import report_numeric_range_error
+
 
 ###
 # Reserved words
@@ -130,46 +130,14 @@ def t_STRING(t):
 # Number
 ###
 
-# Numeric literal limits
-# TODO import this values from semantics/number_ranges.py
-
-INTEGER_MIN = -2_147_483_648
-INTEGER_MAX = 2_147_483_647
-INTEGER_MAX_CHECK = 2_147_483_648
-
-# These assume common IEEE-like sizes:
-# REAL    -> 32-bit single precision
-# DOUBLE  -> 64-bit double precision
-# TODO adjust for EWVM
-
-REAL_MAX = 3.4028235e38
-DOUBLE_MAX = 1.7976931348623157e308
-
-
 def t_DOUBLE_NUMBER(t):
     r'(\d+(\.\d*)?|\.\d+)[dD][+-]?\d+'
 
     literal = t.value
     t.lexeme_length = len(literal)
 
-    try:
-        value = float(literal.replace("D", "E").replace("d", "e"))
-    except OverflowError:
-        value = float("inf")
+    t.value = float(literal.replace("D", "E").replace("d", "e"))
 
-    # Check for out of range value (semantic error)
-    if value == float("inf") or abs(value) > DOUBLE_MAX:
-        report_numeric_range_error(
-            t,
-            literal=literal,
-            type_name="double precision",
-            hint=(
-                "double precision literals must be representable in the "
-                "target DOUBLE PRECISION range"
-            ),
-        )
-
-    t.value = value
     return t
 
 
@@ -179,24 +147,8 @@ def t_REAL_NUMBER(t):
     literal = t.value
     t.lexeme_length = len(literal)
 
-    try:
-        value = float(literal)
-    except OverflowError:
-        value = float("inf")
+    t.value = float(literal)
 
-    # Check for out of range value (semantic error)
-    if value == float("inf") or abs(value) > REAL_MAX:
-        report_numeric_range_error(
-            t,
-            literal=literal,
-            type_name="real",
-            hint=(
-                "real literals must be representable in the "
-                "target REAL range"
-            ),
-        )
-
-    t.value = value
     return t
 
 
@@ -205,21 +157,9 @@ def t_INTEGER_NUMBER(t):
 
     literal = t.value
     t.lexeme_length = len(literal)
-    value = int(literal)
 
-    # Check for out of range value (semantic error)
-    if value > INTEGER_MAX_CHECK:  # NOTE the upper limit assumes a MINUS before
-        report_numeric_range_error(
-            t,
-            literal=literal,
-            type_name="integer",
-            hint=(
-                f"integer literals must be between "
-                f"{INTEGER_MIN} and {INTEGER_MAX}"
-            ),
-        )
+    t.value = int(literal)
 
-    t.value = value
     return t
 
 

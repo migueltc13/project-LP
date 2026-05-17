@@ -273,23 +273,6 @@ def record_node_error(
     )
 
 
-def report_numeric_range_error(t, *, literal: str, type_name: str, hint: str) -> None:
-    """
-    Record a numeric literal out-of-range diagnostic.
-    """
-
-    record_diagnostic(
-        t.lexer,
-        error=f"{type_name} literal {literal!r} out of range",
-        line=get_source_line(t.lexer, t.lineno),
-        lineno=t.lineno,
-        col_start=get_token_column(t),
-        length=len(literal),
-        filename=getattr(t.lexer, "source_filename", None),
-        hint=hint,
-    )
-
-
 def record_syntax_error(parser, token) -> None:
     """
     Record a parser syntax error diagnostic.

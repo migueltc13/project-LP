@@ -17,6 +17,8 @@
     - Intrinsic procedure code generation is not supported yet.
     - Dynamic array dimensions inside procedures are not supported yet.
 
+- [ ] Provide test description for `examples/errors/semantic/numbers.f`
+
 - [x] Optimizations
     - [x] Constant folding
     - [x] Expression simplification
@@ -312,7 +314,7 @@ Severity                            | Type         | Category     | Description 
 ---                                 | ---          | ---          | ---                                                                 | ---
 $\color{Red}\textsf{Error}$         | Preprocessor | Format       | Line exceeds 72 columns                                             | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Preprocessor | Continuation | Orphaned continuation line                                          | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Preprocessor | Label        | Label field contains non-numeric characters or exceeds 5 digits     | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Preprocessor | Labels       | Label field contains non-numeric characters or exceeds 5 digits     | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character not valid in Fortran 77                                   | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character sequence not valid in Fortran 77                          | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Syntax       | Characters   | Syntax error in token                                               | $\color{White}\textsf{✗}$
@@ -321,7 +323,7 @@ $\color{Red}\textsf{Error}$         | Semantic     | Program      | Multiple mai
 $\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label redefined                                                     | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label referenced but not defined                                    | $\color{White}\textsf{✗}$
 $\color{Goldenrod}\textsf{Warning}$ | Semantic     | Labels       | Label defined but not referenced                                    | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Labels/Loops | DO loop target label does not label a CONTINUE statement            | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic     | Loops        | DO loop target label does not label a CONTINUE statement            | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Variables    | Variable already declared                                           | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Variables    | Use of undeclared variable                                          | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Variables    | Assignment to undeclared variable                                   | $\color{White}\textsf{✗}$
@@ -334,6 +336,8 @@ $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION cal
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure missing expected number of arguments                      | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{White}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | IF condition must be of type LOGICAL                                | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | Array dimension must be of type INTEGER                             | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | Array index must be of type INTEGER                                 | $\color{White}\textsf{✗}$

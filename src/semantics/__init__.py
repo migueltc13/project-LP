@@ -5,6 +5,7 @@ from .labels import check_labels
 from .loops import check_loops
 from .variables import check_variables
 from .references import resolve_references
+from .numbers import check_numbers
 from .procedures import check_procedures
 from .types import check_types
 
@@ -25,8 +26,9 @@ def semantic_checks(
     3. Loop checks
     4. Variable checks
     5. Reference resolution
-    6. Procedures checks
-    7. Type checks
+    6. Numeric checks
+    7. Procedures checks
+    8. Type checks
 
     Note:
         The reference resolution step is necessary after variable checks
@@ -49,6 +51,8 @@ def semantic_checks(
     semantic_info = check_variables(parser, ast)
 
     resolved_ast = resolve_references(ast, semantic_info)
+
+    check_numbers(parser, resolved_ast)
 
     procedures = check_procedures(parser, resolved_ast)
     semantic_info.procedures = procedures
