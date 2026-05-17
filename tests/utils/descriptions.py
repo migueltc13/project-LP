@@ -115,10 +115,6 @@ DESCRIPTIONS = {
         "Tests if dynamic array dimensions are being used in\n"
         "procedures, since it's not supported yet.",
 
-    "intrinsic_function.f":
-        "Tests the use of intrinsic functions, since they're not\n"
-        "supported yet.",
-
     "no_program.f":
         "Tests a source file with no main program unit defined."
 }
