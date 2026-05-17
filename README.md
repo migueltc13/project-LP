@@ -1213,10 +1213,22 @@ error: unknown function 'SQRTT'
   |
 4 | 3 = SQRTT(9.0)
   |     ^^^^^
-  = hint: perhaps you meant 'SQRT' or 'DSQRT''
+  = hint: perhaps you meant 'SQRT' or 'DSQRT'
 
 1 error(s)/warning(s) encountered.
 ```
+
+<!--
+Program used for this example:
+
+```fortran
+      PROGRAM TEST
+      INTEGER A
+      A = SQRTT(9.0)
+      PRINT *, A
+      END
+```
+-->
 
 This format was chosen to make compiler errors easier to understand and closer
 to the diagnostics produced by modern compilers. The highlighted span helps the
