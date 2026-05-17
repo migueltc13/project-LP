@@ -357,7 +357,7 @@ language subset:
 - declarations of scalar variables and one-dimensional arrays;
 - assignments to variables and array positions;
 - arithmetic, relational, and logical expressions;
-- structured `IF ... THEN ... ELSE ... ENDIF` statements;
+- structured `IF ... THEN ... [ELSE] ... ENDIF` statements;
 - labelled `DO` loops;
 - labels, `GOTO`, `CONTINUE`, `STOP`, and `RETURN`;
 - `READ`, `WRITE`, and `PRINT` statements;
