@@ -685,7 +685,7 @@ def visualize(ast: AST, output_path: str = DEFAULT_VIS_OUTPUT_PATH) -> str:
     dot = Digraph("AST")
     dot.attr(bgcolor="transparent")
     dot.attr("node", shape="box",
-             style="filled", fillcolor="lightgray",
+             style="filled", fillcolor="gray",
              fontname="Courier")
     dot.attr(rankdir="TB")
 

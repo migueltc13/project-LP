@@ -11,13 +11,13 @@
 <!-- node_0 -->
 <g id="node1" class="node">
 <title>node_0</title>
-<polygon fill="lightgray" stroke="black" points="406.5,-324 18.5,-324 18.5,-288 406.5,-288 406.5,-324"/>
+<polygon fill="gray" stroke="black" points="406.5,-324 18.5,-324 18.5,-288 406.5,-288 406.5,-324"/>
 <text text-anchor="middle" x="212.5" y="-302.3" font-family="Courier,monospace" font-size="14.00">file: examples/optimizations/dead_code/goto.f</text>
 </g>
 <!-- node_1 -->
 <g id="node2" class="node">
 <title>node_1</title>
-<polygon fill="lightgray" stroke="black" points="291,-252 134,-252 134,-216 291,-216 291,-252"/>
+<polygon fill="gray" stroke="black" points="291,-252 134,-252 134,-216 291,-216 291,-252"/>
 <text text-anchor="middle" x="212.5" y="-230.3" font-family="Courier,monospace" font-size="14.00">program: GOTO_DCE</text>
 </g>
 <!-- node_0&#45;&gt;node_1 -->
@@ -29,7 +29,7 @@
 <!-- node_2 -->
 <g id="node3" class="node">
 <title>node_2</title>
-<polygon fill="lightgray" stroke="black" points="149,-180 0,-180 0,-144 149,-144 149,-180"/>
+<polygon fill="gray" stroke="black" points="149,-180 0,-180 0,-144 149,-144 149,-180"/>
 <text text-anchor="middle" x="74.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">declare: INTEGER</text>
 </g>
 <!-- node_1&#45;&gt;node_2 -->
@@ -41,7 +41,7 @@
 <!-- node_4 -->
 <g id="node5" class="node">
 <title>node_4</title>
-<polygon fill="lightgray" stroke="black" points="258,-180 167,-180 167,-144 258,-144 258,-180"/>
+<polygon fill="gray" stroke="black" points="258,-180 167,-180 167,-144 258,-144 258,-180"/>
 <text text-anchor="middle" x="212.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">goto: 100</text>
 </g>
 <!-- node_1&#45;&gt;node_4 -->
@@ -53,7 +53,7 @@
 <!-- node_5 -->
 <g id="node6" class="node">
 <title>node_5</title>
-<polygon fill="lightgray" stroke="black" points="375,-180 276,-180 276,-144 375,-144 375,-180"/>
+<polygon fill="gray" stroke="black" points="375,-180 276,-180 276,-144 375,-144 375,-180"/>
 <text text-anchor="middle" x="325.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">label: 100</text>
 </g>
 <!-- node_1&#45;&gt;node_5 -->
@@ -65,7 +65,7 @@
 <!-- node_3 -->
 <g id="node4" class="node">
 <title>node_3</title>
-<polygon fill="lightgray" stroke="black" points="128,-108 21,-108 21,-72 128,-72 128,-108"/>
+<polygon fill="gray" stroke="black" points="128,-108 21,-108 21,-72 128,-72 128,-108"/>
 <text text-anchor="middle" x="74.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var&#45;decl: X</text>
 </g>
 <!-- node_2&#45;&gt;node_3 -->
@@ -77,7 +77,7 @@
 <!-- node_6 -->
 <g id="node7" class="node">
 <title>node_6</title>
-<polygon fill="lightgray" stroke="black" points="354.5,-108 296.5,-108 296.5,-72 354.5,-72 354.5,-108"/>
+<polygon fill="gray" stroke="black" points="354.5,-108 296.5,-108 296.5,-72 354.5,-72 354.5,-108"/>
 <text text-anchor="middle" x="325.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">print</text>
 </g>
 <!-- node_5&#45;&gt;node_6 -->
@@ -89,7 +89,7 @@
 <!-- node_7 -->
 <g id="node8" class="node">
 <title>node_7</title>
-<polygon fill="lightgray" stroke="black" points="391.5,-36 259.5,-36 259.5,0 391.5,0 391.5,-36"/>
+<polygon fill="gray" stroke="black" points="391.5,-36 259.5,-36 259.5,0 391.5,0 391.5,-36"/>
 <text text-anchor="middle" x="325.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">string: &#39;done&#39;</text>
 </g>
 <!-- node_6&#45;&gt;node_7 -->

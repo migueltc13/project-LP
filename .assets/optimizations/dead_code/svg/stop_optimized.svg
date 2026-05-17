@@ -11,13 +11,13 @@
 <!-- node_0 -->
 <g id="node1" class="node">
 <title>node_0</title>
-<polygon fill="lightgray" stroke="black" points="388,-252 0,-252 0,-216 388,-216 388,-252"/>
+<polygon fill="gray" stroke="black" points="388,-252 0,-252 0,-216 388,-216 388,-252"/>
 <text text-anchor="middle" x="194" y="-230.3" font-family="Courier,monospace" font-size="14.00">file: examples/optimizations/dead_code/stop.f</text>
 </g>
 <!-- node_1 -->
 <g id="node2" class="node">
 <title>node_1</title>
-<polygon fill="lightgray" stroke="black" points="272.5,-180 115.5,-180 115.5,-144 272.5,-144 272.5,-180"/>
+<polygon fill="gray" stroke="black" points="272.5,-180 115.5,-180 115.5,-144 272.5,-144 272.5,-180"/>
 <text text-anchor="middle" x="194" y="-158.3" font-family="Courier,monospace" font-size="14.00">program: STOP_DCE</text>
 </g>
 <!-- node_0&#45;&gt;node_1 -->
@@ -29,7 +29,7 @@
 <!-- node_2 -->
 <g id="node3" class="node">
 <title>node_2</title>
-<polygon fill="lightgray" stroke="black" points="209.5,-108 60.5,-108 60.5,-72 209.5,-72 209.5,-108"/>
+<polygon fill="gray" stroke="black" points="209.5,-108 60.5,-108 60.5,-72 209.5,-72 209.5,-108"/>
 <text text-anchor="middle" x="135" y="-86.3" font-family="Courier,monospace" font-size="14.00">declare: INTEGER</text>
 </g>
 <!-- node_1&#45;&gt;node_2 -->
@@ -41,7 +41,7 @@
 <!-- node_4 -->
 <g id="node5" class="node">
 <title>node_4</title>
-<polygon fill="lightgray" stroke="black" points="281,-108 227,-108 227,-72 281,-72 281,-108"/>
+<polygon fill="gray" stroke="black" points="281,-108 227,-108 227,-72 281,-72 281,-108"/>
 <text text-anchor="middle" x="254" y="-86.3" font-family="Courier,monospace" font-size="14.00">stop</text>
 </g>
 <!-- node_1&#45;&gt;node_4 -->
@@ -53,7 +53,7 @@
 <!-- node_3 -->
 <g id="node4" class="node">
 <title>node_3</title>
-<polygon fill="lightgray" stroke="black" points="188.5,-36 81.5,-36 81.5,0 188.5,0 188.5,-36"/>
+<polygon fill="gray" stroke="black" points="188.5,-36 81.5,-36 81.5,0 188.5,0 188.5,-36"/>
 <text text-anchor="middle" x="135" y="-14.3" font-family="Courier,monospace" font-size="14.00">var&#45;decl: X</text>
 </g>
 <!-- node_2&#45;&gt;node_3 -->
