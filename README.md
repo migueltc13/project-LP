@@ -1117,6 +1117,31 @@ integer exponents. `SQRT` is implemented using Newton's method with a fixed
 number of iterations. `EXP` is approximated using a Taylor series expansion with
 a fixed number of terms.
 
+As an example, `EXP` is generated directly in EWVM using a truncated Taylor
+series expansion. The mathematical definition is:
+
+$$
+e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}
+$$
+
+The compiler approximates this infinite sum with a fixed number of terms:
+
+$$
+e^x \approx \sum_{n=0}^{12} \frac{x^n}{n!}
+$$
+
+This avoids depending on an external math library while still demonstrating how
+more complex intrinsic functions can be lowered into ordinary EWVM arithmetic,
+compiler temporaries, and loops.
+
+Similarly, `SQRT` is implemented using Newton's method, repeatedly applying:
+
+$$
+x_{k+1} = \frac{1}{2}\left(x_k + \frac{N}{x_k}\right)
+$$
+
+where `N` is the input value and `x_k` is the current approximation.
+
 Intrinsic implementations use compiler temporary slots rather than global
 temporary variables. This is important because intrinsic calls may appear inside
 recursive functions, and global temporaries would make recursive execution
