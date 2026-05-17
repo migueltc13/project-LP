@@ -599,11 +599,6 @@ This pass detects:
 - attempts to redefine an intrinsic function;
 - invalid arguments for user-defined pass-by-reference calls.
 
-The compiler also registers a set of supported intrinsic functions:
-
-`ABS`, `IABS`, `DABS`, `POW`, `SQRT`, `DSQRT`, `EXP`, `DEXP`, `INT`, `REAL`,
-`DBLE`, `FLOAT`, `MAX`, `MIN`, and `MOD`.
-
 Intrinsic functions are treated as known procedures during semantic analysis,
 but they are not user-defined symbols. Therefore, redefining one of these names
 as a user procedure is rejected. Their arity is also checked semantically, for
