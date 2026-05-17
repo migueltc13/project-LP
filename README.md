@@ -34,8 +34,6 @@ MOD
     and EXP that uses Taylor series expansion (12 iterations) to calculate the
     value of e^x.
 
-- [ ] Future work constant folding for intrinsic calls
-
 - [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at
       [procedures.py](src/semantics/procedures.py),
       Maybe reserved this functions as lexer `keywords`.
@@ -44,10 +42,14 @@ MOD
       for exponentiation.
 - [ ] mention in the report how the parser checks for the special statement
     RETURN, and it only recognizes it in the right contexts (inside procedures)
-- [ ] mention the parser prioritizes left recursion since its more efficient for
-    the LALR(1)
+- [ ] mention that the parser prioritizes left recursion since its more
+    efficient for the LALR(1) (try to find a good reference for this,
+    I think it was in the PLY documentation)
 - [ ] mention in report that strict version was implemented instead of implicit
     typing rules
+- [ ] mention as future work: constant folding for intrinsic calls
+- [ ] mention as future work: combine semantic checks for efficiency
+    (e.g. type checks and reference resolution in a single pass)
 
 ## Usage
 
@@ -209,17 +211,20 @@ the lexed tokens, since positions naturally differ between the two formats.
 
 The lexical analysis phase is responsible for transforming the preprocessed
 Fortran 77 source code into a stream of tokens that can be consumed by the
-parser, using the `PLY` [(Python Lex-Yacc)](https://www.dabeaz.com/ply/ply.html)
+parser, using the [PLY (Python Lex-Yacc)](https://www.dabeaz.com/ply/ply.html)
 library.
 
 Unlike preprocessing, which handles format normalization and structural cleanup
 of fixed and free-format source code, the lexer operates directly on the
 normalized pseudo-Fortran representation produced by the preprocessing stage.
 At this point, fixed-format constraints have already been resolved, labels have
-been converted into `@LABEL(...)` pseudo-tokens, continuation lines have been
-merged, and both source formats share a unified input stream.
-This significantly reduces formatting ambiguities and simplifies the complexity
-of token recognition.
+been converted into `@LABEL(...)` pseudo-tokens, continuation lines symbols have
+been normalized, and both source formats share a unified input stream.
+
+***This significantly reduces formatting ambiguities and simplifies the complexity
+of token recognition.***
+
+**TODO** it does simplify the lexer, but i don't know what ambiguities it resolves
 
 #### Token Categories
 
@@ -284,17 +289,31 @@ optional filename tracking.
 After reporting, the lexer skips the invalid input and continues analysis,
 allowing multiple errors to be detected in a single compilation run.
 
-
 The lexical analysis stage is additionally validated through an automated test
 [tests/lexer.py](tests/lexer.py). This test executes the lexer over all example
 source files in test mode, verifying that valid programs are tokenized
 successfully and that lexical errors are correctly reported when invalid input
 is encountered.
 
-
 ### Syntax Analysis
 
 ### Semantic Analysis
+
+#### Program unit checks
+
+#### Label checks
+
+#### Loop checks
+
+#### Variable checks
+
+#### Reference resolution
+
+#### Numeric checks
+
+#### Procedures checks
+
+#### Type checks
 
 ### Optimizations
 
