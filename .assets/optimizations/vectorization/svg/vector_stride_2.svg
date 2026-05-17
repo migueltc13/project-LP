@@ -11,13 +11,13 @@
 <!-- node_0 -->
 <g id="node1" class="node">
 <title>node_0</title>
-<polygon fill="lightgray" stroke="black" points="1300.5,-324 788.5,-324 788.5,-288 1300.5,-288 1300.5,-324"/>
+<polygon fill="gray" stroke="black" points="1300.5,-324 788.5,-324 788.5,-288 1300.5,-288 1300.5,-324"/>
 <text text-anchor="middle" x="1044.5" y="-302.3" font-family="Courier,monospace" font-size="14.00">file: examples/optimizations/vectorization/vector_stride_2.f</text>
 </g>
 <!-- node_1 -->
 <g id="node2" class="node">
 <title>node_1</title>
-<polygon fill="lightgray" stroke="black" points="1152,-252 937,-252 937,-216 1152,-216 1152,-252"/>
+<polygon fill="gray" stroke="black" points="1152,-252 937,-252 937,-216 1152,-216 1152,-252"/>
 <text text-anchor="middle" x="1044.5" y="-230.3" font-family="Courier,monospace" font-size="14.00">program: VECTOR_STRIDE_2</text>
 </g>
 <!-- node_0&#45;&gt;node_1 -->
@@ -29,7 +29,7 @@
 <!-- node_2 -->
 <g id="node3" class="node">
 <title>node_2</title>
-<polygon fill="lightgray" stroke="black" points="262,-180 113,-180 113,-144 262,-144 262,-180"/>
+<polygon fill="gray" stroke="black" points="262,-180 113,-180 113,-144 262,-144 262,-180"/>
 <text text-anchor="middle" x="187.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">declare: INTEGER</text>
 </g>
 <!-- node_1&#45;&gt;node_2 -->
@@ -41,7 +41,7 @@
 <!-- node_5 -->
 <g id="node6" class="node">
 <title>node_5</title>
-<polygon fill="lightgray" stroke="black" points="480.5,-180 414.5,-180 414.5,-144 480.5,-144 480.5,-180"/>
+<polygon fill="gray" stroke="black" points="480.5,-180 414.5,-180 414.5,-144 480.5,-144 480.5,-180"/>
 <text text-anchor="middle" x="447.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">assign</text>
 </g>
 <!-- node_1&#45;&gt;node_5 -->
@@ -53,7 +53,7 @@
 <!-- node_8 -->
 <g id="node9" class="node">
 <title>node_8</title>
-<polygon fill="lightgray" stroke="black" points="977.5,-180 795.5,-180 795.5,-144 977.5,-144 977.5,-180"/>
+<polygon fill="gray" stroke="black" points="977.5,-180 795.5,-180 795.5,-144 977.5,-144 977.5,-180"/>
 <text text-anchor="middle" x="886.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">do: I, end label 100</text>
 </g>
 <!-- node_1&#45;&gt;node_8 -->
@@ -65,7 +65,7 @@
 <!-- node_13 -->
 <g id="node14" class="node">
 <title>node_13</title>
-<polygon fill="lightgray" stroke="black" points="1236.5,-180 1170.5,-180 1170.5,-144 1236.5,-144 1236.5,-180"/>
+<polygon fill="gray" stroke="black" points="1236.5,-180 1170.5,-180 1170.5,-144 1236.5,-144 1236.5,-180"/>
 <text text-anchor="middle" x="1203.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">assign</text>
 </g>
 <!-- node_1&#45;&gt;node_13 -->
@@ -77,7 +77,7 @@
 <!-- node_18 -->
 <g id="node19" class="node">
 <title>node_18</title>
-<polygon fill="lightgray" stroke="black" points="1404,-180 1305,-180 1305,-144 1404,-144 1404,-180"/>
+<polygon fill="gray" stroke="black" points="1404,-180 1305,-180 1305,-144 1404,-144 1404,-180"/>
 <text text-anchor="middle" x="1354.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">label: 100</text>
 </g>
 <!-- node_1&#45;&gt;node_18 -->
@@ -89,7 +89,7 @@
 <!-- node_20 -->
 <g id="node21" class="node">
 <title>node_20</title>
-<polygon fill="lightgray" stroke="black" points="1507.5,-180 1449.5,-180 1449.5,-144 1507.5,-144 1507.5,-180"/>
+<polygon fill="gray" stroke="black" points="1507.5,-180 1449.5,-180 1449.5,-144 1507.5,-144 1507.5,-180"/>
 <text text-anchor="middle" x="1478.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">print</text>
 </g>
 <!-- node_1&#45;&gt;node_20 -->
@@ -101,7 +101,7 @@
 <!-- node_3 -->
 <g id="node4" class="node">
 <title>node_3</title>
-<polygon fill="lightgray" stroke="black" points="107,-108 0,-108 0,-72 107,-72 107,-108"/>
+<polygon fill="gray" stroke="black" points="107,-108 0,-108 0,-72 107,-72 107,-108"/>
 <text text-anchor="middle" x="53.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var&#45;decl: I</text>
 </g>
 <!-- node_2&#45;&gt;node_3 -->
@@ -113,7 +113,7 @@
 <!-- node_4 -->
 <g id="node5" class="node">
 <title>node_4</title>
-<polygon fill="lightgray" stroke="black" points="249.5,-108 125.5,-108 125.5,-72 249.5,-72 249.5,-108"/>
+<polygon fill="gray" stroke="black" points="249.5,-108 125.5,-108 125.5,-72 249.5,-72 249.5,-108"/>
 <text text-anchor="middle" x="187.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var&#45;decl: SUM</text>
 </g>
 <!-- node_2&#45;&gt;node_4 -->
@@ -125,7 +125,7 @@
 <!-- node_6 -->
 <g id="node7" class="node">
 <title>node_6</title>
-<polygon fill="lightgray" stroke="black" points="351,-108 268,-108 268,-72 351,-72 351,-108"/>
+<polygon fill="gray" stroke="black" points="351,-108 268,-108 268,-72 351,-72 351,-108"/>
 <text text-anchor="middle" x="309.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var: SUM</text>
 </g>
 <!-- node_5&#45;&gt;node_6 -->
@@ -137,7 +137,7 @@
 <!-- node_7 -->
 <g id="node8" class="node">
 <title>node_7</title>
-<polygon fill="lightgray" stroke="black" points="526,-108 369,-108 369,-72 526,-72 526,-108"/>
+<polygon fill="gray" stroke="black" points="526,-108 369,-108 369,-72 526,-72 526,-108"/>
 <text text-anchor="middle" x="447.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">integer number: 0</text>
 </g>
 <!-- node_5&#45;&gt;node_7 -->
@@ -149,7 +149,7 @@
 <!-- node_9 -->
 <g id="node10" class="node">
 <title>node_9</title>
-<polygon fill="lightgray" stroke="black" points="610.5,-108 544.5,-108 544.5,-72 610.5,-72 610.5,-108"/>
+<polygon fill="gray" stroke="black" points="610.5,-108 544.5,-108 544.5,-72 610.5,-72 610.5,-108"/>
 <text text-anchor="middle" x="577.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var: I</text>
 </g>
 <!-- node_8&#45;&gt;node_9 -->
@@ -161,7 +161,7 @@
 <!-- node_10 -->
 <g id="node11" class="node">
 <title>node_10</title>
-<polygon fill="lightgray" stroke="black" points="786,-108 629,-108 629,-72 786,-72 786,-108"/>
+<polygon fill="gray" stroke="black" points="786,-108 629,-108 629,-72 786,-72 786,-108"/>
 <text text-anchor="middle" x="707.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">integer number: 1</text>
 </g>
 <!-- node_8&#45;&gt;node_10 -->
@@ -173,7 +173,7 @@
 <!-- node_11 -->
 <g id="node12" class="node">
 <title>node_11</title>
-<polygon fill="lightgray" stroke="black" points="969,-108 804,-108 804,-72 969,-72 969,-108"/>
+<polygon fill="gray" stroke="black" points="969,-108 804,-108 804,-72 969,-72 969,-108"/>
 <text text-anchor="middle" x="886.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">integer number: 10</text>
 </g>
 <!-- node_8&#45;&gt;node_11 -->
@@ -185,7 +185,7 @@
 <!-- node_12 -->
 <g id="node13" class="node">
 <title>node_12</title>
-<polygon fill="lightgray" stroke="black" points="1144,-108 987,-108 987,-72 1144,-72 1144,-108"/>
+<polygon fill="gray" stroke="black" points="1144,-108 987,-108 987,-72 1144,-72 1144,-108"/>
 <text text-anchor="middle" x="1065.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">integer number: 2</text>
 </g>
 <!-- node_8&#45;&gt;node_12 -->
@@ -197,7 +197,7 @@
 <!-- node_14 -->
 <g id="node15" class="node">
 <title>node_14</title>
-<polygon fill="lightgray" stroke="black" points="1245,-108 1162,-108 1162,-72 1245,-72 1245,-108"/>
+<polygon fill="gray" stroke="black" points="1245,-108 1162,-108 1162,-72 1245,-72 1245,-108"/>
 <text text-anchor="middle" x="1203.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var: SUM</text>
 </g>
 <!-- node_13&#45;&gt;node_14 -->
@@ -209,7 +209,7 @@
 <!-- node_15 -->
 <g id="node16" class="node">
 <title>node_15</title>
-<polygon fill="lightgray" stroke="black" points="1346,-108 1263,-108 1263,-72 1346,-72 1346,-108"/>
+<polygon fill="gray" stroke="black" points="1346,-108 1263,-108 1263,-72 1346,-72 1346,-108"/>
 <text text-anchor="middle" x="1304.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">arith: +</text>
 </g>
 <!-- node_13&#45;&gt;node_15 -->
@@ -221,7 +221,7 @@
 <!-- node_16 -->
 <g id="node17" class="node">
 <title>node_16</title>
-<polygon fill="lightgray" stroke="black" points="1299,-36 1216,-36 1216,0 1299,0 1299,-36"/>
+<polygon fill="gray" stroke="black" points="1299,-36 1216,-36 1216,0 1299,0 1299,-36"/>
 <text text-anchor="middle" x="1257.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">var: SUM</text>
 </g>
 <!-- node_15&#45;&gt;node_16 -->
@@ -233,7 +233,7 @@
 <!-- node_17 -->
 <g id="node18" class="node">
 <title>node_17</title>
-<polygon fill="lightgray" stroke="black" points="1383.5,-36 1317.5,-36 1317.5,0 1383.5,0 1383.5,-36"/>
+<polygon fill="gray" stroke="black" points="1383.5,-36 1317.5,-36 1317.5,0 1383.5,0 1383.5,-36"/>
 <text text-anchor="middle" x="1350.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">var: I</text>
 </g>
 <!-- node_15&#45;&gt;node_17 -->
@@ -245,7 +245,7 @@
 <!-- node_19 -->
 <g id="node20" class="node">
 <title>node_19</title>
-<polygon fill="lightgray" stroke="black" points="1447,-108 1364,-108 1364,-72 1447,-72 1447,-108"/>
+<polygon fill="gray" stroke="black" points="1447,-108 1364,-108 1364,-72 1447,-72 1447,-108"/>
 <text text-anchor="middle" x="1405.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">continue</text>
 </g>
 <!-- node_18&#45;&gt;node_19 -->
@@ -257,7 +257,7 @@
 <!-- node_21 -->
 <g id="node22" class="node">
 <title>node_21</title>
-<polygon fill="lightgray" stroke="black" points="1548,-108 1465,-108 1465,-72 1548,-72 1548,-108"/>
+<polygon fill="gray" stroke="black" points="1548,-108 1465,-108 1465,-72 1548,-72 1548,-108"/>
 <text text-anchor="middle" x="1506.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">var: SUM</text>
 </g>
 <!-- node_20&#45;&gt;node_21 -->

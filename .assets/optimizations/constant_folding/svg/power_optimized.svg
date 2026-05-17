@@ -11,13 +11,13 @@
 <!-- node_0 -->
 <g id="node1" class="node">
 <title>node_0</title>
-<polygon fill="lightgray" stroke="black" points="487.5,-252 33.5,-252 33.5,-216 487.5,-216 487.5,-252"/>
+<polygon fill="gray" stroke="black" points="487.5,-252 33.5,-252 33.5,-216 487.5,-216 487.5,-252"/>
 <text text-anchor="middle" x="260.5" y="-230.3" font-family="Courier,monospace" font-size="14.00">file: examples/optimizations/constant_folding/power.f</text>
 </g>
 <!-- node_1 -->
 <g id="node2" class="node">
 <title>node_1</title>
-<polygon fill="lightgray" stroke="black" points="396.5,-180 124.5,-180 124.5,-144 396.5,-144 396.5,-180"/>
+<polygon fill="gray" stroke="black" points="396.5,-180 124.5,-180 124.5,-144 396.5,-144 396.5,-180"/>
 <text text-anchor="middle" x="260.5" y="-158.3" font-family="Courier,monospace" font-size="14.00">program: POWER_CONSTANT_FOLDING</text>
 </g>
 <!-- node_0&#45;&gt;node_1 -->
@@ -29,7 +29,7 @@
 <!-- node_2 -->
 <g id="node3" class="node">
 <title>node_2</title>
-<polygon fill="lightgray" stroke="black" points="183,-108 34,-108 34,-72 183,-72 183,-108"/>
+<polygon fill="gray" stroke="black" points="183,-108 34,-108 34,-72 183,-72 183,-108"/>
 <text text-anchor="middle" x="108.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">declare: INTEGER</text>
 </g>
 <!-- node_1&#45;&gt;node_2 -->
@@ -41,7 +41,7 @@
 <!-- node_4 -->
 <g id="node5" class="node">
 <title>node_4</title>
-<polygon fill="lightgray" stroke="black" points="293.5,-108 227.5,-108 227.5,-72 293.5,-72 293.5,-108"/>
+<polygon fill="gray" stroke="black" points="293.5,-108 227.5,-108 227.5,-72 293.5,-72 293.5,-108"/>
 <text text-anchor="middle" x="260.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">assign</text>
 </g>
 <!-- node_1&#45;&gt;node_4 -->
@@ -53,7 +53,7 @@
 <!-- node_7 -->
 <g id="node8" class="node">
 <title>node_7</title>
-<polygon fill="lightgray" stroke="black" points="408.5,-108 350.5,-108 350.5,-72 408.5,-72 408.5,-108"/>
+<polygon fill="gray" stroke="black" points="408.5,-108 350.5,-108 350.5,-72 408.5,-72 408.5,-108"/>
 <text text-anchor="middle" x="379.5" y="-86.3" font-family="Courier,monospace" font-size="14.00">print</text>
 </g>
 <!-- node_1&#45;&gt;node_7 -->
@@ -65,7 +65,7 @@
 <!-- node_3 -->
 <g id="node4" class="node">
 <title>node_3</title>
-<polygon fill="lightgray" stroke="black" points="107,-36 0,-36 0,0 107,0 107,-36"/>
+<polygon fill="gray" stroke="black" points="107,-36 0,-36 0,0 107,0 107,-36"/>
 <text text-anchor="middle" x="53.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">var&#45;decl: X</text>
 </g>
 <!-- node_2&#45;&gt;node_3 -->
@@ -77,7 +77,7 @@
 <!-- node_5 -->
 <g id="node6" class="node">
 <title>node_5</title>
-<polygon fill="lightgray" stroke="black" points="191.5,-36 125.5,-36 125.5,0 191.5,0 191.5,-36"/>
+<polygon fill="gray" stroke="black" points="191.5,-36 125.5,-36 125.5,0 191.5,0 191.5,-36"/>
 <text text-anchor="middle" x="158.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">var: X</text>
 </g>
 <!-- node_4&#45;&gt;node_5 -->
@@ -89,7 +89,7 @@
 <!-- node_6 -->
 <g id="node7" class="node">
 <title>node_6</title>
-<polygon fill="lightgray" stroke="black" points="367,-36 210,-36 210,0 367,0 367,-36"/>
+<polygon fill="gray" stroke="black" points="367,-36 210,-36 210,0 367,0 367,-36"/>
 <text text-anchor="middle" x="288.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">integer number: 8</text>
 </g>
 <!-- node_4&#45;&gt;node_6 -->
@@ -101,7 +101,7 @@
 <!-- node_8 -->
 <g id="node9" class="node">
 <title>node_8</title>
-<polygon fill="lightgray" stroke="black" points="451.5,-36 385.5,-36 385.5,0 451.5,0 451.5,-36"/>
+<polygon fill="gray" stroke="black" points="451.5,-36 385.5,-36 385.5,0 451.5,0 451.5,-36"/>
 <text text-anchor="middle" x="418.5" y="-14.3" font-family="Courier,monospace" font-size="14.00">var: X</text>
 </g>
 <!-- node_7&#45;&gt;node_8 -->
