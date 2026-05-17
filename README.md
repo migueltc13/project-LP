@@ -1198,7 +1198,8 @@ $\color{Red}\textsf{Error}$         | Code Gen     | Assignments  | Unsupported 
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Unsupported READ target                                             |
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Only one-dimensional array READ is supported yet                    |
 $\color{Red}\textsf{Error}$         | Code Gen     | Operators    | Unsupported arithmetic/relational/logical/unary operator            |
-$\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           |
+
+<!-- $\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           | -->
 
 > *Hover over the hint check marks (✓) in the table above to see sample hint messages.*
 
