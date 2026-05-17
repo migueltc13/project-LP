@@ -61,11 +61,11 @@ main optimization passes.
 
 ## TODO list
 
-- [ ] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
+- [x] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
     and tests accordingly
 
 - [ ] Provide test description for the new `examples/errors/semantic/numbers.f`
-- [ ] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
+- [x] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
 - [ ] Added pass-by-reference tests at `examples/references/`
 - [ ] Added recursion tests at `examples/recursion/`
 
@@ -988,7 +988,6 @@ $\color{Red}\textsf{Error}$         | Code Gen     | Assignments  | Unsupported 
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Unsupported READ target                                             | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Only one-dimensional array READ is supported yet                    | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Code Gen     | Operators    | Unsupported arithmetic/relational/logical/unary operator            | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Intrinsic procedure is not supported by code generation yet         | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           | $\color{White}\textsf{✗}$
 
 <!--
