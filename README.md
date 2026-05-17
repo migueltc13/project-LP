@@ -1079,9 +1079,9 @@ instruction sequences.
 
 The `ABS`, `MAX`, and `MIN` intrinsics use comparisons and conditional jumps.
 The `POW` intrinsic and the `**` operator are implemented through a loop for
-integer exponents. `SQRT` is implemented using Newton's method with a fixed
-number of iterations. `EXP` is approximated using a Taylor series expansion with
-a fixed number of terms.
+integer exponents. `EXP` is approximated using a Taylor series expansion with
+a fixed number of terms. `SQRT` is implemented using Newton's method with a
+fixed number of iterations.
 
 As an example, `EXP` is generated directly in EWVM using a truncated Taylor
 series expansion. The mathematical definition is:
