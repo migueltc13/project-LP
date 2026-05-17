@@ -1139,11 +1139,11 @@ Severity                            | Type         | Category     | Description 
 $\color{Red}\textsf{Error}$         | Preprocessor | Format       | Line exceeds 72 columns                                             |
 $\color{Red}\textsf{Error}$         | Preprocessor | Continuation | Orphaned continuation line                                          |
 $\color{Red}\textsf{Error}$         | Preprocessor | Labels       | Label field contains non-numeric characters                         |
-$\color{Red}\textsf{Error}$         | Lexical      |              | Character not valid                                                 | ✓
-$\color{Red}\textsf{Error}$         | Lexical      |              | Character sequence not valid                                        | ✓
+$\color{Red}\textsf{Error}$         | Lexical      |              | Character not valid                                                 | <span title="Remove this character or replace it with valid Fortran 77 syntax">✓</span>
+$\color{Red}\textsf{Error}$         | Lexical      |              | Character sequence not valid                                        | <span title="Remove these characters or replace them with valid Fortran 77 syntax">✓</span>
 $\color{Red}\textsf{Error}$         | Syntax       |              | Syntax error in token                                               |
-$\color{Red}\textsf{Error}$         | Syntax       |              | Unexpected end of file                                              | ✓
-$\color{Red}\textsf{Error}$         | Semantic     | Program      | Multiple main PROGRAM units defined                                 | ✓
+$\color{Red}\textsf{Error}$         | Syntax       |              | Unexpected end of file                                              | <span title="Perhaps you forgot the END statement">✓</span>
+$\color{Red}\textsf{Error}$         | Semantic     | Program      | Multiple main PROGRAM units defined                                 | <span title="Keep only one main PROGRAM unit">✓</span>
 $\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label redefined                                                     |
 $\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label referenced but not defined                                    |
 $\color{Goldenrod}\textsf{Warning}$ | Semantic     | Labels       | Label defined but not referenced                                    |
@@ -1153,15 +1153,17 @@ $\color{Red}\textsf{Error}$         | Semantic     | Variables    | Use of undec
 $\color{Red}\textsf{Error}$         | Semantic     | Variables    | Assignment to undeclared variable                                   |
 $\color{Goldenrod}\textsf{Warning}$ | Semantic     | Variables    | Variable may be used before being initialized                       |
 $\color{Goldenrod}\textsf{Warning}$ | Semantic     | Variables    | Variable declared but not used                                      |
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Undefined procedure reference                                       | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Undefined procedure reference                                       | <span title="Perhaps you meant {sugestions}">✓</span>
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Duplicate procedure definition                                      |
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure definition conflicts with intrinsic procedure             | ✓
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION called as a SUBROUTINE                                     | ✓
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure definition conflicts with intrinsic procedure             | <span title="Choose a different procedure name; intrinsic procedure names are reserved">✓</span>
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION called as a SUBROUTINE                                     | <span title="Use function calls in expressions, and subroutines with CALL">✓</span>
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | <span title="Use CALL for subroutines, and function calls inside expressions">✓</span>
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure mismatched expected number of arguments                   |
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  |
-$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | ✓
-$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    |
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER value out of range                                          | <span title="Integer values must be between -2,147,483,648 and 2,147,483,647">✓</span>
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | REAL value out of range                                             | <span title="Real values must be representable in the target REAL range">✓</span>
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | DOUBLE value out of range                                           | <span title="Double values must be representable in the target DOUBLE range">✓</span>
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | IF condition must be of type LOGICAL                                |
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | Array dimension must be of type INTEGER                             |
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | Array index must be of type INTEGER                                 |
@@ -1186,6 +1188,8 @@ $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Unsupported 
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Only one-dimensional array READ is supported yet                    |
 $\color{Red}\textsf{Error}$         | Code Gen     | Operators    | Unsupported arithmetic/relational/logical/unary operator            |
 $\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           |
+
+> *Hover over the hint check marks (✓) in the table above to see sample hint messages.*
 
 <!--
 HTML:

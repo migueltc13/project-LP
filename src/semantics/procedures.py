@@ -196,7 +196,7 @@ class ProcedureChecker:
                 self.parser,
                 node,
                 message=f"{kind} {name!r} conflicts with intrinsic procedure {existing.name!r}",
-                hint="choose a different name or explicitly support intrinsic shadowing later",
+                hint="choose a different procedure name; intrinsic procedure names are reserved"
             )
             return
 
