@@ -1251,12 +1251,6 @@ to the diagnostics produced by modern compilers. The highlighted span helps the
 user quickly identify the relevant part of the source program, while hints are
 used when the compiler can provide a likely correction.
 
-Some diagnostics require special handling because the source code is transformed
-before parsing. For instance, fixed-format labels are converted by the
-preprocessor into pseudo-tokens such as `@LABEL(...)`. When later stages report
-errors involving these labels, the compiler compensates for the inserted text so
-that diagnostics still refer to the user's original source positions.
-
 ## Conclusions and Future Work
 
 The final result goes beyond a minimal parser by implementing several aspects
