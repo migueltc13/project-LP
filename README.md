@@ -377,16 +377,16 @@ diagnostics, including line and column information.
 
 In addition to building the AST, the parser records some lightweight contextual
 information needed by semantic analysis. For example, it tracks label
-definitions and label references, `DO` loop target labels, and whether a
-`RETURN` statement appears in a valid procedure context. The final validation of
-these properties is still performed by semantic passes, but collecting this
+definitions and label references, `DO` loop target labels. The final validation
+of these properties is still performed by semantic passes, but collecting this
 information during parsing avoids repeated traversal of the raw token stream.
 
 The AST can also be inspected directly through two utility features: a
-pretty-printer, which displays the tree in a readable textual form, and a
-Graphviz-based visualization mode, which generates a graphical representation of
-the parsed program. These tools were useful during development and debugging,
-especially when validating grammar rules and later optimization passes.
+**pretty-printer**, which displays the tree in a readable textual form, and a
+**Graphviz-based visualization mode**, which generates a graphical
+representation of the parsed program. These tools were useful during development
+and debugging, especially when validating grammar rules and later optimization
+passes.
 
 The automated test [errors.py](tests/errors.py) includes several cases that
 trigger syntax errors, which are stored in
