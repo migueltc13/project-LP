@@ -321,8 +321,8 @@ allowing multiple errors to be detected in a single compilation run.
 The lexical analysis stage is additionally validated through an automated test
 [tests/lexer.py](tests/lexer.py). This test executes the lexer over all example
 source files in test mode, verifying that valid programs are tokenized
-successfully and that lexical errors are correctly reported when invalid input
-is encountered.
+successfully. The automated test [texts/errors.py](tests/errors.py) also includes
+several cases that trigger lexical errors, which are stored in [examples/errors/lexical/](examples/errors/lexical/).
 
 ## Syntax Analysis
 
@@ -401,6 +401,8 @@ pretty-printer, which displays the tree in a readable textual form, and a
 Graphviz-based visualization mode, which generates a graphical representation of
 the parsed program. These tools were useful during development and debugging,
 especially when validating grammar rules and later optimization passes.
+
+The automated test [tests/errors.py](tests/errors.py) includes several cases that trigger syntax errors, which are stored in [examples/errors/syntax/](examples/errors/syntax/). The syntax analysis stage is validated through the test [tests/parser.py](tests/parser.py), which verifies that valid example source files are parsed successfully and that the resulting AST matches expected structures.
 
 ## Semantic Analysis
 
@@ -631,6 +633,17 @@ stored as metadata for code generation, allowing the generator to choose the
 correct EWVM instructions for integer operations, floating-point operations,
 logical operations, conversions, reads, writes, and intrinsic functions.
 
+The semantic analysis stage can be validated, as well, through the automated test
+[tests/parser.py](tests/parser.py), which verifies that valid example source
+files are parsed successfully and that the resulting AST matches expected
+structures.
+
+The automated test [tests/errors.py](tests/errors.py) also includes several cases that trigger semantic errors, which are stored in [examples/errors/semantic/](examples/errors/semantic/).
+
+It is also possible to run all automated tests, from preprocessing to parsing,
+with the script [tests/run-all.sh](tests/run-all.sh). This script executes all
+tests in one run for a more seamless testing experience.
+
 
 ## Optimizations
 
@@ -658,6 +671,9 @@ optimization, such as expression types, variable usage information, and resolved
 references, may no longer match the transformed tree. Rebuilding semantic
 information ensures that code generation receives a consistent AST and matching
 semantic metadata.
+
+Example source files demonstrating the optimizations can be found in
+[examples/optimizations/](examples/optimizations/).
 
 ### Constant Folding
 
@@ -933,6 +949,12 @@ The code generation stage is responsible for:
 - generating code for supported intrinsic functions;
 - selecting integer or floating-point EWVM instructions based on semantic type
   information.
+
+Example source files used for testing code generation can be found in [examples/](examples/), with additional files for recursive procedures in
+[examples/recursion/](examples/recursion/), intrinsic functions in [examples/intrinsics/](examples/intrinsics/), and pass-by-reference procedure arguments in [examples/reference/](examples/reference/).
+
+For the automated test [tests/errors.py](tests/errors.py), some examples of code
+generation errors were developed, which are stored in [examples/errors/code_gen/](examples/errors/code_gen/).
 
 ### Memory Layout
 
