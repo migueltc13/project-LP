@@ -1270,7 +1270,6 @@ work:
 - improve compiler temporary allocation for deeply nested expressions instead
   of relying on a fixed number of temporary slots per scope;
 - add constant folding for known intrinsic function calls;
-- improve mathematical precision for generated `SQRT` and `EXP`;
 - extend the supported Fortran 77 grammar with more statement forms and
   standard-library features, (e.g. implicit typing, etc.);
 - combine some semantic passes for efficiency once the implementation is stable.
