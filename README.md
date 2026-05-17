@@ -64,7 +64,7 @@ main optimization passes.
 - [x] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
     and tests accordingly
 
-- [ ] Provide test description for the new `examples/errors/semantic/numbers.f`
+- [x] Provide test description for the new `examples/errors/semantic/numbers.f`
 - [x] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
 - [ ] Added pass-by-reference tests at `examples/references/`
 - [ ] Added recursion tests at `examples/recursion/`
