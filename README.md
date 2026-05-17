@@ -306,7 +306,7 @@ Comments are fully discarded at lexical level:
 - Fixed-format comments starting with `C`, `c`, or `*` in column 1;
 - Inline comments starting with `!`.
 
-### Error Handling
+### Handling Lexical Errors
 
 The lexer includes error detection for invalid characters and unsupported
 sequences. Any character not matching the defined token rules triggers a
@@ -630,6 +630,7 @@ The result of this pass is not only used to report semantic errors. It is also
 stored as metadata for code generation, allowing the generator to choose the
 correct EWVM instructions for integer operations, floating-point operations,
 logical operations, conversions, reads, writes, and intrinsic functions.
+
 
 ## Optimizations
 
@@ -1227,10 +1228,6 @@ before parsing. For instance, fixed-format labels are converted by the
 preprocessor into pseudo-tokens such as `@LABEL(...)`. When later stages report
 errors involving these labels, the compiler compensates for the inserted text so
 that diagnostics still refer to the user's original source positions.
-
-## Testing
-
-**TODO**
 
 ## Conclusions and Future Work
 
