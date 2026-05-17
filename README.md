@@ -2,11 +2,63 @@
 
 # Language Processing <br/> *Processamento de Linguagens*
 
-**TODO** Small project description mentioning the assignment file, and developed work.
+This project implements a compiler for a representative subset of
+**Fortran 77**, developed for the Language Processing course assignment. The
+compiler is written in Python and uses **PLY** for lexical and syntactic
+analysis. Its main goal is to translate Fortran 77 source programs into
+**EWVM assembly**, while also providing diagnostics, semantic validation,
+optional optimizations, and automated tests.
+
+The implementation supports both fixed-format (`.f`) and free-format (`.f90`)
+input through a preprocessing stage that normalizes formatting differences
+before lexical analysis. The compiler pipeline includes preprocessing, lexical
+analysis, syntax analysis, semantic analysis, optional AST-level optimizations,
+and EWVM code generation.
+
+The supported language subset includes program units, variable declarations,
+assignments, arithmetic and logical expressions, conditional statements,
+labelled `DO` loops, labels and `GOTO`, input/output statements, one-dimensional
+arrays, subroutines, functions, intrinsic functions, pass-by-reference procedure
+arguments, and recursive procedure calls. The compiler also implements several
+semantic checks, such as label validation, variable usage checks, type checking,
+procedure validation, numeric range checking, and division-by-zero detection.
+
+In addition to the core compiler pipeline, the project includes optimizations
+such as constant folding, expression simplification, dead-code elimination, and
+simple loop vectorization. A test suite validates valid examples, lexical,
+syntax, semantic, and code-generation errors, source-format equivalence, and the
+main optimization passes.
 
 ## Table of Contents
 
-**TODO**
+- [Usage](#usage)
+- [Compiler Pipeline](#compiler-pipeline)
+  - [Overview](#overview)
+  - [Preprocessor](#preprocessor)
+  - [Lexical Analysis](#lexical-analysis)
+  - [Syntax Analysis](#syntax-analysis)
+  - [Semantic Analysis](#semantic-analysis)
+    - [Program unit checks](#program-unit-checks)
+    - [Label checks](#label-checks)
+    - [Loop checks](#loop-checks)
+    - [Variable checks](#variable-checks)
+    - [Reference resolution](#reference-resolution)
+    - [Numeric checks](#numeric-checks)
+    - [Procedures checks](#procedures-checks)
+    - [Type checks](#type-checks)
+  - [Optimizations](#optimizations)
+    - [Constant Folding](#constant-folding)
+    - [Expression Simplification](#expression-simplification)
+    - [Dead Code Elimination](#dead-code-elimination)
+    - [Vectorization](#vectorization)
+  - [Code Generation](#code-generation)
+- [Error Handling](#error-handling)
+  - [Supported Diagnostics](#supported-diagnostics)
+- [Testing](#testing)
+- [Conclusions and Future Work](#conclusions-and-future-work)
+- [Resources](#resources)
+  - [Tools](#tools)
+  - [Fortran 77 References](#fortran-77-references)
 
 ## TODO list
 
@@ -221,12 +273,9 @@ of fixed and free-format source code, the lexer operates directly on the
 normalized pseudo-Fortran representation produced by the preprocessing stage.
 At this point, fixed-format constraints have already been resolved, labels have
 been converted into `@LABEL(...)` pseudo-tokens, continuation lines symbols have
-been normalized, and both source formats share a unified input stream.
-
-***This significantly reduces formatting ambiguities and simplifies the complexity
-of token recognition.***
-
-**TODO** it does simplify the lexer, but i don't know what ambiguities it resolves
+been normalized, and both source formats share a unified input stream. This
+significantly reduces formatting ambiguities and simplifies the complexity
+of token recognition.
 
 #### Token Categories
 
