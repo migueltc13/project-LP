@@ -42,10 +42,16 @@ def collect_example_files():
     """
     main_examples = []
     line_continuation = []
+    intrinsics = []
+    recursion = []
+    reference = []
 
+    # Collect fixed- and free-format general examples
     main_examples.extend(glob.glob("examples/general/*.f"))
+    main_examples.extend(glob.glob("examples/general/*.f90"))
 
-    # Exclude unwanted test cases
+    # Exclude unwanted test cases by basename so directory layout changes
+    # (e.g. moving errors into its own folder) won't affect collection.
     main_examples = [
         f for f in main_examples
         if not os.path.basename(f).startswith("0_mismatched")
@@ -53,16 +59,30 @@ def collect_example_files():
         and os.path.basename(f) != "empty.f"
     ]
 
-    line_continuation.extend(
-        glob.glob("examples/line_continuation/*.f")
-    )
+    line_continuation.extend(glob.glob("examples/line_continuation/*.f"))
 
+    intrinsics.extend(glob.glob("examples/intrinsics/*.f"))
+    intrinsics.extend(glob.glob("examples/intrinsics/*.f90"))
+
+    recursion.extend(glob.glob("examples/recursion/*.f"))
+    recursion.extend(glob.glob("examples/recursion/*.f90"))
+
+    reference.extend(glob.glob("examples/reference/*.f"))
+    reference.extend(glob.glob("examples/reference/*.f90"))
+
+    # Sort each category naturally
     main_examples.sort(key=natural_sort_key)
     line_continuation.sort(key=natural_sort_key)
+    intrinsics.sort(key=natural_sort_key)
+    recursion.sort(key=natural_sort_key)
+    reference.sort(key=natural_sort_key)
 
     return {
         "Main Examples": main_examples,
         "Line Continuation": line_continuation,
+        "Intrinsics": intrinsics,
+        "Recursion": recursion,
+        "Reference": reference,
     }
 
 # ============================================================
