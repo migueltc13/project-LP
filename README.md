@@ -1113,26 +1113,6 @@ temporary variables. This is important because intrinsic calls may appear inside
 recursive functions, and global temporaries would make recursive execution
 unsafe.
 
-### Limitations
-
-The code generator supports the main constructs required by the implemented
-Fortran 77 subset, but some limitations remain:
-
-- only one-dimensional arrays are supported;
-- fixed-length `CHARACTER` arrays are not supported;
-- negative `DO` loop steps are not fully supported;
-- dynamic array dimensions inside procedures are not supported;
-- intrinsic functions are generated with simple implementations rather than
-  full mathematical library precision;
-- compiler temporary allocation uses a fixed number of temporary slots per
-  scope;
-- array bounds checks are not currently emitted.
-
-Despite these limitations, the generator supports the central features of the
-project: complete program translation to EWVM assembly, typed expression
-generation, arrays, procedure calls, pass-by-reference arguments, recursion,
-intrinsic functions, and optimized AST input.
-
 ## Error Handling
 
 The compiler includes a shared diagnostic system used by the preprocessor,
