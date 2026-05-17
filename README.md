@@ -11,41 +11,43 @@
 ## TODO list
 
 - Codegen: SUBROUTINE and FUNCTION:
-    - Procedure arguments are currently passed by value.
     - Recursive procedures are not supported.
     - Local procedure variables are stored in generated global slots.
-    - Intrinsic procedure code generation is not supported yet.
     - Dynamic array dimensions inside procedures are not supported yet.
 
-- [ ] Provide test description for `examples/errors/semantic/numbers.f`
+- [ ] Provide test description for the new `examples/errors/semantic/numbers.f`
+- [ ] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
 
-- [x] Optimizations
-    - [x] Constant folding
-    - [x] Expression simplification
-    - [x] Dead code elimination
-        - [x] Unused variables/functions/subroutines elimination
-        - [x] If statements with constant conditions
-        - [x] Unreachable code after STOP, RETURN, etc.
-    - [x] Vectorization
+- report INTRINSIC FUNCTIONS supported:
+```
+ABS, IABS, DABS
+POW,
+SQRT, DSQRT
+EXP, DEXP
+INT, REAL, DBLE, FLOAT
+MAX, MIN
+MOD
+```
+- [ ] Added pass-by-reference tests at `examples/references/`
+
+- [ ] Explain sqrt algorithm in codegen
+    and EXP that uses Taylor series expansion (12 iterations) to calculate the
+    value of e^x.
+
+- [ ] Future work constant folding for intrinsic calls
+
 - [ ] Add support for the functions defined in INTRINSIC_FUNCTIONS at
       [procedures.py](src/semantics/procedures.py),
       Maybe reserved this functions as lexer `keywords`.
       Also see `# TODO remove intrinsics that we don't support` at the same file.
       Update `**` to use `POW` intrinsic function instead of generating a loop
       for exponentiation.
-- [ ] `semantics/numbers.py`
-    - [ ] Detect division by zero and other similar errors
-    - [ ] Out of range errors are detected in the lexer, but they are not complete
-          (e.g. MINUS NUMBER, etc.) we could add a semantic check for this after the
-          parsing, also adjust values for EWVM compatibility
-- [x] Variables (unused warning, redefinition, etc.)
-- [x] Write equivalent .f90 (free-format) at examples/
-- [x] (parser) check for special statements like RETURN, CONTINUE, STOP,
-      are being only recognized in the right contexts
-      (e.g. RETURN only inside subroutines/functions, etc.)
-- [x] test labels errors (e.g. redefinition, use of undefined labels,
-      warning for unused labels)
-- [ ] NOTE in report that strict version was implemented instead of implicit typing rules
+- [ ] mention in the report how the parser checks for the special statement
+    RETURN, and it only recognizes it in the right contexts (inside procedures)
+- [ ] mention the parser prioritizes left recursion since its more efficient for
+    the LALR(1)
+- [ ] mention in report that strict version was implemented instead of implicit
+    typing rules
 
 ## Usage
 
@@ -334,7 +336,7 @@ $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Duplicate pr
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure definition conflicts with intrinsic procedure             | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION called as a SUBROUTINE                                     | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure missing expected number of arguments                      | $\color{White}\textsf{✗}$
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure mismatched expected number of arguments                   | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{White}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | $\color{Green}\textsf{✓}$

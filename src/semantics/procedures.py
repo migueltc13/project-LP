@@ -8,36 +8,41 @@ from error import record_node_error
 
 from .semantic_info import ProcedureInfo
 
-# TODO remove intrinsics that we don't support
+
 INTRINSIC_FUNCTIONS = {
-    "ABS",
-    "IABS",
-    "DABS",
-    "SQRT",
-    "DSQRT",
-    "SIN",
-    "DSIN",
-    "COS",
-    "DCOS",
-    "TAN",
-    "EXP",
-    "DEXP",
-    "LOG",
-    "DLOG",
-    "LOG10",
-    "DLOG10",
-    "INT",
-    "REAL",
-    "DBLE",
-    "FLOAT",
-    "MAX",
-    "MIN",
+    "ABS", "IABS", "DABS",
+    "POW",
+    "SQRT", "DSQRT",
+    "EXP", "DEXP",
+    "INT", "REAL", "DBLE", "FLOAT",
+    "MAX", "MIN",
     "MOD",
-    "PRINT",
-    "READ",
-    "WRITE"
 }
 
+INTRINSIC_FUNCTION_ARITY = {
+    "ABS":   (1, 1),
+    "IABS":  (1, 1),
+    "DABS":  (1, 1),
+
+    "POW":   (2, 2),
+
+    "SQRT":  (1, 1),
+    "DSQRT": (1, 1),
+
+    "EXP":   (1, 1),
+    "DEXP":  (1, 1),
+
+    "INT":   (1, 1),
+    "REAL":  (1, 1),
+    "DBLE":  (1, 1),
+    "FLOAT": (1, 1),
+
+    # Fortran MAX/MIN are variadic, but require at least 2 arguments.
+    "MAX":   (2, None),
+    "MIN":   (2, None),
+
+    "MOD":   (2, 2),
+}
 
 INTRINSIC_SUBROUTINES = set()
 
@@ -348,6 +353,7 @@ class ProcedureChecker:
             return
 
         self.check_argument_count(node, procedure)
+        self.check_reference_arguments(node, procedure)
 
     def check_function_call(self, node: ast.Call):
         name = node.name.upper()
@@ -371,9 +377,11 @@ class ProcedureChecker:
             return
 
         if procedure.kind == "intrinsic_function":
+            self.check_intrinsic_argument_count(node, procedure)
             return
 
         self.check_argument_count(node, procedure)
+        self.check_reference_arguments(node, procedure)
 
     def report_unknown_procedure(self, node, *, name: str, expected_kind: str):
         candidates = set(self.procedures.keys())
@@ -398,6 +406,64 @@ class ProcedureChecker:
                 message=(
                     f"{procedure.kind} {procedure.name!r} expects "
                     f"{expected} argument(s), got {actual}"
+                ),
+            )
+
+    def check_reference_arguments(self, node, procedure: ProcedureInfo):
+        if procedure.kind not in {"function", "subroutine"}:
+            return
+
+        for argument in node.arguments:
+            if not isinstance(argument, (ast.Var, ast.ArrayRef)):
+                record_node_error(
+                    self.parser,
+                    argument,
+                    message=(
+                        f"argument passed to {procedure.kind} "
+                        f"{procedure.name!r} must be a variable "
+                        "or array element"
+                    ),
+                    hint=(
+                        "this compiler passes procedure arguments by reference"
+                    ),
+                )
+
+    def check_intrinsic_argument_count(
+        self,
+        node: ast.Call,
+        procedure: ProcedureInfo
+    ):
+        arity = INTRINSIC_FUNCTION_ARITY.get(procedure.name.upper())
+
+        if arity is None:
+            return
+
+        minimum, maximum = arity
+        actual = len(node.arguments)
+
+        if actual < minimum:
+            if maximum is None:
+                expected = f"at least {minimum}"
+            else:
+                expected = str(minimum)
+
+            record_node_error(
+                self.parser,
+                node,
+                message=(
+                    f"intrinsic function {procedure.name!r} expects "
+                    f"{expected} argument(s), got {actual}"
+                ),
+            )
+            return
+
+        if maximum is not None and actual > maximum:
+            record_node_error(
+                self.parser,
+                node,
+                message=(
+                    f"intrinsic function {procedure.name!r} expects "
+                    f"{maximum} argument(s), got {actual}"
                 ),
             )
 

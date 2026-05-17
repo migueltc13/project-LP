@@ -58,6 +58,12 @@ def range_for_type(type_name: str) -> tuple[Optional[int | float], int | float]:
     raise RuntimeError(f"unsupported numeric type {type_name!r}")
 
 
+# TODO(numbers): validate intrinsic constant-domain errors, e.g.
+#   SQRT(-1)
+#   DSQRT(-1)
+#   POW(0, negative)
+#   EXP(value too large)
+
 class NumberChecker:
     """
     Semantic numeric validation pass.

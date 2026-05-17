@@ -170,3 +170,21 @@ def p_primary_identifier(p):
     else:
         p[0] = ast.IndexedOrCall(p[1], p[3], location)
 
+
+def p_primary_reserved_intrinsic_call(p):
+    """
+    primary : reserved_intrinsic_name '(' argument_list_opt ')'
+    """
+    # Support instrinsic function call like "REAL()"
+    name, location = p[1]
+    p[0] = ast.Call(name, p[3], location)
+
+
+def p_reserved_intrinsic_name(p):
+    """
+    reserved_intrinsic_name : REAL
+    """
+    p[0] = (
+        p[1],
+        ast.location_from_parser_token(p, 1),
+    )

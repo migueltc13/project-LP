@@ -207,11 +207,9 @@ FLOAT_ARITH_OPS = {
 # TODO(codegen): Support multidimensional arrays.
 # TODO(codegen): Support CHARACTER arrays/fixed-length strings.
 # TODO(codegen): Support negative DO step termination logic.
-# TODO(codegen): Support pass-by-reference procedure arguments.
 # TODO(codegen): Support proper local stack-frame allocation.
 # TODO(codegen): Support recursion-safe procedure calls.
-# TODO(codegen): Support intrinsic function calls.
-# TODO(codegen): Support power operator.
+# TODO(codegen): Add constant-domain checks for intrinsic calls.
 # TODO(codegen): Add bounds checks for array indices using CHECK.
 
 class EWVMGenerator:
@@ -347,6 +345,87 @@ class EWVMGenerator:
     def emit_all_array_allocations(self):
         for scope in self.semantic_info.scopes:
             self.emit_array_allocations_for_scope(scope)
+
+    def variable_info(self, name: str):
+        if self.current_scope is None:
+            return None
+
+        return self.current_scope.variables.get(name)
+
+    def is_argument(self, name: str) -> bool:
+        info = self.variable_info(name)
+        return info is not None and info.is_argument
+
+    def is_array_variable(self, name: str) -> bool:
+        info = self.variable_info(name)
+        return info is not None and info.is_array
+
+    def emit_variable_address(self, variable: ast.Var) -> None:
+        """
+        Push the address of a scalar variable.
+
+        For a normal global variable:
+            address = gp + slot
+
+        For a formal argument:
+            the slot already stores the referenced address.
+        """
+
+        slot = self.variable_slot(variable.name)
+
+        if self.is_argument(variable.name):
+            self.emitter.emit(f"PUSHG {slot}")
+            return
+
+        self.emitter.emit("PUSHGP")
+        self.emitter.emit(f"PUSHI {slot}")
+        self.emitter.emit("PADD")
+
+    def emit_lvalue_address(self, node) -> None:
+        """
+        Push the address represented by an assignable expression.
+
+        Supports:
+          - scalar variables
+          - one-dimensional array elements
+        """
+
+        if isinstance(node, ast.Var):
+            self.emit_variable_address(node)
+            return
+
+        if isinstance(node, ast.ArrayRef):
+            self.emit_array_element_address(node)
+            return
+
+        raise CodeGenerationError(
+            f"cannot pass non-variable expression by reference: {node!r}"
+        )
+
+    def emit_array_base_address(self, name: str) -> None:
+        """
+        Push the base address of an array.
+
+        For a normal array:
+            the variable slot stores the heap address.
+
+        For an array formal argument:
+            the formal slot stores the caller's array base address.
+        """
+
+        slot = self.variable_slot(name)
+        self.emitter.emit(f"PUSHG {slot}")
+
+
+    def emit_array_element_address(self, node: ast.ArrayRef) -> None:
+        if len(node.indices) != 1:
+            raise CodeGenerationError(
+                "only one-dimensional array references are supported yet"
+            )
+
+        self.emit_array_base_address(node.name)
+        self.visit_array_index_zero_based(node.indices[0])
+        self.emitter.emit("PADD")
 
     ###
     # Low-level emission helpers
@@ -591,10 +670,20 @@ class EWVMGenerator:
 
             self.emit_conversion(value_type, target_type)
 
-            slot = self.variable_slot(node.target.name)
-            self.emitter.comment(f"store into global slot {slot} "
-                                 f"({node.target.name})")
-            self.emitter.emit(f"STOREG {slot}")
+            if self.is_argument(node.target.name):
+                temp_slot = self.intrinsic_temp_slot("ARG_ASSIGN")
+                self.emitter.emit(f"STOREG {temp_slot}")
+
+                self.emit_variable_address(node.target)
+                self.emitter.emit(f"PUSHG {temp_slot}")
+                self.emitter.emit("STORE 0")
+            else:
+                slot = self.variable_slot(node.target.name)
+                self.emitter.comment(
+                    f"store into global slot {slot} ({node.target.name})"
+                )
+                self.emitter.emit(f"STOREG {slot}")
+
             return
 
         if isinstance(node.target, ast.ArrayRef):
@@ -643,6 +732,15 @@ class EWVMGenerator:
 
         self.emit_read_value_for_type(type_name)
 
+        if self.is_argument(variable.name):
+            temp_slot = self.intrinsic_temp_slot("ARG_READ")
+            self.emitter.emit(f"STOREG {temp_slot}")
+
+            self.emit_variable_address(variable)
+            self.emitter.emit(f"PUSHG {temp_slot}")
+            self.emitter.emit("STORE 0")
+            return
+
         slot = self.variable_slot(variable.name)
         self.emitter.emit(f"STOREG {slot}")
 
@@ -654,10 +752,8 @@ class EWVMGenerator:
 
         self.emitter.comment(f"read into array element {variable.name}(...)")
 
-        slot = self.variable_slot(variable.name)
-
         # STOREN expects: address, index, value
-        self.emitter.emit(f"PUSHG {slot}")
+        self.emit_array_base_address(variable.name)
         self.visit_array_index_zero_based(variable.indices[0])
 
         type_name = self.variable_type(variable.name)
@@ -694,8 +790,14 @@ class EWVMGenerator:
             return
 
         if isinstance(node, ast.Var):
-            slot = self.variable_slot(node.name)
-            self.emitter.emit(f"PUSHG {slot}")
+            if self.is_argument(node.name):
+                slot = self.variable_slot(node.name)
+                self.emitter.emit(f"PUSHG {slot}")  # address
+                self.emitter.emit("LOAD 0")         # value at address
+            else:
+                slot = self.variable_slot(node.name)
+                self.emitter.emit(f"PUSHG {slot}")
+
             return
 
         if isinstance(node, ast.ArrayRef):
@@ -733,6 +835,10 @@ class EWVMGenerator:
         )
 
     def visit_arith(self, node):
+        if node.op == "**":
+            self.visit_pow_expression(node.left, node.right, node)
+            return
+
         self.visit_expression(node.left)
         self.visit_expression(node.right)
 
@@ -845,10 +951,8 @@ class EWVMGenerator:
 
         self.emitter.comment(f"store array element {target.name}(...)")
 
-        slot = self.variable_slot(target.name)
-
         # STOREN expects: address, index, value
-        self.emitter.emit(f"PUSHG {slot}")
+        self.emit_array_base_address(target.name)
         self.visit_array_index_zero_based(target.indices[0])
 
         self.visit_expression(value)
@@ -990,11 +1094,9 @@ class EWVMGenerator:
     def visit_function_call(self, node):
         info = self.procedure_info(node.name)
 
-        if info.kind.startswith("intrinsic"):
-            raise CodeGenerationError(
-                f"intrinsic procedure {node.name!r} is not supported by code "
-                "generation yet"
-            )
+        if info.kind == "intrinsic_function":
+            self.visit_intrinsic_function_call(node)
+            return
 
         if info.kind != "function":
             raise CodeGenerationError(
@@ -1032,24 +1134,495 @@ class EWVMGenerator:
         caller_scope = self.current_scope
 
         for actual, formal_name in zip(actual_arguments, formal_arguments):
-            self.current_scope = caller_scope
-            self.visit_expression(actual)
-
-            actual_type = self.expression_type(actual)
-
             formal_info = target_scope.variables.get(formal_name)
+
             if formal_info is None:
                 raise CodeGenerationError(
-                    f"internal error: formal argument {formal_name!r} "
-                    f"has no slot"
+                    f"internal error: formal argument {formal_name!r} has no slot"
                 )
 
-            self.emit_conversion(actual_type, formal_info.type_name)
+            self.current_scope = caller_scope
+
+            # Fortran pass-by-reference requires an addressable actual argument.
+            if not isinstance(actual, (ast.Var, ast.ArrayRef)):
+                raise CodeGenerationError(
+                    "procedure arguments are passed by reference, "
+                    f"so actual argument {actual!r} must be a variable "
+                    "or array element"
+                )
+
+            # Passing an entire array: actual is Var and formal is array.
+            if (
+                isinstance(actual, ast.Var)
+                and formal_info.is_array
+                and self.is_array_variable(actual.name)
+            ):
+                self.emit_array_base_address(actual.name)
+
+            # Passing scalar variable or array element.
+            else:
+                self.emit_lvalue_address(actual)
 
             formal_slot = self.layout.global_slot(target_scope, formal_name)
             self.emitter.emit(f"STOREG {formal_slot}")
 
         self.current_scope = caller_scope
+
+    ###
+    # Instrinsic function generation
+    ###
+
+    def intrinsic_temp_slot(self, name: str) -> int:
+        if self.current_scope is None:
+            raise CodeGenerationError(
+                "internal error: no current scope for intrinsic temporary"
+            )
+
+        temp_name = f"__INTRINSIC_{name}_{self.label_counter}"
+        return self.layout.allocate_global(self.current_scope, temp_name)
+
+    def require_intrinsic_arity(self, node, expected: int) -> None:
+        actual = len(node.arguments)
+
+        if actual != expected:
+            raise CodeGenerationError(
+                f"internal error: intrinsic function {node.name!r} expects "
+                f"{expected} argument(s), got {actual}"
+            )
+
+    def require_intrinsic_min_arity(self, node, expected_min: int) -> None:
+        actual = len(node.arguments)
+
+        if actual < expected_min:
+            raise CodeGenerationError(
+                f"internal error: intrinsic function {node.name!r} expects "
+                f"at least {expected_min} argument(s), got {actual}"
+            )
+
+    def visit_intrinsic_function_call(self, node):
+        name = node.name.upper()
+
+        if name in {"ABS", "IABS", "DABS"}:
+            self.visit_intrinsic_abs(node)
+            return
+
+        if name == "POW":
+            self.require_intrinsic_arity(node, 2)
+            self.visit_pow_expression(
+                node.arguments[0],
+                node.arguments[1],
+                node
+            )
+            return
+
+        if name in {"INT", "REAL", "DBLE", "FLOAT"}:
+            self.visit_intrinsic_conversion(node)
+            return
+
+        if name == "MOD":
+            self.visit_intrinsic_mod(node)
+            return
+
+        if name in {"MAX", "MIN"}:
+            self.visit_intrinsic_minmax(node, want_max=(name == "MAX"))
+            return
+
+        if name in {"SQRT", "DSQRT"}:
+            self.visit_intrinsic_sqrt(node)
+            return
+
+        if name in {"EXP", "DEXP"}:
+            self.visit_intrinsic_exp(node)
+            return
+
+        raise CodeGenerationError(
+            f"intrinsic function {node.name!r} is not supported by code "
+            "generation"
+        )
+
+    def visit_intrinsic_conversion(self, node):
+        self.require_intrinsic_arity(node, 1)
+
+        name = node.name.upper()
+        argument = node.arguments[0]
+        argument_type = self.expression_type(argument)
+
+        self.visit_expression(argument)
+
+        if name == "INT":
+            if argument_type in {"REAL", "DOUBLE"}:
+                self.emitter.emit("FTOI")
+            return
+
+        if name in {"REAL", "DBLE", "FLOAT"}:
+            if argument_type == "INTEGER":
+                self.emitter.emit("ITOF")
+            return
+
+        raise CodeGenerationError(
+            f"unsupported conversion intrinsic {node.name!r}"
+        )
+
+    def visit_intrinsic_mod(self, node):
+        self.require_intrinsic_arity(node, 2)
+
+        self.visit_expression(node.arguments[0])
+        self.visit_expression(node.arguments[1])
+        self.emitter.emit("MOD")
+
+    def visit_intrinsic_abs(self, node):
+        self.require_intrinsic_arity(node, 1)
+
+        argument = node.arguments[0]
+        result_is_float = (
+            node.name.upper() == "DABS"
+            or self.expression_type(argument) in {"REAL", "DOUBLE"}
+        )
+
+        temp_slot = self.intrinsic_temp_slot("ABS")
+        positive_label = self.new_label("ABSPOS")
+        end_label = self.new_label("ABSEND")
+
+        self.visit_expression(argument)
+        self.emitter.emit(f"STOREG {temp_slot}")
+
+        self.emitter.emit(f"PUSHG {temp_slot}")
+        if result_is_float:
+            self.emitter.emit("PUSHF 0.0")
+            self.emitter.emit("FINF")
+        else:
+            self.emitter.emit("PUSHI 0")
+            self.emitter.emit("INF")
+
+        # JZ when x < 0 is false, so jump to positive case.
+        self.emitter.emit(f"JZ {positive_label}")
+
+        if result_is_float:
+            self.emitter.emit("PUSHF 0.0")
+            self.emitter.emit(f"PUSHG {temp_slot}")
+            self.emitter.emit("FSUB")
+        else:
+            self.emitter.emit("PUSHI 0")
+            self.emitter.emit(f"PUSHG {temp_slot}")
+            self.emitter.emit("SUB")
+
+        self.emitter.emit(f"JUMP {end_label}")
+
+        self.emitter.label(positive_label)
+        self.emitter.emit(f"PUSHG {temp_slot}")
+
+        self.emitter.label(end_label)
+
+    def visit_intrinsic_minmax(self, node, *, want_max: bool):
+        self.require_intrinsic_min_arity(node, 2)
+
+        result_is_float = self.expression_type(node) in {"REAL", "DOUBLE"}
+        temp_slot = self.intrinsic_temp_slot("MAX" if want_max else "MIN")
+
+        # Store first argument as current best.
+        self.visit_expression(node.arguments[0])
+        self.emitter.emit(f"STOREG {temp_slot}")
+
+        for argument in node.arguments[1:]:
+            keep_label = self.new_label("MINMAXKEEP")
+            end_label = self.new_label("MINMAXEND")
+
+            # Compare current best with candidate.
+            self.emitter.emit(f"PUSHG {temp_slot}")
+            self.visit_expression(argument)
+
+            if want_max:
+                # keep current if current >= candidate
+                self.emitter.emit("FSUPEQ" if result_is_float else "SUPEQ")
+            else:
+                # keep current if current <= candidate
+                self.emitter.emit("FINFEQ" if result_is_float else "INFEQ")
+
+            self.emitter.emit(f"JZ {keep_label}")
+
+            # Current value is still best.
+            self.emitter.emit(f"JUMP {end_label}")
+
+            # Candidate becomes best.
+            self.emitter.label(keep_label)
+            self.visit_expression(argument)
+            self.emitter.emit(f"STOREG {temp_slot}")
+
+            self.emitter.label(end_label)
+
+        self.emitter.emit(f"PUSHG {temp_slot}")
+
+    def visit_pow_expression(self, base, exponent, node):
+        base_type = self.expression_type(base)
+        exponent_type = self.expression_type(exponent)
+        result_type = self.expression_type(node)
+
+        if exponent_type != "INTEGER":
+            raise CodeGenerationError(
+                "POW/** currently requires INTEGER exponent in code generation"
+            )
+
+        if (
+            result_type in {"REAL", "DOUBLE"} or
+            base_type in {"REAL", "DOUBLE"}
+        ):
+            self.visit_pow_float_base_integer_exponent(base, exponent)
+            return
+
+        self.visit_pow_integer_base_integer_exponent(base, exponent)
+
+    def visit_pow_float_base_integer_exponent(self, base, exponent):
+        base_slot = self.intrinsic_temp_slot("POW_FBASE")
+        exp_slot = self.intrinsic_temp_slot("POW_FEXP")
+        result_slot = self.intrinsic_temp_slot("POW_FRESULT")
+
+        loop_label = self.new_label("FPOWLOOP")
+        body_label = self.new_label("FPOWBODY")
+        end_label = self.new_label("FPOWEND")
+
+        self.visit_expression(base)
+
+        if self.expression_type(base) == "INTEGER":
+            self.emitter.emit("ITOF")
+
+        self.emitter.emit(f"STOREG {base_slot}")
+
+        self.visit_expression(exponent)
+        self.emitter.emit(f"STOREG {exp_slot}")
+
+        self.emitter.emit(f"PUSHG {exp_slot}")
+        self.emitter.emit("PUSHI 0")
+        self.emitter.emit("INF")
+        self.emitter.emit(f"JZ {body_label}")
+        self.emitter.emit('ERR "negative exponent is not supported"')
+
+        self.emitter.label(body_label)
+
+        self.emitter.emit("PUSHF 1.0")
+        self.emitter.emit(f"STOREG {result_slot}")
+
+        self.emitter.label(loop_label)
+
+        self.emitter.emit(f"PUSHG {exp_slot}")
+        self.emitter.emit("PUSHI 0")
+        self.emitter.emit("SUP")
+        self.emitter.emit(f"JZ {end_label}")
+
+        self.emitter.emit(f"PUSHG {result_slot}")
+        self.emitter.emit(f"PUSHG {base_slot}")
+        self.emitter.emit("FMUL")
+        self.emitter.emit(f"STOREG {result_slot}")
+
+        self.emitter.emit(f"PUSHG {exp_slot}")
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit("SUB")
+        self.emitter.emit(f"STOREG {exp_slot}")
+
+        self.emitter.emit(f"JUMP {loop_label}")
+
+        self.emitter.label(end_label)
+        self.emitter.emit(f"PUSHG {result_slot}")
+
+    def visit_pow_integer_base_integer_exponent(self, base, exponent):
+        base_slot = self.intrinsic_temp_slot("POW_BASE")
+        exp_slot = self.intrinsic_temp_slot("POW_EXP")
+        result_slot = self.intrinsic_temp_slot("POW_RESULT")
+
+        loop_label = self.new_label("POWLOOP")
+        body_label = self.new_label("POWBODY")
+        end_label = self.new_label("POWEND")
+
+        self.visit_expression(base)
+        self.emitter.emit(f"STOREG {base_slot}")
+
+        self.visit_expression(exponent)
+        self.emitter.emit(f"STOREG {exp_slot}")
+
+        # Reject negative exponent at runtime for integer POW.
+        self.emitter.emit(f"PUSHG {exp_slot}")
+        self.emitter.emit("PUSHI 0")
+        self.emitter.emit("INF")
+        self.emitter.emit(f"JZ {body_label}")
+        self.emitter.emit('ERR "negative INTEGER exponent is not supported"')
+
+        self.emitter.label(body_label)
+
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit(f"STOREG {result_slot}")
+
+        self.emitter.label(loop_label)
+
+        self.emitter.emit(f"PUSHG {exp_slot}")
+        self.emitter.emit("PUSHI 0")
+        self.emitter.emit("SUP")
+        self.emitter.emit(f"JZ {end_label}")
+
+        self.emitter.emit(f"PUSHG {result_slot}")
+        self.emitter.emit(f"PUSHG {base_slot}")
+        self.emitter.emit("MUL")
+        self.emitter.emit(f"STOREG {result_slot}")
+
+        self.emitter.emit(f"PUSHG {exp_slot}")
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit("SUB")
+        self.emitter.emit(f"STOREG {exp_slot}")
+
+        self.emitter.emit(f"JUMP {loop_label}")
+
+        self.emitter.label(end_label)
+        self.emitter.emit(f"PUSHG {result_slot}")
+
+    def visit_intrinsic_sqrt(self, node):
+        self.require_intrinsic_arity(node, 1)
+
+        value = node.arguments[0]
+
+        n_slot = self.intrinsic_temp_slot("SQRT_N")
+        x_slot = self.intrinsic_temp_slot("SQRT_X")
+        i_slot = self.intrinsic_temp_slot("SQRT_I")
+
+        positive_label = self.new_label("SQRTPOS")
+        init_loop_label = self.new_label("SQRTINIT")
+        loop_label = self.new_label("SQRTLOOP")
+        push_result_label = self.new_label("SQRTPUSH")
+        final_label = self.new_label("SQRTFINAL")
+
+        self.visit_expression(value)
+
+        if self.expression_type(value) == "INTEGER":
+            self.emitter.emit("ITOF")
+
+        self.emitter.emit(f"STOREG {n_slot}")
+
+        # if n < 0: runtime error
+        self.emitter.emit(f"PUSHG {n_slot}")
+        self.emitter.emit("PUSHF 0.0")
+        self.emitter.emit("FINF")
+        self.emitter.emit(f"JZ {positive_label}")
+        self.emitter.emit('ERR "SQRT domain error: negative argument"')
+
+        self.emitter.label(positive_label)
+
+        # if n == 0: result is 0.0
+        self.emitter.emit(f"PUSHG {n_slot}")
+        self.emitter.emit("PUSHF 0.0")
+        self.emitter.emit("EQUAL")
+        self.emitter.emit(f"JZ {init_loop_label}")
+        self.emitter.emit("PUSHF 0.0")
+        self.emitter.emit(f"JUMP {final_label}")
+
+        self.emitter.label(init_loop_label)
+
+        # x = n / 2.0
+        self.emitter.emit(f"PUSHG {n_slot}")
+        self.emitter.emit("PUSHF 2.0")
+        self.emitter.emit("FDIV")
+        self.emitter.emit(f"STOREG {x_slot}")
+
+        # i = 0
+        self.emitter.emit("PUSHI 0")
+        self.emitter.emit(f"STOREG {i_slot}")
+
+        self.emitter.label(loop_label)
+
+        # while i < 10
+        self.emitter.emit(f"PUSHG {i_slot}")
+        self.emitter.emit("PUSHI 10")
+        self.emitter.emit("INF")
+        self.emitter.emit(f"JZ {push_result_label}")
+
+        # x = 0.5 * (x + n / x)
+        self.emitter.emit(f"PUSHG {x_slot}")
+
+        self.emitter.emit(f"PUSHG {n_slot}")
+        self.emitter.emit(f"PUSHG {x_slot}")
+        self.emitter.emit("FDIV")
+
+        self.emitter.emit("FADD")
+        self.emitter.emit("PUSHF 0.5")
+        self.emitter.emit("FMUL")
+        self.emitter.emit(f"STOREG {x_slot}")
+
+        # i = i + 1
+        self.emitter.emit(f"PUSHG {i_slot}")
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit("ADD")
+        self.emitter.emit(f"STOREG {i_slot}")
+
+        self.emitter.emit(f"JUMP {loop_label}")
+
+        self.emitter.label(push_result_label)
+        self.emitter.emit(f"PUSHG {x_slot}")
+
+        self.emitter.label(final_label)
+
+    def visit_intrinsic_exp(self, node):
+        self.require_intrinsic_arity(node, 1)
+
+        value = node.arguments[0]
+
+        x_slot = self.intrinsic_temp_slot("EXP_X")
+        term_slot = self.intrinsic_temp_slot("EXP_TERM")
+        sum_slot = self.intrinsic_temp_slot("EXP_SUM")
+        i_slot = self.intrinsic_temp_slot("EXP_I")
+
+        loop_label = self.new_label("EXPLOOP")
+        end_label = self.new_label("EXPEND")
+
+        self.visit_expression(value)
+
+        if self.expression_type(value) == "INTEGER":
+            self.emitter.emit("ITOF")
+
+        self.emitter.emit(f"STOREG {x_slot}")
+
+        # sum = 1.0
+        self.emitter.emit("PUSHF 1.0")
+        self.emitter.emit(f"STOREG {sum_slot}")
+
+        # term = 1.0
+        self.emitter.emit("PUSHF 1.0")
+        self.emitter.emit(f"STOREG {term_slot}")
+
+        # i = 1
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit(f"STOREG {i_slot}")
+
+        self.emitter.label(loop_label)
+
+        # while i <= 12
+        self.emitter.emit(f"PUSHG {i_slot}")
+        self.emitter.emit("PUSHI 12")
+        self.emitter.emit("INFEQ")
+        self.emitter.emit(f"JZ {end_label}")
+
+        # term = term * x / i
+        self.emitter.emit(f"PUSHG {term_slot}")
+        self.emitter.emit(f"PUSHG {x_slot}")
+        self.emitter.emit("FMUL")
+
+        self.emitter.emit(f"PUSHG {i_slot}")
+        self.emitter.emit("ITOF")
+        self.emitter.emit("FDIV")
+
+        self.emitter.emit(f"STOREG {term_slot}")
+
+        # sum = sum + term
+        self.emitter.emit(f"PUSHG {sum_slot}")
+        self.emitter.emit(f"PUSHG {term_slot}")
+        self.emitter.emit("FADD")
+        self.emitter.emit(f"STOREG {sum_slot}")
+
+        # i = i + 1
+        self.emitter.emit(f"PUSHG {i_slot}")
+        self.emitter.emit("PUSHI 1")
+        self.emitter.emit("ADD")
+        self.emitter.emit(f"STOREG {i_slot}")
+
+        self.emitter.emit(f"JUMP {loop_label}")
+
+        self.emitter.label(end_label)
+        self.emitter.emit(f"PUSHG {sum_slot}")
 
 
 def generate(

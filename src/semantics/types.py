@@ -82,6 +82,22 @@ def widest_numeric_type(left_type: str, right_type: str) -> str:
     return UNKNOWN
 
 
+def widest_numeric_type_from_list(type_names: list[str]) -> str:
+    result = INTEGER
+
+    for type_name in type_names:
+        result = widest_numeric_type(result, type_name)
+
+    return result
+
+
+def all_numeric(type_names: list[str]) -> bool:
+    return all(
+        type_name in NUMERIC_TYPES | {UNKNOWN}
+        for type_name in type_names
+    )
+
+
 def type_name_for_literal(node) -> str:
     if isinstance(node, ast.Integer):
         return INTEGER
@@ -425,13 +441,18 @@ class TypeChecker:
         raise RuntimeError(f"unsupported expression in type checker: {node!r}")
 
     def infer_call_expression(self, node: ast.Call) -> str:
-        for argument in node.arguments:
+        argument_types = [
             self.infer_expression(argument)
+            for argument in node.arguments
+        ]
 
         procedure = self.semantic_info.procedures.get(node.name.upper())
 
         if procedure is None:
             return self.set_expression_type(node, UNKNOWN)
+
+        if procedure.kind == "intrinsic_function":
+            return self.infer_intrinsic_call(node, argument_types)
 
         if procedure.return_type is None:
             return self.set_expression_type(node, UNKNOWN)
@@ -559,6 +580,118 @@ class TypeChecker:
             )
 
         return self.set_expression_type(node, LOGICAL)
+
+    def require_numeric_arguments(
+        self,
+        node: ast.Call,
+        argument_types: list[str],
+    ) -> None:
+        for argument, argument_type in zip(node.arguments, argument_types):
+            if argument_type not in NUMERIC_TYPES | {UNKNOWN}:
+                record_node_error(
+                    self.parser,
+                    argument,
+                    message=(
+                        f"intrinsic function {node.name!r} requires "
+                        f"numeric argument(s), got {argument_type}"
+                    ),
+                )
+
+    def infer_intrinsic_call(
+        self,
+        node: ast.Call,
+        argument_types: list[str]
+    ) -> str:
+        name = node.name.upper()
+
+        if name in {"ABS", "IABS", "DABS"}:
+            self.require_numeric_arguments(node, argument_types)
+
+            if name == "IABS":
+                return self.set_expression_type(node, INTEGER)
+
+            if name == "DABS":
+                return self.set_expression_type(node, DOUBLE)
+
+            if not argument_types:
+                return self.set_expression_type(node, UNKNOWN)
+
+            return self.set_expression_type(node, argument_types[0])
+
+        if name == "POW":
+            self.require_numeric_arguments(node, argument_types)
+
+            if len(argument_types) != 2:
+                return self.set_expression_type(node, UNKNOWN)
+
+            left_type, right_type = argument_types
+
+            if left_type == UNKNOWN or right_type == UNKNOWN:
+                return self.set_expression_type(node, UNKNOWN)
+
+            # INTEGER ** INTEGER is INTEGER for non-negative exponents,
+            # but without constant-domain analysis here, REAL is safer when needed.
+            return self.set_expression_type(
+                node,
+                widest_numeric_type(left_type, right_type),
+            )
+
+        if name in {"SQRT", "EXP"}:
+            self.require_numeric_arguments(node, argument_types)
+
+            if argument_types and argument_types[0] == DOUBLE:
+                return self.set_expression_type(node, DOUBLE)
+
+            return self.set_expression_type(node, REAL)
+
+        if name in {"DSQRT", "DEXP"}:
+            self.require_numeric_arguments(node, argument_types)
+            return self.set_expression_type(node, DOUBLE)
+
+        if name == "INT":
+            self.require_numeric_arguments(node, argument_types)
+            return self.set_expression_type(node, INTEGER)
+
+        if name in {"REAL", "FLOAT"}:
+            self.require_numeric_arguments(node, argument_types)
+            return self.set_expression_type(node, REAL)
+
+        if name == "DBLE":
+            self.require_numeric_arguments(node, argument_types)
+            return self.set_expression_type(node, DOUBLE)
+
+        if name in {"MAX", "MIN"}:
+            self.require_numeric_arguments(node, argument_types)
+
+            if not argument_types:
+                return self.set_expression_type(node, UNKNOWN)
+
+            if UNKNOWN in argument_types:
+                return self.set_expression_type(node, UNKNOWN)
+
+            return self.set_expression_type(
+                node,
+                widest_numeric_type_from_list(argument_types),
+            )
+
+        if name == "MOD":
+            self.require_numeric_arguments(node, argument_types)
+
+            # EWVM has integer MOD. Keep MOD integer-only for now.
+            for argument, argument_type in zip(node.arguments, argument_types):
+                if argument_type not in {INTEGER, UNKNOWN}:
+                    record_node_error(
+                        self.parser,
+                        argument,
+                        message=(
+                            "MOD arguments must be INTEGER, "
+                            f"got {argument_type}"
+                        ),
+                    )
+
+            return self.set_expression_type(node, INTEGER)
+
+        return self.set_expression_type(node, UNKNOWN)
 
 
 def check_types(parser, tree, semantic_info) -> TypeCheckResult:
