@@ -58,25 +58,6 @@ main optimization passes.
     - [Tools](#tools)
     - [Fortran 77 References](#fortran-77-references)
 
-## TODO list
-
-- [ ] Explain sqrt algorithm in codegen
-    and EXP that uses Taylor series expansion (12 iterations) to calculate the
-    value of e^x.
-
-- [ ] mention in the report how the parser checks for the special statement
-    RETURN, and it only recognizes it in the right contexts (inside procedures)
-
-- [ ] mention in report that strict version was implemented instead of implicit
-    typing rules
-
-- [ ] mention as future work: constant folding for intrinsic calls
-- [ ] mention as future work: combine semantic checks for efficiency
-    (e.g. type checks and reference resolution in a single pass)
-- [ ] mention as future work: how could we support multi dimensional arrays
-- [ ] mention as future work: Improve compiler temporary allocation for deeply
-nested expressions (and TEMP_SLOTS_PER_SCOPE)
-
 ## Usage
 
 ```
