@@ -1135,57 +1135,57 @@ or variables that may be used before being initialized.
 ### Supported Diagnostics
 
 Severity                            | Type         | Category     | Description                                                         | Hint
----                                 | ---          | ---          | ---                                                                 | ---
-$\color{Red}\textsf{Error}$         | Preprocessor | Format       | Line exceeds 72 columns                                             | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Preprocessor | Continuation | Orphaned continuation line                                          | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Preprocessor | Labels       | Label field contains non-numeric characters or exceeds 5 digits     | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character not valid in Fortran 77                                   | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character sequence not valid in Fortran 77                          | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Syntax       | Characters   | Syntax error in token                                               | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Syntax       | EOF          | Unexpected end of file                                              | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Program      | Multiple main PROGRAM units defined                                 | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label redefined                                                     | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label referenced but not defined                                    | $\color{White}\textsf{✗}$
-$\color{Goldenrod}\textsf{Warning}$ | Semantic     | Labels       | Label defined but not referenced                                    | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Loops        | DO loop target label does not label a CONTINUE statement            | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Variables    | Variable already declared                                           | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Variables    | Use of undeclared variable                                          | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Variables    | Assignment to undeclared variable                                   | $\color{White}\textsf{✗}$
-$\color{Goldenrod}\textsf{Warning}$ | Semantic     | Variables    | Variable may be used before being initialized                       | $\color{White}\textsf{✗}$
-$\color{Goldenrod}\textsf{Warning}$ | Semantic     | Variables    | Variable declared but not used                                      | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Undefined procedure reference                                       | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Duplicate procedure definition                                      | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure definition conflicts with intrinsic procedure             | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION called as a SUBROUTINE                                     | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure mismatched expected number of arguments                   | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | $\color{Green}\textsf{✓}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | IF condition must be of type LOGICAL                                | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Array dimension must be of type INTEGER                             | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Array index must be of type INTEGER                                 | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Cannot assign value of type X to type Y variable                    | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop variable must be of type INTEGER                            | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop upper/lower bound must be of type INTEGER                   | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop step must be of type INTEGER                                | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop step must be a positive INTEGER                             | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Unary operators ('+' and '-') require numeric operand               | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | NOT requires a LOGICAL operand                                      | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Left/right arithmetic operand must be numeric                       | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Relational operands must have compatible types                      | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Types        | Left/right logical operand must be LOGICAL                          | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Arrays       | Only one-dimensional arrays are supported yet                       | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Arrays       | Only one-dimensional array references/assignments are supported yet | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Arrays       | Dynamic array dimensions inside procedures are not supported yet    | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Program      | Code generation requires a PROGRAM unit                             | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Statements   | Unsupported statement for EWVM generation                           | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Expressions  | Unsupported expression for EWVM generation                          | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Assignments  | Unsupported assignment target                                       | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Unsupported READ target                                             | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Only one-dimensional array READ is supported yet                    | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Operators    | Unsupported arithmetic/relational/logical/unary operator            | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           | $\color{White}\textsf{✗}$
+:--                                 | :--          | :--          | :--                                                                 | :-:
+$\color{Red}\textsf{Error}$         | Preprocessor | Format       | Line exceeds 72 columns                                             |
+$\color{Red}\textsf{Error}$         | Preprocessor | Continuation | Orphaned continuation line                                          |
+$\color{Red}\textsf{Error}$         | Preprocessor | Labels       | Label field contains non-numeric characters or exceeds 5 digits     |
+$\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character not valid in Fortran 77                                   | ✓
+$\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character sequence not valid in Fortran 77                          | ✓
+$\color{Red}\textsf{Error}$         | Syntax       | Characters   | Syntax error in token                                               |
+$\color{Red}\textsf{Error}$         | Syntax       | EOF          | Unexpected end of file                                              | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Program      | Multiple main PROGRAM units defined                                 | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label redefined                                                     |
+$\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label referenced but not defined                                    |
+$\color{Goldenrod}\textsf{Warning}$ | Semantic     | Labels       | Label defined but not referenced                                    |
+$\color{Red}\textsf{Error}$         | Semantic     | Loops        | DO loop target label does not label a CONTINUE statement            |
+$\color{Red}\textsf{Error}$         | Semantic     | Variables    | Variable already declared                                           |
+$\color{Red}\textsf{Error}$         | Semantic     | Variables    | Use of undeclared variable                                          |
+$\color{Red}\textsf{Error}$         | Semantic     | Variables    | Assignment to undeclared variable                                   |
+$\color{Goldenrod}\textsf{Warning}$ | Semantic     | Variables    | Variable may be used before being initialized                       |
+$\color{Goldenrod}\textsf{Warning}$ | Semantic     | Variables    | Variable declared but not used                                      |
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Undefined procedure reference                                       | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Duplicate procedure definition                                      |
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure definition conflicts with intrinsic procedure             | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION called as a SUBROUTINE                                     | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure mismatched expected number of arguments                   |
+$\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  |
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | ✓
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | IF condition must be of type LOGICAL                                |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Array dimension must be of type INTEGER                             |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Array index must be of type INTEGER                                 |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Cannot assign value of type X to type Y variable                    |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop variable must be of type INTEGER                            |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop upper/lower bound must be of type INTEGER                   |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop step must be of type INTEGER                                |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | DO loop step must be a positive INTEGER                             |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Unary operators ('+' and '-') require numeric operand               |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | NOT requires a LOGICAL operand                                      |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Left/right arithmetic operand must be numeric                       |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Relational operands must have compatible types                      |
+$\color{Red}\textsf{Error}$         | Semantic     | Types        | Left/right logical operand must be LOGICAL                          |
+$\color{Red}\textsf{Error}$         | Code Gen     | Arrays       | Only one-dimensional arrays are supported yet                       |
+$\color{Red}\textsf{Error}$         | Code Gen     | Arrays       | Only one-dimensional array references/assignments are supported yet |
+$\color{Red}\textsf{Error}$         | Code Gen     | Arrays       | Dynamic array dimensions inside procedures are not supported yet    |
+$\color{Red}\textsf{Error}$         | Code Gen     | Program      | Code generation requires a PROGRAM unit                             |
+$\color{Red}\textsf{Error}$         | Code Gen     | Statements   | Unsupported statement for EWVM generation                           |
+$\color{Red}\textsf{Error}$         | Code Gen     | Expressions  | Unsupported expression for EWVM generation                          |
+$\color{Red}\textsf{Error}$         | Code Gen     | Assignments  | Unsupported assignment target                                       |
+$\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Unsupported READ target                                             |
+$\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Only one-dimensional array READ is supported yet                    |
+$\color{Red}\textsf{Error}$         | Code Gen     | Operators    | Unsupported arithmetic/relational/logical/unary operator            |
+$\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           |
 
 <!--
 HTML:
