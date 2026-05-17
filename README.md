@@ -1139,10 +1139,10 @@ Severity                            | Type         | Category     | Description 
 $\color{Red}\textsf{Error}$         | Preprocessor | Format       | Line exceeds 72 columns                                             |
 $\color{Red}\textsf{Error}$         | Preprocessor | Continuation | Orphaned continuation line                                          |
 $\color{Red}\textsf{Error}$         | Preprocessor | Labels       | Label field contains non-numeric characters or exceeds 5 digits     |
-$\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character not valid in Fortran 77                                   | ✓
-$\color{Red}\textsf{Error}$         | Lexical      | Characters   | Character sequence not valid in Fortran 77                          | ✓
-$\color{Red}\textsf{Error}$         | Syntax       | Characters   | Syntax error in token                                               |
-$\color{Red}\textsf{Error}$         | Syntax       | EOF          | Unexpected end of file                                              | ✓
+$\color{Red}\textsf{Error}$         | Lexical      |              | Character not valid in Fortran 77                                   | ✓
+$\color{Red}\textsf{Error}$         | Lexical      |              | Character sequence not valid in Fortran 77                          | ✓
+$\color{Red}\textsf{Error}$         | Syntax       |              | Syntax error in token                                               |
+$\color{Red}\textsf{Error}$         | Syntax       |              | Unexpected end of file                                              | ✓
 $\color{Red}\textsf{Error}$         | Semantic     | Program      | Multiple main PROGRAM units defined                                 | ✓
 $\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label redefined                                                     |
 $\color{Red}\textsf{Error}$         | Semantic     | Labels       | Label referenced but not defined                                    |
