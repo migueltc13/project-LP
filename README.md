@@ -373,9 +373,7 @@ calls are all represented explicitly in the AST.
 
 The parser also records source-location information in AST nodes whenever
 possible. This location metadata is used by later stages to produce precise
-diagnostics, including line and column information. This is especially important
-because some syntax errors are only detected after preprocessing has inserted
-pseudo-tokens such as `@LABEL(...)`.
+diagnostics, including line and column information.
 
 In addition to building the AST, the parser records some lightweight contextual
 information needed by semantic analysis. For example, it tracks label
