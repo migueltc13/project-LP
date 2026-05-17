@@ -902,7 +902,7 @@ code generation.
 
 Examples:
 
-Example file                                                                | AST before optimization                                                            | AST after optimization
+Source file                                                                 | AST before optimization                                                            | AST after optimization
 ---                                                                         | ---                                                                                | ---
 [basic_sum.f](examples/optimizations/vectorization/basic_sum.f)             | [basic_sum.png](.assets/optimizations/vectorization/png/basic_sum.png)             | [basic_sum_optimized.png](.assets/optimizations/vectorization/png/basic_sum_optimized.png)
 [sum_remainder.f](examples/optimizations/vectorization/sum_remainder.f)     | [sum_remainder.png](.assets/optimizations/vectorization/png/sum_remainder.png)     | [sum_remainder_optimized.png](.assets/optimizations/vectorization/png/sum_remainder_optimized.png)
