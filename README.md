@@ -10,13 +10,13 @@
 
 ## TODO list
 
-- Codegen: SUBROUTINE and FUNCTION:
-    - Recursive procedures are not supported.
-    - Local procedure variables are stored in generated global slots.
-    - Dynamic array dimensions inside procedures are not supported yet.
+- [ ] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
+    and tests accordingly
 
 - [ ] Provide test description for the new `examples/errors/semantic/numbers.f`
 - [ ] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
+- [ ] Added pass-by-reference tests at `examples/references/`
+- [ ] Added recursion tests at `examples/recursion/`
 
 - report INTRINSIC FUNCTIONS supported:
 ```
@@ -28,7 +28,6 @@ INT, REAL, DBLE, FLOAT
 MAX, MIN
 MOD
 ```
-- [ ] Added pass-by-reference tests at `examples/references/`
 
 - [ ] Explain sqrt algorithm in codegen
     and EXP that uses Taylor series expansion (12 iterations) to calculate the
@@ -50,6 +49,9 @@ MOD
 - [ ] mention as future work: constant folding for intrinsic calls
 - [ ] mention as future work: combine semantic checks for efficiency
     (e.g. type checks and reference resolution in a single pass)
+- [ ] mention as future work: how could we support multi dimensional arrays
+- [ ] mention as future work: Improve compiler temporary allocation for deeply
+nested expressions (and TEMP_SLOTS_PER_SCOPE)
 
 ## Usage
 
