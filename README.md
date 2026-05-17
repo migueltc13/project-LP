@@ -539,13 +539,6 @@ The pass detects:
 - real values outside the supported real range;
 - double precision values outside the supported double range.
 
-This is especially useful because some numeric errors cannot be correctly
-detected in the lexer. For instance, the lexer sees numeric literals before the
-parser has built unary expressions, so it cannot reliably distinguish an invalid
-large positive integer from a valid negative boundary value. By checking numbers
-after parsing, the compiler can correctly analyse expressions such as unary
-minus and constant arithmetic.
-
 Examples of errors caught by this pass include constant expressions equivalent
 to division by zero and numeric literals or folded expressions that exceed the
 target range.
