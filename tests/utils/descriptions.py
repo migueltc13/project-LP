@@ -59,6 +59,13 @@ DESCRIPTIONS = {
         "Tests multiple main program units defined in the same\n"
         "source file.",
 
+    "numbers.f":
+        "Tests various number-related errors, like:\n"
+        " - INTEGER value out of range;\n"
+        " - REAL value out of range;\n"
+        " - DOUBLE value out of range;\n"
+        " - Division by zero.\n",
+
     "return_outside.f":
         "Tests a RETURN statement outside of any function or \n"
         "subroutine context.",
