@@ -49,7 +49,9 @@ def p_program_unit(p):
 
 
 def p_main_program(p):
-    "main_program : PROGRAM IDENTIFIER statements END"
+    """
+    main_program : PROGRAM IDENTIFIER statements END
+    """
     # Record the main program unit location for error reporting
     # when more than one main program is defined
     p.parser.program_locations.append({
@@ -64,12 +66,16 @@ def p_main_program(p):
 
 
 def p_subroutine(p):
-    "subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END"
+    """
+    subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END
+    """
     p[0] = ast.Subroutine(p[2], p[4], p[7], ast.location_from_parser_token(p, 2))
 
 
 def p_function(p):
-    "function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END"
+    """
+    function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END
+    """
     p[0] = ast.Function(p[1], p[3], p[5], p[8],
                         ast.location_from_parser_token(p, 3))
 
@@ -124,22 +130,30 @@ def p_argument(p):
 ###
 
 def p_enter_subroutine(p):
-    "enter_subroutine :"
+    """
+    enter_subroutine :
+    """
     p.parser.context_stack.append("subroutine")
 
 
 def p_exit_subroutine(p):
-    "exit_subroutine :"
+    """
+    exit_subroutine :
+    """
     p.parser.context_stack.pop()
 
 
 def p_enter_function(p):
-    "enter_function :"
+    """
+    enter_function :
+    """
     p.parser.context_stack.append("function")
 
 
 def p_exit_function(p):
-    "exit_function :"
+    """
+    exit_function :
+    """
     p.parser.context_stack.pop()
 
 
@@ -148,10 +162,6 @@ def p_exit_function(p):
 ###
 
 def p_error(p):
-    """
-    Report syntax errors using compiler-style diagnostics.
-    """
-
     record_syntax_error(parser, p)
 
 

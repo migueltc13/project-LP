@@ -27,7 +27,9 @@ def p_statement(p):
 
 
 def p_label_statement(p):
-    "label_statement : LABEL nonlabel_statement"
+    """
+    label_statement : LABEL nonlabel_statement
+    """
     label = p[1]
     label_col = get_token_column(p.slice[1],
                                  getattr(p.lexer, "lexdata", None))
@@ -69,7 +71,9 @@ def p_nonlabel_statement(p):
 
 
 def p_declaration(p):
-    "declaration : type declarator_list"
+    """
+    declaration : type declarator_list
+    """
     p[0] = ast.Declare(p[1], p[2])
 
 
@@ -98,7 +102,9 @@ def p_declarator(p):
 
 
 def p_assignment(p):
-    "assignment : variable '=' expression"
+    """
+    assignment : variable '=' expression
+    """
     p[0] = ast.Assign(p[1], p[3])
 
 
@@ -116,7 +122,9 @@ def p_variable(p):
 
 
 def p_goto_statement(p):
-    "goto_statement : GOTO INTEGER_NUMBER"
+    """
+    goto_statement : GOTO INTEGER_NUMBER
+    """
     # INFO We use the INTEGER_NUMBER token here since lexer will identify
     #      the label as INTEGER_NUMBER and not LABEL.
 
@@ -134,12 +142,16 @@ def p_goto_statement(p):
 
 
 def p_stop_statement(p):
-    "stop_statement : STOP"
+    """
+    stop_statement : STOP
+    """
     p[0] = ast.Stop()
 
 
 def p_return_statement(p):
-    "return_statement : RETURN"
+    """
+    return_statement : RETURN
+    """
     if not any(ctx in p.parser.context_stack
                for ctx in {"function", "subroutine"}):
 
@@ -166,7 +178,9 @@ def p_call_statement(p):
 
 
 def p_do_statement(p):
-    "do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression do_step_opt"
+    """
+    do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression do_step_opt
+    """
     end_label = p[2]
     label_col = get_token_column(p.slice[2], getattr(p.lexer, "lexdata", None))
 
@@ -205,5 +219,7 @@ def p_do_step_opt(p):
 
 
 def p_continue_statement(p):
-    "continue_statement : CONTINUE"
+    """
+    continue_statement : CONTINUE
+    """
     p[0] = ast.Continue()

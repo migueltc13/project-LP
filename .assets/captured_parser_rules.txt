@@ -1,0 +1,170 @@
+file : program_units
+     | empty
+
+program_units : program_units program_unit
+              | program_unit
+
+program_unit : main_program
+             | subroutine
+             | function
+
+main_program : PROGRAM IDENTIFIER statements END
+
+subroutine : SUBROUTINE IDENTIFIER '(' arguments ')' enter_subroutine statements exit_subroutine END
+
+function : type FUNCTION IDENTIFIER '(' arguments ')' enter_function statements exit_function END
+
+type : INTEGER
+     | REAL
+     | DOUBLE
+     | LOGICAL
+     | CHARACTER
+
+arguments : arguments_rest
+          | empty
+
+arguments_rest : arguments_rest ',' argument
+               | argument
+
+argument : IDENTIFIER
+
+enter_subroutine :
+
+exit_subroutine :
+
+enter_function :
+
+exit_function :
+
+statements : statements statement
+           | empty
+
+statement : label_statement
+          | nonlabel_statement
+
+label_statement : LABEL nonlabel_statement
+
+nonlabel_statement : declaration
+                   | assignment
+                   | print_stmt
+                   | read_stmt
+                   | write_stmt
+                   | goto_statement
+                   | stop_statement
+                   | return_statement
+                   | call_statement
+                   | if_statement
+                   | do_statement
+                   | continue_statement
+
+declaration : type declarator_list
+
+declarator_list : declarator
+                | declarator_list ',' declarator
+
+declarator : IDENTIFIER
+           | IDENTIFIER '(' expression_list ')'
+
+assignment : variable '=' expression
+
+variable : IDENTIFIER
+         | IDENTIFIER '(' expression_list ')'
+
+goto_statement : GOTO INTEGER_NUMBER
+
+stop_statement : STOP
+
+return_statement : RETURN
+
+call_statement : CALL IDENTIFIER '(' argument_list_opt ')'
+               | CALL IDENTIFIER
+
+do_statement : DO INTEGER_NUMBER IDENTIFIER '=' expression ',' expression do_step_opt
+
+do_step_opt : ',' expression
+            | empty
+
+continue_statement : CONTINUE
+
+expression : logical_or
+
+logical_or : logical_or OR logical_and
+           | logical_and
+
+logical_and : logical_and AND relational
+            | relational
+
+relational : additive EQ additive
+           | additive NE additive
+           | additive LT additive
+           | additive LE additive
+           | additive GT additive
+           | additive GE additive
+           | additive
+
+additive : additive PLUS multiplicative
+         | additive MINUS multiplicative
+         | multiplicative
+
+multiplicative : multiplicative ASTERISK unary
+               | multiplicative DIVIDE unary
+               | unary
+
+unary : PLUS unary
+      | MINUS unary
+      | NOT unary
+      | power
+
+power : primary POWER power
+      | primary
+
+primary : '(' expression ')'
+
+primary : DOUBLE_NUMBER
+
+primary : REAL_NUMBER
+
+primary : INTEGER_NUMBER
+
+primary : STRING
+
+primary : TRUE
+        | FALSE
+
+primary : IDENTIFIER
+        | IDENTIFIER '(' argument_list_opt ')'
+
+primary : reserved_intrinsic_name '(' argument_list_opt ')'
+
+reserved_intrinsic_name : REAL
+
+if_statement : IF expression THEN statements if_statement_rest ENDIF
+
+if_statement_rest : ELSE statements
+                  | empty
+
+print_stmt : PRINT ASTERISK ',' expression_list
+           | PRINT expression_list
+
+read_stmt : READ ASTERISK ',' variable_list
+          | READ variable_list
+
+write_stmt : WRITE ASTERISK ',' expression_list
+           | WRITE expression_list
+
+variable_list : variable
+              | variable_list ',' variable
+
+expression_list : expression
+                | expression_list ',' expression
+
+expression_list : expression_list ',' expression
+                | expression
+
+argument_list_opt : argument_list
+                  | empty
+
+argument_list : expression
+              | argument_list ',' expression
+
+empty :

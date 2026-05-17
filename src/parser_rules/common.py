@@ -1,10 +1,3 @@
-import abstract_syntax_tree as ast
-
-def p_empty(p):
-    """empty :"""
-    p[0] = None
-
-
 def p_expression_list(p):
     """
     expression_list : expression_list ',' expression
@@ -35,3 +28,10 @@ def p_argument_list(p):
         p[0] = [p[1]]
     else:
         p[0] = p[1] + [p[3]]
+
+
+def p_empty(p):
+    """
+    empty :
+    """
+    p[0] = None
