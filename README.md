@@ -53,7 +53,6 @@ main optimization passes.
 - [Code Generation](#code-generation)
 - [Error Handling](#error-handling)
     - [Supported Diagnostics](#supported-diagnostics)
-- [Testing](#testing)
 - [Conclusions and Future Work](#conclusions-and-future-work)
 - [Resources](#resources)
     - [Tools](#tools)
@@ -65,15 +64,8 @@ main optimization passes.
     and EXP that uses Taylor series expansion (12 iterations) to calculate the
     value of e^x.
 
-- [x] TODO mention developed tests for each section
-- [x] replace `parser.py` with direct link [parser.py](src/parser.py) etc.
-
 - [ ] mention in the report how the parser checks for the special statement
     RETURN, and it only recognizes it in the right contexts (inside procedures)
-
-- [ ] mention that the parser prioritizes left recursion since its more
-    efficient for the LALR(1) (try to find a good reference for this,
-    I think it was in the PLY documentation)
 
 - [ ] mention in report that strict version was implemented instead of implicit
     typing rules
@@ -331,6 +323,12 @@ The syntax analysis phase is responsible for recognizing the grammatical
 structure of the preprocessed and tokenized Fortran 77 source code. It is
 implemented with **PLY Yacc**, using a set of grammar rules distributed across
 the main parser module and several smaller rule modules.
+
+Since PLY implements an LALR(1) parsing algorithm, our grammar prioritizes
+left recursion. In bottom-up parsers, left-recursive productions are generally
+preferred over right-recursive ones because reductions occur earlier, resulting
+in lower parser stack usage and a more natural representation of left-associative
+operators.
 
 The parser consumes the token stream produced by the lexer and constructs an
 **Abstract Syntax Tree (AST)**. Instead of executing semantic actions directly or
