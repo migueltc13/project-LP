@@ -709,9 +709,7 @@ Example source program:
 
 This optimization is applied to arithmetic, relational, logical, and unary
 expressions when all operands are compile-time constants. It also supports
-constant exponentiation for the power operator. Unsafe cases, such as division
-by zero, are not folded. Those are instead reported by the semantic numeric
-checks.
+constant exponentiation for the power operator.
 
 Function calls are deliberately not folded, even when their arguments are
 constant, because calls may represent user-defined procedures or operations with
