@@ -1,4 +1,4 @@
-      PROGRAM VECTOR_SIZE_2
+      PROGRAM VECTOR_STRIDE_2
       INTEGER I, SUM
       SUM = 0
 
@@ -7,7 +7,7 @@
           SUM = SUM + I
   100 CONTINUE
 
-* With vector size set to 2, becomes:
+* With vector size set to 4, becomes:
 *     DO 100 I = 1, 1, 8
 *         SUM = SUM + I
 *         SUM = SUM + I + 2

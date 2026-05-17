@@ -11,14 +11,14 @@
 <!-- node_0 -->
 <g id="node1" class="node">
 <title>node_0</title>
-<polygon fill="lightgray" stroke="black" points="1292,-324 797,-324 797,-288 1292,-288 1292,-324"/>
-<text text-anchor="middle" x="1044.5" y="-302.3" font-family="Courier,monospace" font-size="14.00">file: examples/optimizations/vectorization/vector_size_2.f</text>
+<polygon fill="lightgray" stroke="black" points="1300.5,-324 788.5,-324 788.5,-288 1300.5,-288 1300.5,-324"/>
+<text text-anchor="middle" x="1044.5" y="-302.3" font-family="Courier,monospace" font-size="14.00">file: examples/optimizations/vectorization/vector_stride_2.f</text>
 </g>
 <!-- node_1 -->
 <g id="node2" class="node">
 <title>node_1</title>
-<polygon fill="lightgray" stroke="black" points="1143.5,-252 945.5,-252 945.5,-216 1143.5,-216 1143.5,-252"/>
-<text text-anchor="middle" x="1044.5" y="-230.3" font-family="Courier,monospace" font-size="14.00">program: VECTOR_SIZE_2</text>
+<polygon fill="lightgray" stroke="black" points="1152,-252 937,-252 937,-216 1152,-216 1152,-252"/>
+<text text-anchor="middle" x="1044.5" y="-230.3" font-family="Courier,monospace" font-size="14.00">program: VECTOR_STRIDE_2</text>
 </g>
 <!-- node_0&#45;&gt;node_1 -->
 <g id="edge1" class="edge">
@@ -35,8 +35,8 @@
 <!-- node_1&#45;&gt;node_2 -->
 <g id="edge2" class="edge">
 <title>node_1&#45;&gt;node_2</title>
-<path fill="none" stroke="black" d="M945.35,-224.9C775.49,-211.03 431.73,-182.95 272.28,-169.92"/>
-<polygon fill="black" stroke="black" points="272.3,-166.41 262.05,-169.09 271.73,-173.39 272.3,-166.41"/>
+<path fill="none" stroke="black" d="M936.83,-224.21C764.17,-210.1 428.9,-182.72 272.13,-169.91"/>
+<polygon fill="black" stroke="black" points="272.32,-166.42 262.07,-169.09 271.75,-173.39 272.32,-166.42"/>
 </g>
 <!-- node_5 -->
 <g id="node6" class="node">
@@ -47,8 +47,8 @@
 <!-- node_1&#45;&gt;node_5 -->
 <g id="edge5" class="edge">
 <title>node_1&#45;&gt;node_5</title>
-<path fill="none" stroke="black" d="M945.25,-221.36C813.26,-205.89 585.62,-179.2 490.86,-168.08"/>
-<polygon fill="black" stroke="black" points="491.11,-164.59 480.77,-166.9 490.3,-171.54 491.11,-164.59"/>
+<path fill="none" stroke="black" d="M936.73,-220.36C803.66,-204.76 583.55,-178.95 490.82,-168.08"/>
+<polygon fill="black" stroke="black" points="491.01,-164.58 480.67,-166.89 490.2,-171.53 491.01,-164.58"/>
 </g>
 <!-- node_8 -->
 <g id="node9" class="node">
@@ -95,7 +95,7 @@
 <!-- node_1&#45;&gt;node_20 -->
 <g id="edge20" class="edge">
 <title>node_1&#45;&gt;node_20</title>
-<path fill="none" stroke="black" d="M1143.69,-221.84C1218.27,-212.71 1322.78,-198.32 1413.5,-180 1421.96,-178.29 1430.97,-176.15 1439.49,-173.97"/>
+<path fill="none" stroke="black" d="M1152.02,-220.82C1225.93,-211.65 1326.11,-197.64 1413.5,-180 1421.96,-178.29 1430.97,-176.15 1439.49,-173.97"/>
 <polygon fill="black" stroke="black" points="1440.44,-177.34 1449.22,-171.41 1438.66,-170.57 1440.44,-177.34"/>
 </g>
 <!-- node_3 -->
