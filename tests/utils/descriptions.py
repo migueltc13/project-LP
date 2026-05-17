@@ -59,6 +59,13 @@ DESCRIPTIONS = {
         "Tests multiple main program units defined in the same\n"
         "source file.",
 
+    "numbers.f":
+        "Tests various number-related errors, like:\n"
+        " - INTEGER value out of range;\n"
+        " - REAL value out of range;\n"
+        " - DOUBLE value out of range;\n"
+        " - Division by zero.\n",
+
     "return_outside.f":
         "Tests a RETURN statement outside of any function or \n"
         "subroutine context.",
@@ -114,10 +121,6 @@ DESCRIPTIONS = {
     "dynamic_array_in_procedure.f":
         "Tests if dynamic array dimensions are being used in\n"
         "procedures, since it's not supported yet.",
-
-    "intrinsic_function.f":
-        "Tests the use of intrinsic functions, since they're not\n"
-        "supported yet.",
 
     "no_program.f":
         "Tests a source file with no main program unit defined."

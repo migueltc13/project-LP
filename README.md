@@ -61,11 +61,11 @@ main optimization passes.
 
 ## TODO list
 
-- [ ] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
+- [x] Move examples/*.f and *.f90 to examples/general/ adapt Makefile
     and tests accordingly
 
 - [ ] Provide test description for the new `examples/errors/semantic/numbers.f`
-- [ ] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
+- [x] remove test `examples/errors/code_gen/intrinsic_function.f` we support them now
 - [ ] Added pass-by-reference tests at `examples/references/`
 - [ ] Added recursion tests at `examples/recursion/`
 
@@ -966,7 +966,7 @@ $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION cal
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure mismatched expected number of arguments                   | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{White}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | IF condition must be of type LOGICAL                                | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | Array dimension must be of type INTEGER                             | $\color{White}\textsf{✗}$
@@ -991,7 +991,6 @@ $\color{Red}\textsf{Error}$         | Code Gen     | Assignments  | Unsupported 
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Unsupported READ target                                             | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Code Gen     | Instructions | Only one-dimensional array READ is supported yet                    | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Code Gen     | Operators    | Unsupported arithmetic/relational/logical/unary operator            | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Intrinsic procedure is not supported by code generation yet         | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Code Gen     | Procedures   | Not a FUNCTION/SUBROUTINE                                           | $\color{White}\textsf{✗}$
 
 <!--

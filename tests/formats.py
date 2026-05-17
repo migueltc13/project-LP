@@ -44,7 +44,7 @@ def pretty_diff(f90_out: str, f_out: str, indent: int = 4):
 if __name__ == "__main__":
     # Sort files naturally by numeric prefix
     f90_files = sorted(
-        glob.glob("examples/*.f90"),
+        glob.glob("examples/general/*.f90"),
         key=lambda x: (
             int(os.path.basename(x).split("_")[0])
             if os.path.basename(x).split("_")[0].isdigit()
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     )
 
     if not f90_files:
-        print("No .f90 files found in examples/")
+        print("No .f90 files found in examples/general/")
         exit(1)
 
     # Build all valid pairs first
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         if base_name == "empty":
             continue
 
-        f_file = f"examples/{base_name}.f"
+        f_file = f"examples/general/{base_name}.f"
 
         if os.path.exists(f_file):
             file_pairs.append((f90_file, f_file))

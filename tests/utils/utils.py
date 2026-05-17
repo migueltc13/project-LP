@@ -43,13 +43,12 @@ def collect_example_files():
     main_examples = []
     line_continuation = []
 
-    main_examples.extend(glob.glob("examples/*.f"))
+    main_examples.extend(glob.glob("examples/general/*.f"))
 
     # Exclude unwanted test cases
     main_examples = [
         f for f in main_examples
-        if "errors/" not in f
-        and not os.path.basename(f).startswith("0_mismatched")
+        if not os.path.basename(f).startswith("0_mismatched")
         and os.path.basename(f) != "9_full_program.f"
         and os.path.basename(f) != "empty.f"
     ]
