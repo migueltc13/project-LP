@@ -494,7 +494,7 @@ The variable checking pass builds scope information for every program unit. Each
 `PROGRAM`, `SUBROUTINE`, and `FUNCTION` has its own scope containing the
 variables declared in that unit.
 
-This pass records:
+This stage records:
 
 - declared variables;
 - variable types;
@@ -510,7 +510,7 @@ rules, where variable names may imply types based on their first letter. The
 strict model was chosen because it makes the compiler easier to reason about and
 allows clearer diagnostics.
 
-The variable pass detects:
+The variable analysis stage detects:
 
 - duplicate variable declarations;
 - uses of undeclared variables;
@@ -538,7 +538,7 @@ analysis, the compiler can check whether `A` was declared as an array. If it was
 the ambiguous node is resolved into an `ArrayRef`. If the name instead refers to
 a known function, it is resolved into a `Call`.
 
-This pass replaces parser-level ambiguous nodes with more precise AST nodes.
+This step replaces parser-level ambiguous nodes with more precise AST nodes.
 This is important because later stages, such as type checking and code
 generation, should not need to deal with ambiguous references.
 
@@ -548,7 +548,7 @@ represented explicitly and can be handled independently.
 
 ### Numeric checks
 
-The numeric checking pass validates constant numeric expressions. This pass was
+The numeric checking pass validates constant numeric expressions. This stage was
 introduced separately from the type checker because numeric validity is not only
 a type compatibility issue; it also depends on the values of constant
 expressions.
@@ -581,7 +581,7 @@ definitions, verifies that procedure names are unique, and checks that procedure
 calls refer to known procedures. It also detects mismatches between how a
 procedure is defined and how it is used.
 
-This pass detects:
+This analysis stage detects:
 
 - duplicate procedure definitions;
 - calls to undefined procedures;
@@ -594,7 +594,7 @@ This pass detects:
 Intrinsic functions are treated as known procedures during semantic analysis,
 but they are not user-defined symbols. Therefore, redefining one of these names
 as a user procedure is rejected. Their arity is also checked semantically, for
-example ensuring that `SQRT` receives one argument, `MOD` receives two, and
+example, ensuring that `SQRT` receives one argument, `MOD` receives two, and
 `MAX`/`MIN` receive at least two.
 
 Because user-defined procedures are compiled with pass-by-reference semantics,
@@ -805,7 +805,7 @@ After constant folding, `(2 + 3)` becomes `5`. After expression simplification,
 
 <br>
 
-The pass is conservative around expressions that may contain function calls,
+The step is conservative around expressions that may contain function calls,
 because removing or duplicating such expressions could change program behavior
 if the function has side effects.
 
