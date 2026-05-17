@@ -1065,10 +1065,6 @@ variable during execution and, before returning, copies that value into the
 hidden result address. This keeps function return values recursion-safe without
 requiring a global return slot.
 
-For example, a recursive factorial function can safely call itself because each
-invocation has its own local variables, temporaries, argument references, and
-return destination.
-
 ### Intrinsic Functions
 
 The compiler supports a selected set of intrinsic functions:
