@@ -1117,6 +1117,31 @@ integer exponents. `SQRT` is implemented using Newton's method with a fixed
 number of iterations. `EXP` is approximated using a Taylor series expansion with
 a fixed number of terms.
 
+As an example, `EXP` is generated directly in EWVM using a truncated Taylor
+series expansion. The mathematical definition is:
+
+$$
+e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}
+$$
+
+The compiler approximates this infinite sum with a fixed number of terms:
+
+$$
+e^x \approx \sum_{n=0}^{12} \frac{x^n}{n!}
+$$
+
+This avoids depending on an external math library while still demonstrating how
+more complex intrinsic functions can be lowered into ordinary EWVM arithmetic,
+compiler temporaries, and loops.
+
+Similarly, `SQRT` is implemented using Newton's method, repeatedly applying:
+
+$$
+x_{k+1} = \frac{1}{2}\left(x_k + \frac{N}{x_k}\right)
+$$
+
+where `N` is the input value and `x_k` is the current approximation.
+
 Intrinsic implementations use compiler temporary slots rather than global
 temporary variables. This is important because intrinsic calls may appear inside
 recursive functions, and global temporaries would make recursive execution
@@ -1287,7 +1312,31 @@ that diagnostics still refer to the user's original source positions.
 
 ## Conclusions and Future Work
 
-**TODO**
+The final result goes beyond a minimal parser by implementing several aspects
+usually expected from a small compiler: precise diagnostics, scoped semantic
+analysis, AST transformations, procedure handling, recursion-safe code
+generation, and automated validation through tests. The most important design
+choice was to keep the compiler modular, allowing each phase to remain focused
+on a specific responsibility while still sharing a common AST and semantic
+metadata.
+
+The main limitations are well isolated and provide clear directions for future
+work:
+
+- support multidimensional arrays;
+- implement negative-step `DO` loops;
+- add runtime array bounds checks using EWVM `CHECK`;
+- improve compiler temporary allocation for deeply nested expressions instead
+  of relying on a fixed number of temporary slots per scope;
+- add constant folding for known intrinsic function calls;
+- improve mathematical precision for generated `SQRT` and `EXP`;
+- extend the supported Fortran 77 grammar with more statement forms and
+  standard-library features, (e.g. implicit typing, etc.);
+- combine some semantic passes for efficiency once the implementation is stable.
+
+Overall, the project demonstrates a complete and extensible compiler
+architecture. The remaining work is mostly incremental, focused on supporting a
+larger language subset and refining the generated code.
 
 ## Resources
 
