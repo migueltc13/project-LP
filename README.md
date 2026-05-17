@@ -1272,7 +1272,7 @@ work:
 - add constant folding for known intrinsic function calls;
 - extend the supported Fortran 77 grammar with more statement forms and
   standard-library features, (e.g. implicit typing, etc.);
-- combine some semantic passes for efficiency once the implementation is stable.
+- combine some semantic passes for efficiency.
 
 Overall, the project demonstrates a complete and extensible compiler
 architecture. The remaining work is mostly incremental, focused on supporting a
