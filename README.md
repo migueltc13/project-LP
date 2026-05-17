@@ -705,30 +705,31 @@ Example source program:
       END
 ```
 
-<div style="display: flex; gap: 2%; flex-wrap: wrap; justify-content: center; align-items: stretch;">
-    <figure style="width: 48%; margin: 0;">
-        <div style="height: 320px; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-sizing: border-box;">
-            <img
-                src=".assets/optimizations/constant_folding/png/arithmetic.png"
-                alt="Original AST"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;">
-        </div>
-        <figcaption style="text-align: center; margin-top: 0;">
-            Original AST
-        </figcaption>
-    </figure>
-    <figure style="width: 48%; margin: 0;">
-        <div style="height: 320px; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-sizing: border-box;">
-            <img
-                src=".assets/optimizations/constant_folding/png/arithmetic_optimized.png"
-                alt="Optimized AST"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;">
-        </div>
-        <figcaption style="text-align: center; margin-top: 0;">
-            Optimized AST
-        </figcaption>
-    </figure>
+<div align="center">
+    <kbd>
+    <img
+        src=".assets/optimizations/constant_folding/png/arithmetic.png"
+        alt="Original AST"
+        width="450">
+    <br>
+    <sub><strong>Original AST</strong></sub>
+    </kbd>
 </div>
+
+<br>
+
+<div align="center">
+    <kbd>
+    <img
+        src=".assets/optimizations/constant_folding/png/arithmetic_optimized.png"
+        alt="Optimized AST"
+        width="500">
+    <br>
+    <sub><strong>Optimized AST</strong></sub>
+    </kbd>
+</div>
+
+<br>
 
 This optimization is applied to arithmetic, relational, logical, and unary
 expressions when all operands are compile-time constants. It also supports
@@ -774,30 +775,31 @@ that still contain variables.
 After constant folding, `(2 + 3)` becomes `5`. After expression simplification,
 `5 * Y + 0` becomes `5 * Y`.
 
-<div style="display: flex; gap: 2%; flex-wrap: wrap; justify-content: center; align-items: stretch;">
-    <figure style="width: 49%; margin: 0;">
-        <div style="height: 280px; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-sizing: border-box;">
-            <img
-                src=".assets/optimizations/expression_simplification/png/arithmetic.png"
-                alt="Original AST"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;">
-        </div>
-        <figcaption style="text-align: center; margin-top: 0;">
-            Original AST
-        </figcaption>
-    </figure>
-    <figure style="width: 47%; margin: 0;">
-        <div style="height: 280px; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-sizing: border-box;">
-            <img
-                src=".assets/optimizations/expression_simplification/png/arithmetic_optimized.png"
-                alt="Optimized AST"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;">
-        </div>
-        <figcaption style="text-align: center; margin-top: 0;">
-            Optimized AST
-        </figcaption>
-    </figure>
+<div align="center">
+    <kbd>
+    <img
+        src=".assets/optimizations/expression_simplification/png/arithmetic.png"
+        alt="Original AST"
+        width="700">
+    <br>
+    <sub><strong>Original AST</strong></sub>
+    </kbd>
 </div>
+
+<br>
+
+<div align="center">
+    <kbd>
+    <img
+        src=".assets/optimizations/expression_simplification/png/arithmetic_optimized.png"
+        alt="Optimized AST"
+        width="680">
+    <br>
+    <sub><strong>Optimized AST</strong></sub>
+    </kbd>
+</div>
+
+<br>
 
 The pass is conservative around expressions that may contain function calls,
 because removing or duplicating such expressions could change program behavior
@@ -831,30 +833,31 @@ label `100` are unreachable:
       END
 ```
 
-<div style="display: flex; gap: 2%; flex-wrap: wrap; justify-content: center; align-items: stretch;">
-    <figure style="width: 64%; margin: 0;">
-        <div style="height: 240px; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-sizing: border-box;">
-            <img
-                src=".assets/optimizations/dead_code/png/goto.png"
-                alt="Original AST"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;">
-        </div>
-        <figcaption style="text-align: center; margin-top: 6px;">
-            Original AST
-        </figcaption>
-    </figure>
-    <figure style="width: 34%; margin: 0;">
-        <div style="height: 240px; display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-sizing: border-box;">
-            <img
-                src=".assets/optimizations/dead_code/png/goto_optimized.png"
-                alt="Optimized AST"
-                style="max-width: 100%; max-height: 100%; object-fit: contain;">
-        </div>
-        <figcaption style="text-align: center; margin-top: 6px;">
-            Optimized AST
-        </figcaption>
-    </figure>
+<div align="center">
+    <kbd>
+    <img
+        src=".assets/optimizations/dead_code/png/goto.png"
+        alt="Original AST"
+        width="720">
+    <br>
+    <sub><strong>Original AST</strong></sub>
+    </kbd>
 </div>
+
+<br>
+
+<div align="center">
+    <kbd>
+    <img
+        src=".assets/optimizations/dead_code/png/goto_optimized.png"
+        alt="Optimized AST"
+        width="380">
+    <br>
+    <sub><strong>Optimized AST</strong></sub>
+    </kbd>
+</div>
+
+<br>
 
 The pass also simplifies constant-condition branches. For example, if an `IF`
 condition is known to be true at compile time, the compiler keeps only the
