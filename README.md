@@ -936,7 +936,227 @@ Example file                                                                | AS
 
 ## Code Generation
 
+The final stage of the compiler translates the semantically validated AST into
+**EWVM assembly**. Code generation is performed after parsing, semantic analysis,
+and, optionally, optimization. At this point, the compiler has access not only to
+the AST, but also to semantic metadata such as variable scopes, expression types,
+procedure information, resolved references, and array declarations.
+
+The generator follows a direct AST-to-EWVM strategy. Each AST node is visited and
+translated into one or more EWVM instructions. Statement nodes generate control
+flow and side effects, while expression nodes leave their resulting value on the
+EWVM stack.
+
+The code generation stage is responsible for:
+
+- allocating global and local storage;
+- generating code for assignments, expressions, input/output, conditionals, and
+  loops;
+- translating scalar variables and one-dimensional arrays;
+- generating subroutine and function calls;
+- implementing pass-by-reference procedure arguments;
+- supporting recursive procedures through local stack frames;
+- generating code for supported intrinsic functions;
+- selecting integer or floating-point EWVM instructions based on semantic type
+  information.
+
+### Memory Layout
+
+The generator separates storage into two categories: **global slots** and
+**local slots**.
+
+Variables declared in the main `PROGRAM` are allocated in global memory. These
+are accessed through EWVM global instructions such as `PUSHG` and `STOREG`.
+
+Variables declared inside `SUBROUTINE`s and `FUNCTION`s are allocated in the
+procedure's local stack frame. These are accessed through frame-relative
+instructions such as `PUSHL` and `STOREL`. This distinction is essential for
+recursion: each procedure call receives its own local frame, so local variables
+from different recursive invocations do not overwrite each other.
+
+The generator also reserves a small number of compiler temporaries per scope.
+These temporary slots are used to store intermediate values when direct stack
+evaluation would be unsafe, for example when an expression contains a recursive
+function call or when an intrinsic function requires temporary storage. This
+approach keeps the code generator simple while still preserving recursion-safe
+execution.
+
+### Expressions
+
+Expressions are generated recursively. Literal nodes push their values directly
+onto the EWVM stack, variables load their current value, and compound
+expressions generate code for their operands followed by the corresponding EWVM
+operation.
+
+For arithmetic expressions, the generator uses the expression type information
+computed during semantic analysis to decide whether to emit integer or
+floating-point instructions. For example, integer addition uses `ADD`, while
+floating-point addition uses `FADD`.
+
+The same principle is used for relational and logical expressions. Relational
+operators emit comparison instructions such as `INF`, `INFEQ`, `SUP`, `SUPEQ`,
+or their floating-point equivalents. Logical expressions use boolean EWVM
+operations such as `AND`, `OR`, and `NOT`.
+
+Special care is taken when expressions contain user-defined function calls.
+Since EWVM procedure calls manipulate the runtime stack, the generator avoids
+leaving important intermediate values on the stack across a call. Instead, it
+stores function-call results or pending operands in compiler temporary slots and
+then restores the expected evaluation order. This is necessary for expressions
+such as recursive factorial computations, where a function call appears inside a
+larger arithmetic expression.
+
+### Statements and Control Flow
+
+Assignments generate code for the right-hand side expression and then store the
+result into the target variable or array position. If the assignment target is a
+formal procedure argument, the generator writes through the reference address
+received by the procedure.
+
+Conditional statements are compiled using labels and conditional jumps. The
+condition expression is generated first, leaving a boolean value on the stack.
+The generator then emits `JZ` instructions to branch to the `ELSE` or end label
+when the condition is false.
+
+Labelled `DO` loops are translated using explicit EWVM labels and jumps. The
+loop variable is initialized, compared against the upper bound, and incremented
+at the labelled `CONTINUE` statement. The current implementation supports
+positive integer loop steps.
+
+Input and output statements are also translated directly. `PRINT` and `WRITE`
+evaluate each item and then select the appropriate EWVM output instruction based
+on the expression type. `READ` reads a value, converts it to the target type,
+and stores it in a variable or array element.
+
+### Arrays
+
+The compiler supports one-dimensional arrays. Array variables store the base
+address of a heap-allocated block. During code generation, array declarations
+emit allocation instructions, and array accesses compute a zero-based offset
+from the Fortran-style one-based index.
+
+An array read loads the array base address, computes the index offset, and emits
+an indexed load. An array assignment similarly computes the target address and
+stores the generated value into the selected position.
+
+Array arguments are passed by reference. When an array is passed to a procedure,
+the callee receives the base address of the caller's array instead of receiving
+a copy. This allows procedures to modify arrays directly.
+
+The current implementation is limited to one-dimensional arrays.
+Multidimensional arrays are left as future work.
+
+### Procedures and Pass-by-Reference
+
+User-defined procedures are compiled as EWVM labelled blocks. Each `SUBROUTINE`
+or `FUNCTION` receives a generated label, and calls are emitted using `PUSHA`
+followed by `CALL`.
+
+Procedure arguments are passed by reference. Instead of copying argument values
+into the callee, the caller pushes the address of each actual argument onto the
+stack. The callee then accesses those addresses through negative frame offsets
+relative to the current frame pointer.
+
+This means a subroutine such as one that increments its argument can modify the
+caller variable directly. The same mechanism also supports passing array
+elements and complete arrays by reference.
+
+Because procedure arguments are references, semantic analysis requires
+user-defined procedure arguments to be addressable expressions, such as
+variables or array elements. Intrinsic functions are different: they are
+evaluated as ordinary expressions and may receive non-addressable expression
+arguments.
+
+### Recursive Procedures
+
+Recursion is supported by using EWVM local stack frames for procedure-local
+variables. Every time a function or subroutine is called, EWVM creates a new
+call frame. Local variables and compiler temporaries are allocated inside that
+frame, which prevents recursive calls from overwriting the state of previous
+invocations.
+
+Function calls use a hidden result address. The caller provides an address where
+the function should store its result. The callee assigns to its function-name
+variable during execution and, before returning, copies that value into the
+hidden result address. This keeps function return values recursion-safe without
+requiring a global return slot.
+
+For example, a recursive factorial function can safely call itself because each
+invocation has its own local variables, temporaries, argument references, and
+return destination.
+
+### Intrinsic Functions
+
+The compiler supports a selected set of intrinsic functions:
+
+`ABS`, `IABS`, `DABS`, `POW`, `SQRT`, `DSQRT`, `EXP`, `DEXP`, `INT`, `REAL`,
+`DBLE`, `FLOAT`, `MAX`, `MIN`, and `MOD`.
+
+These functions are recognized during semantic analysis and generated directly
+as EWVM code. Simple intrinsics, such as conversions and `MOD`, map directly to
+existing EWVM instructions. Other intrinsics are implemented with generated
+instruction sequences.
+
+The `ABS`, `MAX`, and `MIN` intrinsics use comparisons and conditional jumps.
+The `POW` intrinsic and the `**` operator are implemented through a loop for
+integer exponents. `SQRT` is implemented using Newton's method with a fixed
+number of iterations. `EXP` is approximated using a Taylor series expansion with
+a fixed number of terms.
+
+Intrinsic implementations use compiler temporary slots rather than global
+temporary variables. This is important because intrinsic calls may appear inside
+recursive functions, and global temporaries would make recursive execution
+unsafe.
+
+### Limitations
+
+The code generator supports the main constructs required by the implemented
+Fortran 77 subset, but some limitations remain:
+
+- only one-dimensional arrays are supported;
+- fixed-length `CHARACTER` arrays are not supported;
+- negative `DO` loop steps are not fully supported;
+- dynamic array dimensions inside procedures are not supported;
+- intrinsic functions are generated with simple implementations rather than
+  full mathematical library precision;
+- compiler temporary allocation uses a fixed number of temporary slots per
+  scope;
+- array bounds checks are not currently emitted.
+
+Despite these limitations, the generator supports the central features of the
+project: complete program translation to EWVM assembly, typed expression
+generation, arrays, procedure calls, pass-by-reference arguments, recursion,
+intrinsic functions, and optimized AST input.
+
 ## Error Handling
+
+The compiler includes a shared diagnostic system used by the preprocessor,
+lexer, parser, semantic analyser, and code generator. Instead of each stage
+printing errors independently, diagnostics are collected in a common format and
+reported consistently to the user.
+
+Each diagnostic may include:
+
+- the source filename;
+- the line and column where the issue was detected;
+- the original source line;
+- a highlighted span pointing to the problematic region;
+- a severity level, such as error or warning;
+- an optional hint explaining how the issue may be fixed.
+
+This design makes error reporting independent from the compiler stage that
+detected the problem. For example, a syntax error, an undeclared variable, and a
+type mismatch can all be displayed using the same user-facing format.
+
+The compiler attempts to continue after recoverable errors when possible. This
+allows multiple diagnostics to be reported in a single run instead of stopping
+after the first problem. However, later compilation stages are skipped when
+errors are present. For example, code generation is not attempted if lexical,
+syntax, or semantic errors were detected.
+
+Warnings are also supported. Unlike errors, warnings do not necessarily prevent
+compilation. They are used for issues such as unused labels, unused variables,
+or variables that may be used before being initialized.
 
 ### Supported Diagnostics
 
@@ -1007,9 +1227,41 @@ $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{✗}$
 -->
 
+### Diagnostic Example
+
+A typical diagnostic includes the error message, source location, highlighted
+source line, and an optional hint. For example, an invalid procedure call may be
+reported as:
+
+```
+error: unknown function 'SQRTT'
+  --> examples/test.f:3:5
+  |
+4 | 3 = SQRTT(9.0)
+  |     ^^^^^
+  = hint: perhaps you meant 'SQRT' or 'DSQRT''
+
+1 error(s)/warning(s) encountered.
+```
+
+This format was chosen to make compiler errors easier to understand and closer
+to the diagnostics produced by modern compilers. The highlighted span helps the
+user quickly identify the relevant part of the source program, while hints are
+used when the compiler can provide a likely correction.
+
+Some diagnostics require special handling because the source code is transformed
+before parsing. For instance, fixed-format labels are converted by the
+preprocessor into pseudo-tokens such as `@LABEL(...)`. When later stages report
+errors involving these labels, the compiler compensates for the inserted text so
+that diagnostics still refer to the user's original source positions.
+
 ## Testing
 
+**TODO**
+
 ## Conclusions and Future Work
+
+**TODO**
 
 ## Resources
 
