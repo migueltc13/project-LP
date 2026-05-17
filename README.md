@@ -65,8 +65,8 @@ main optimization passes.
     and EXP that uses Taylor series expansion (12 iterations) to calculate the
     value of e^x.
 
-- [ ] TODO mention developed tests for each section
-- [ ] replace `parser.py` with direct link [parser.py](src/parser.py) etc.
+- [x] TODO mention developed tests for each section
+- [x] replace `parser.py` with direct link [parser.py](src/parser.py) etc.
 
 - [ ] mention in the report how the parser checks for the special statement
     RETURN, and it only recognizes it in the right contexts (inside procedures)
@@ -234,7 +234,7 @@ This ambiguity makes explicit or extension-based format selection more
 predictable.
 
 The preprocessing stage is additionally validated through the automated test
-[tests/formats.py](tests/formats.py), it compares the outputted lexed tokens for
+[formats.py](tests/formats.py), it compares the outputted lexed tokens for
 equivalent fixed-format (`.f`) and free-format (`.f90`) source files. When
 running the lexer, the `--test` flag is used to remove the column field from
 the lexed tokens, since positions naturally differ between the two formats.
@@ -319,10 +319,11 @@ After reporting, the lexer skips the invalid input and continues analysis,
 allowing multiple errors to be detected in a single compilation run.
 
 The lexical analysis stage is additionally validated through an automated test
-[tests/lexer.py](tests/lexer.py). This test executes the lexer over all example
+[lexer.py](tests/lexer.py). This test executes the lexer over all example
 source files in test mode, verifying that valid programs are tokenized
-successfully and that lexical errors are correctly reported when invalid input
-is encountered.
+successfully. The automated test [errors.py](tests/errors.py) also includes
+several cases that trigger lexical errors, which are stored in
+[examples/errors/lexical/](examples/errors/lexical/).
 
 ## Syntax Analysis
 
@@ -346,16 +347,18 @@ source text or token stream.
 
 To keep the grammar maintainable, the parser rules were split by language
 feature. The main parser module defines the start symbol, program unit grammar,
-parser state, and command-line flow, while the `parser_rules/` package groups
-related productions into smaller files:
+parser state, and command-line flow, while the [parser_rules](src/parser_rules/)
+package groups related productions into smaller files:
 
-- `statements.py`: declarations, assignments, labels, loops, jumps, procedure
-calls, and control statements;
-- `conditionals.py`: structured conditional statements;
-- `expressions.py`: literals, variables, calls, arithmetic, relational, and
-  logical expressions;
-- `io.py`: `READ`, `WRITE`, and `PRINT` statements;
-- `common.py`: shared grammar helpers, such as optional and repeated lists.
+- [statements.py](src/parser_rules/statements.py): declarations, assignments,
+labels, loops, jumps, procedure calls, and control statements;
+- [conditionals.py](src/parser_rules/conditionals.py): structured conditional
+statements;
+- [expressions.py](src/parser_rules/expressions.py): literals, variables, calls,
+arithmetic, relational, and logical expressions;
+- [io.py](src/parser_rules/io.py): `READ`, `WRITE`, and `PRINT` statements;
+- [common.py](src/parser_rules/common.py): shared grammar helpers, such as
+optional and repeated lists.
 
 The parser recognizes complete files as a sequence of program units. A file may
 contain one main `PROGRAM` unit and several procedure units, namely
@@ -401,6 +404,13 @@ pretty-printer, which displays the tree in a readable textual form, and a
 Graphviz-based visualization mode, which generates a graphical representation of
 the parsed program. These tools were useful during development and debugging,
 especially when validating grammar rules and later optimization passes.
+
+The automated test [errors.py](tests/errors.py) includes several cases that
+trigger syntax errors, which are stored in
+[examples/errors/syntax/](examples/errors/syntax/). The syntax analysis stage
+is validated through the test [parser.py](tests/parser.py), which verifies that
+valid example source files are parsed successfully and that the resulting AST
+matches expected structures.
 
 ## Semantic Analysis
 
@@ -631,6 +641,19 @@ stored as metadata for code generation, allowing the generator to choose the
 correct EWVM instructions for integer operations, floating-point operations,
 logical operations, conversions, reads, writes, and intrinsic functions.
 
+The semantic analysis stage can be validated, as well, through the automated test
+[parser.py](tests/parser.py), which verifies that valid example source
+files are parsed successfully and that the resulting AST matches expected
+structures.
+
+The automated test [errors.py](tests/errors.py) also includes several cases that
+trigger semantic errors, which are stored in
+[examples/errors/semantic/](examples/errors/semantic/).
+
+It is also possible to run all aforementioned automated tests, from preprocessing
+to parsing, with the script [run-all.sh](tests/run-all.sh). This script executes
+all tests in one run for a more quick and seamless testing experience.
+
 
 ## Optimizations
 
@@ -658,6 +681,9 @@ optimization, such as expression types, variable usage information, and resolved
 references, may no longer match the transformed tree. Rebuilding semantic
 information ensures that code generation receives a consistent AST and matching
 semantic metadata.
+
+Example source files demonstrating the optimizations can be found in
+[examples/optimizations/](examples/optimizations/).
 
 ### Constant Folding
 
@@ -933,6 +959,16 @@ The code generation stage is responsible for:
 - generating code for supported intrinsic functions;
 - selecting integer or floating-point EWVM instructions based on semantic type
   information.
+
+Example source files used for testing code generation can be found in
+[examples/](examples/), with additional files for recursive procedures in
+[examples/recursion/](examples/recursion/), intrinsic functions in
+[examples/intrinsics/](examples/intrinsics/), and pass-by-reference procedure
+arguments in [examples/reference/](examples/reference/).
+
+For the automated test [errors.py](tests/errors.py), some examples of code
+generation errors were developed, which are stored in
+[examples/errors/code_gen/](examples/errors/code_gen/).
 
 ### Memory Layout
 
