@@ -963,7 +963,7 @@ $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | FUNCTION cal
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | SUBROUTINE called as a FUNCTION                                     | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | Procedure mismatched expected number of arguments                   | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Procedures   | RETURN statement outside procedure                                  | $\color{White}\textsf{✗}$
-$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{White}\textsf{✓}$
+$\color{Red}\textsf{Error}$         | Semantic     | Numeric      | Division by zero                                                    | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Numeric      | INTEGER/REAL/DOUBLE value out of range                              | $\color{Green}\textsf{✓}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | IF condition must be of type LOGICAL                                | $\color{White}\textsf{✗}$
 $\color{Red}\textsf{Error}$         | Semantic     | Types        | Array dimension must be of type INTEGER                             | $\color{White}\textsf{✗}$
