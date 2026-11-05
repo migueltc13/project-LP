@@ -57,6 +57,7 @@ main optimization passes.
 - [Resources](#resources)
     - [Tools](#tools)
     - [Fortran 77 References](#fortran-77-references)
+- [Authors](#authors)
 
 ## Usage
 
@@ -1294,5 +1295,18 @@ larger language subset and refining the generated code.
 - [Fortran 77 Reference Language, Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/)
 - [Fortran 77 Standard Fixed Format, Oracle](https://docs.oracle.com/cd/E19957-01/805-4939/z40007331fe6/index.html)
 - [Fortran 77, Wikipedia](https://en.wikipedia.org/wiki/Fortran_77)
+
+## Authors
+
+This **Fortran 77 compiler** was developed by the following team of students:
+
+- [Flávia Araújo](https://github.com/flaviaraujo)
+- [Miguel Carvalho](https://github.com/migueltc13)
+
+<a href="https://github.com/migueltc13/project-LP/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=migueltc13/project-LP" />
+</a>
+
+#### Final Grade: 20
 
 <a href="https://www.youtube.com/watch?v=4XF_Agllu7Q" target="_blank">🥚</a>
